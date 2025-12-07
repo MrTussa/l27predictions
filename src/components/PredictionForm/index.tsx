@@ -4,19 +4,19 @@ import { Button } from '@/components/ui/button'
 import { Driver, Prediction, Race, User } from '@/payload-types'
 import { useState } from 'react'
 
+import type { CollisionDetection } from '@dnd-kit/core'
 import {
   closestCenter,
   DndContext,
   DragEndEvent,
   DragOverlay,
   DragStartEvent,
-  pointerWithin,
   PointerSensor,
+  pointerWithin,
   useSensor,
   useSensors,
 } from '@dnd-kit/core'
-import type { CollisionDetection } from '@dnd-kit/core'
-import { SortableContext, rectSortingStrategy } from '@dnd-kit/sortable'
+import { rectSortingStrategy, SortableContext } from '@dnd-kit/sortable'
 import { useRouter } from 'next/navigation'
 import { toast } from 'sonner'
 import { DriverCard } from './DriverCard'
@@ -165,13 +165,14 @@ export const PredictionForm: React.FC<Props> = ({
 
       const method = existingPrediction ? 'PATCH' : 'POST'
       const url = existingPrediction
-        ? `${process.env.NEXT_PUBLIC_SERVER_URL}/api/predictions/${existingPrediction.id}`
-        : `${process.env.NEXT_PUBLIC_SERVER_URL}/api/predictions`
+        ? `/api/predictions/${existingPrediction.id}`
+        : `/api/predictions`
 
       const response = await fetch(url, {
         method,
         headers: {
           'Content-Type': 'application/json',
+          'X-Payload-HTTP-Method-Override': 'GET',
         },
         credentials: 'include',
         body: JSON.stringify({

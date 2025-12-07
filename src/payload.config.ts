@@ -16,10 +16,13 @@ import path from 'path'
 import { buildConfig } from 'payload'
 import { fileURLToPath } from 'url'
 
+import { createPrediction } from '@/api/predictions/createPrediction'
+import { updatePrediction } from '@/api/predictions/updatePrediction'
 import { Drivers } from '@/collections/Drivers'
 import { Media } from '@/collections/Media'
 import { Predictions } from '@/collections/Predictions'
 import { Races } from '@/collections/Races'
+import { SeasonStats } from '@/collections/SeasonStats'
 import { Users } from '@/collections/Users'
 import { Footer } from '@/globals/Footer'
 import { Header } from '@/globals/Header'
@@ -33,7 +36,7 @@ export default buildConfig({
     components: {},
     user: Users.slug,
   },
-  collections: [Users, Drivers, Races, Predictions, Media],
+  collections: [Users, Drivers, Races, Predictions, SeasonStats, Media],
   db: mongooseAdapter({
     url: process.env.DATABASE_URI || '',
   }),
@@ -52,7 +55,18 @@ export default buildConfig({
     },
   }),
   //email: nodemailerAdapter(),
-  endpoints: [],
+  endpoints: [
+    {
+      path: '/predictions',
+      method: 'post',
+      handler: createPrediction,
+    },
+    {
+      path: '/predictions/:id',
+      method: 'patch',
+      handler: updatePrediction,
+    },
+  ],
   globals: [Header, Footer],
   plugins: [
     ...plugins,

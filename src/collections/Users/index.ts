@@ -75,26 +75,6 @@ export const Users: CollectionConfig = {
       },
     },
     {
-      name: 'totalPredictions',
-      type: 'number',
-      defaultValue: 0,
-      label: 'Всего прогнозов',
-      admin: {
-        description: 'Автоматически обновляется при создании прогнозов',
-        readOnly: true,
-      },
-    },
-    {
-      name: 'currentStreak',
-      type: 'number',
-      defaultValue: 0,
-      label: 'Текущий стрик',
-      admin: {
-        description: 'Количество гонок подряд с прогнозами (обновляется автоматически)',
-        readOnly: true,
-      },
-    },
-    {
       name: 'name',
       type: 'text',
       label: 'Полное имя (опционально)',

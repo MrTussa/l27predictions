@@ -1,67 +1,83 @@
-import type { Metadata } from 'next'
-import configPromise from '@payload-config'
-import { getPayload } from 'payload'
 import { LeaderboardTable } from '@/components/LeaderboardTable'
+import { PointsEvolutionChart } from '@/components/PointsEvolutionChart'
+import { Card } from '@/components/ui/card'
+import configPromise from '@payload-config'
+import type { Metadata } from 'next'
+import { getPayload } from 'payload'
 
 export default async function LeaderboardPage() {
   const payload = await getPayload({ config: configPromise })
 
   const currentYear = new Date().getFullYear()
 
-  // Получаем всех пользователей
-  const { docs: users } = await payload.find({
-    collection: 'users',
-    limit: 1000,
-  })
-
-  // Получаем все прогнозы текущего сезона
-  const { docs: predictions } = await payload.find({
-    collection: 'predictions',
-    limit: 10000,
+  const { docs: seasonStats } = await payload.find({
+    collection: 'season-stats',
     where: {
-      race: {
-        exists: true,
+      season: {
+        equals: currentYear,
       },
     },
-    depth: 2,
+    limit: 1000,
+    sort: '-totalPoints', // Cортировка по убыванию очков
+    depth: 1,
   })
 
-  // Фильтруем прогнозы только текущего сезона
-  const currentSeasonPredictions = predictions.filter((pred) => {
-    const race = typeof pred.race === 'object' ? pred.race : null
-    return race && race.season === currentYear
+  const leaderboardData = seasonStats.map((stat) => {
+    const user = typeof stat.user === 'object' ? stat.user : null
+
+    return {
+      id: user?.id || '',
+      nickname: user?.nickname || user?.email || 'Unknown',
+      chartColor: user?.chartColor || '#FFDF2C',
+      totalPoints: stat.totalPoints,
+      totalPredictions: stat.predictionsCount,
+      perfectPredictions: stat.perfectPredictions,
+      averagePoints: stat.predictionsCount > 0 ? stat.totalPoints / stat.predictionsCount : 0,
+      currentStreak: stat.currentStreak,
+      bestStreak: stat.bestStreak,
+    }
   })
 
-  // Подсчитываем статистику для каждого пользователя
-  const leaderboardData = users
-    .map((user) => {
-      const userPredictions = currentSeasonPredictions.filter((pred) => {
-        const predUser = typeof pred.user === 'object' ? pred.user : null
-        return predUser && predUser.id === user.id
-      })
+  const top10Stats = seasonStats.slice(0, 10)
 
-      const totalPoints = userPredictions.reduce((sum, pred) => sum + (pred.points || 0), 0)
-      const totalPredictions = userPredictions.length
+  const { docs: completedRaces } = await payload.find({
+    collection: 'races',
+    where: {
+      and: [
+        {
+          season: {
+            equals: currentYear,
+          },
+        },
+        {
+          status: {
+            equals: 'completed',
+          },
+        },
+      ],
+    },
+    sort: 'round',
+    limit: 100,
+  })
 
-      // Считаем идеальные прогнозы (15 баллов)
-      const perfectPredictions = userPredictions.filter((pred) => pred.points === 15).length
+  // Данные для графика
+  const usersProgress = top10Stats.map((stat) => {
+    const user = typeof stat.user === 'object' ? stat.user : null
 
-      return {
-        id: user.id,
-        nickname: user.nickname || user.email,
-        chartColor: user.chartColor || '#FFDF2C',
-        totalPoints,
-        totalPredictions,
-        perfectPredictions,
-        averagePoints: totalPredictions > 0 ? totalPoints / totalPredictions : 0,
-      }
-    })
-    .filter((data) => data.totalPredictions > 0) // Показываем только тех, кто сделал хотя бы 1 прогноз
-    .sort((a, b) => b.totalPoints - a.totalPoints) // Сортируем по убыванию баллов
+    const cumulativePoints = stat.raceHistory?.map((history) => history.cumulativePoints) || []
+
+    return {
+      userId: user?.id || '',
+      nickname: user?.nickname || user?.email || 'Unknown',
+      chartColor: user?.chartColor || '#FFDF2C',
+      pointsByRace: {},
+      cumulativePoints,
+    }
+  })
 
   return (
     <div className="container py-16">
-      <div className="max-w-6xl mx-auto">
+      <div className="max-w-7xl mx-auto">
         <div className="mb-12 relative">
           <div className="inline-block relative">
             <h1 className="text-5xl font-bold mb-2 tracking-tight text-accent uppercase">
@@ -87,7 +103,20 @@ export default async function LeaderboardPage() {
             </p>
           </div>
         ) : (
-          <LeaderboardTable data={leaderboardData} />
+          <div className="space-y-8">
+            {/* График эволюции очков */}
+            {completedRaces.length > 0 && usersProgress.length > 0 && (
+              <Card variant="default" corners="cut-corner" className="p-6">
+                <h2 className="text-2xl font-bold mb-6 text-accent uppercase tracking-tight">
+                  Эволюция очков • Топ-10
+                </h2>
+                <PointsEvolutionChart races={completedRaces} usersProgress={usersProgress} />
+              </Card>
+            )}
+
+            {/* Таблица лидеров */}
+            <LeaderboardTable data={leaderboardData} />
+          </div>
         )}
       </div>
     </div>

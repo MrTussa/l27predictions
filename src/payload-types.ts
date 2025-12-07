@@ -71,6 +71,7 @@ export interface Config {
     drivers: Driver;
     races: Race;
     predictions: Prediction;
+    'season-stats': SeasonStat;
     media: Media;
     forms: Form;
     'form-submissions': FormSubmission;
@@ -85,6 +86,7 @@ export interface Config {
     drivers: DriversSelect<false> | DriversSelect<true>;
     races: RacesSelect<false> | RacesSelect<true>;
     predictions: PredictionsSelect<false> | PredictionsSelect<true>;
+    'season-stats': SeasonStatsSelect<false> | SeasonStatsSelect<true>;
     media: MediaSelect<false> | MediaSelect<true>;
     forms: FormsSelect<false> | FormsSelect<true>;
     'form-submissions': FormSubmissionsSelect<false> | FormSubmissionsSelect<true>;
@@ -149,14 +151,6 @@ export interface User {
    * HEX цвет для отображения в таблице лидеров и графиках
    */
   chartColor: string;
-  /**
-   * Автоматически обновляется при создании прогнозов
-   */
-  totalPredictions?: number | null;
-  /**
-   * Количество гонок подряд с прогнозами (обновляется автоматически)
-   */
-  currentStreak?: number | null;
   name?: string | null;
   roles?: ('admin' | 'user')[] | null;
   updatedAt: string;
@@ -296,6 +290,58 @@ export interface Prediction {
    */
   points?: number | null;
   submittedAt?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * Кешированная статистика пользователей по сезонам
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "season-stats".
+ */
+export interface SeasonStat {
+  id: string;
+  user: string | User;
+  /**
+   * Год сезона (например, 2025)
+   */
+  season: number;
+  /**
+   * Сумма всех очков за сезон
+   */
+  totalPoints: number;
+  predictionsCount: number;
+  /**
+   * Количество прогнозов где все 3 позиции угаданы точно
+   */
+  perfectPredictions: number;
+  /**
+   * Количество гонок подряд с прогнозами
+   */
+  currentStreak: number;
+  /**
+   * Максимальный стрик за сезон
+   */
+  bestStreak: number;
+  /**
+   * Данные для графиков эволюции очков
+   */
+  raceHistory?:
+    | {
+        race: string | Race;
+        points: number;
+        /**
+         * Сумма очков с начала сезона до этой гонки включительно
+         */
+        cumulativePoints: number;
+        /**
+         * Место пользователя в этой гонке (опционально)
+         */
+        rank?: number | null;
+        id?: string | null;
+      }[]
+    | null;
+  lastCalculated?: string | null;
   updatedAt: string;
   createdAt: string;
 }
@@ -531,6 +577,10 @@ export interface PayloadLockedDocument {
         value: string | Prediction;
       } | null)
     | ({
+        relationTo: 'season-stats';
+        value: string | SeasonStat;
+      } | null)
+    | ({
         relationTo: 'media';
         value: string | Media;
       } | null)
@@ -592,8 +642,6 @@ export interface UsersSelect<T extends boolean = true> {
   nickname?: T;
   telegramUsername?: T;
   chartColor?: T;
-  totalPredictions?: T;
-  currentStreak?: T;
   name?: T;
   roles?: T;
   updatedAt?: T;
@@ -670,6 +718,31 @@ export interface PredictionsSelect<T extends boolean = true> {
       };
   points?: T;
   submittedAt?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "season-stats_select".
+ */
+export interface SeasonStatsSelect<T extends boolean = true> {
+  user?: T;
+  season?: T;
+  totalPoints?: T;
+  predictionsCount?: T;
+  perfectPredictions?: T;
+  currentStreak?: T;
+  bestStreak?: T;
+  raceHistory?:
+    | T
+    | {
+        race?: T;
+        points?: T;
+        cumulativePoints?: T;
+        rank?: T;
+        id?: T;
+      };
+  lastCalculated?: T;
   updatedAt?: T;
   createdAt?: T;
 }

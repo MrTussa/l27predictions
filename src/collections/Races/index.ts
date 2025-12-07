@@ -2,6 +2,7 @@ import type { CollectionConfig } from 'payload'
 
 import { adminOnly } from '@/access/adminOnly'
 import { publicAccess } from '@/access/publicAccess'
+import { updateSeasonStatsOnResults } from './hooks/updateSeasonStatsOnResults'
 
 export const Races: CollectionConfig = {
   slug: 'races',
@@ -170,6 +171,7 @@ export const Races: CollectionConfig = {
     },
   ],
   hooks: {
+    afterChange: [updateSeasonStatsOnResults],
     beforeValidate: [
       ({ data }) => {
         // Валидация: дата закрытия прогнозов должна быть раньше даты гонки

@@ -2,7 +2,6 @@ import type { CollectionConfig } from 'payload'
 
 import { adminOnly } from '@/access/adminOnly'
 import { adminOrSelf } from '@/access/adminOrSelf'
-import { updateUserStats } from './hooks/updateUserStats'
 
 export const Predictions: CollectionConfig = {
   slug: 'predictions',
@@ -177,38 +176,6 @@ export const Predictions: CollectionConfig = {
         }
 
         return data
-      },
-    ],
-    afterChange: [
-      updateUserStats,
-      async ({ doc, req }) => {
-        // Пересчитываем баллы, если у гонки есть результаты
-        if (doc.race) {
-          const raceId = typeof doc.race === 'object' ? doc.race.id : doc.race
-          const race = await req.payload.findByID({
-            collection: 'races',
-            id: raceId,
-          })
-
-          if (race?.results && race.results.length > 0) {
-            // Импортируем функцию расчета баллов
-            const { calculatePoints } = await import('@/utilities/calculatePoints')
-            const points = calculatePoints(doc.predictions, race.results)
-
-            // Обновляем баллы, если они изменились
-            if (points !== doc.points) {
-              await req.payload.update({
-                collection: 'predictions',
-                id: doc.id,
-                data: {
-                  points,
-                },
-              })
-            }
-          }
-        }
-
-        return doc
       },
     ],
   },
