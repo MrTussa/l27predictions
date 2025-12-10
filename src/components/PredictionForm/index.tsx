@@ -63,19 +63,14 @@ export const PredictionForm: React.FC<Props> = ({
     }),
   )
 
-  // Кастомная collision detection
   const collisionDetectionStrategy: CollisionDetection = (args) => {
-    // Сначала ищем через pointerWithin (работает для droppable)
     const pointerCollisions = pointerWithin(args)
     if (pointerCollisions.length > 0) {
       return pointerCollisions
     }
-
-    // Потом через closestCenter (работает для sortable)
     return closestCenter(args)
   }
 
-  // Получаем доступных пилотов (не на подиуме)
   const availableDrivers = drivers.filter((d) => !podium.includes(d.id))
 
   const getPodiumDriver = (position: 0 | 1 | 2): Driver | null => {
@@ -97,43 +92,33 @@ export const PredictionForm: React.FC<Props> = ({
     const activeId = active.id as string
     const overId = over.id as string
 
-    // Если перетаскиваем на самого себя - ничего не делаем
     if (activeId === overId) return
 
     const newPodium = [...podium]
 
-    // Находим откуда перетаскиваем (из подиума или из доступных)
     const fromPodiumIndex = podium.indexOf(activeId)
     const isFromPodium = fromPodiumIndex !== -1
 
-    // Определяем куда перетаскиваем
     if (overId.startsWith('podium-')) {
-      // Перетаскиваем на пустой слот подиума
       const targetPosition = parseInt(overId.split('-')[1]) - 1 // 0, 1, or 2
 
       if (isFromPodium) {
-        // Перемещение внутри подиума - просто перемещаем
         newPodium[fromPodiumIndex] = null
         newPodium[targetPosition] = activeId
       } else {
-        // Добавление из доступных пилотов в пустой слот
         newPodium[targetPosition] = activeId
       }
 
       setPodium(newPodium)
     } else {
-      // Перетаскиваем на карточку пилота (swap или replace)
       const toPodiumIndex = podium.indexOf(overId)
 
       if (toPodiumIndex !== -1) {
-        // Целевая позиция - это пилот на подиуме
         if (isFromPodium) {
-          // Swap между двумя пилотами на подиуме
           const temp = newPodium[toPodiumIndex]
           newPodium[toPodiumIndex] = newPodium[fromPodiumIndex]
           newPodium[fromPodiumIndex] = temp
         } else {
-          // Замена пилота на подиуме на пилота из доступных
           newPodium[toPodiumIndex] = activeId
         }
 
@@ -168,11 +153,11 @@ export const PredictionForm: React.FC<Props> = ({
         ? `/api/predictions/${existingPrediction.id}`
         : `/api/predictions`
 
+      
       const response = await fetch(url, {
         method,
         headers: {
           'Content-Type': 'application/json',
-          'X-Payload-HTTP-Method-Override': 'GET',
         },
         credentials: 'include',
         body: JSON.stringify({

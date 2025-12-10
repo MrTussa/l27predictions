@@ -1,7 +1,7 @@
 import { CurrentRaceCard } from '@/components/HomePage/CurrentRaceCard'
 import { PreviousRaceCard } from '@/components/HomePage/PreviousRaceCard'
 import { UserInfoCard } from '@/components/HomePage/UserInfoCard'
-import type { User } from '@/payload-types'
+import type { SeasonStat, User } from '@/payload-types'
 import { getServerSideUser } from '@/utilities/getServerSideUser'
 import configPromise from '@payload-config'
 import type { Metadata } from 'next'
@@ -12,7 +12,6 @@ export default async function HomePage() {
   const currentYear = new Date().getFullYear()
   const now = new Date()
 
-  // Получаем текущего пользователя
   const { user: currentUser } = await getServerSideUser()
 
   // Получаем все гонки
@@ -26,34 +25,50 @@ export default async function HomePage() {
     sort: 'round',
   })
 
-  // Находим открытую гонку
+  // Открытые гонки
   const openRace = races.find((race) => {
     const openDate = new Date(race.predictionOpenDate)
     const closeDate = new Date(race.predictionCloseDate)
     return openDate <= now && now < closeDate
   })
 
-  // Находим предыдущую завершенную гонку
   const completedRaces = races.filter((race) => {
     const raceDate = new Date(race.raceDate)
     return raceDate < now && race.results && race.results.length > 0
   })
   const previousRace = completedRaces[completedRaces.length - 1]
 
-  // Получаем все прогнозы
   const { docs: allPredictions } = await payload.find({
     collection: 'predictions',
     limit: 10000,
     depth: 2,
   })
 
-  // Получаем всех пользователей
-  const { docs: users } = await payload.find({
-    collection: 'users',
-    limit: 1000,
-  })
+  let userSeasonStats: SeasonStat | null = null
+  let userRank: number | null = null
+  let totalUsersInLeaderboard = 0
+  if (currentUser) {
+    const { docs: stats } = await payload.find({
+      collection: 'season-stats',
+      where: {
+        and: [{ user: { equals: currentUser.id } }, { season: { equals: currentYear } }],
+      },
+      limit: 1,
+    })
+    userSeasonStats = stats[0] || null
 
-  // Подсчет количества проголосовавших для открытой гонки
+    const { docs: allStats } = await payload.find({
+      collection: 'season-stats',
+      where: { season: { equals: currentYear } },
+      sort: '-totalPoints',
+    })
+    totalUsersInLeaderboard = allStats.length
+
+    if (userSeasonStats && userSeasonStats.id) {
+      userRank = allStats.findIndex((s) => s.id === userSeasonStats!.id) + 1
+    }
+  }
+
   let votedCount = 0
   if (openRace) {
     votedCount = allPredictions.filter((pred) => {
@@ -62,7 +77,6 @@ export default async function HomePage() {
     }).length
   }
 
-  // Топ 3 гонщика и топ 3 предсказателя для предыдущей гонки
   let previousRaceData = null
   if (previousRace) {
     const topDrivers =
@@ -89,28 +103,26 @@ export default async function HomePage() {
   }
 
   return (
-    <div className="p-16">
+    <div className="p-16 min-h-[calc(100vw-100px)]">
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
-        {/* Карточка 1: Информация о пользователе - 25% (1 колонка из 4) */}
-        {currentUser && (
-          <div className="lg:col-span-1">
-            <UserInfoCard
-              user={currentUser}
-              allUsers={users}
-              allPredictions={allPredictions}
-              currentYear={currentYear}
-            />
-          </div>
-        )}
+        {/* Пользователь */}
+        <div className="lg:col-span-1">
+          <UserInfoCard
+            user={currentUser}
+            seasonStats={userSeasonStats}
+            userRank={userRank}
+            totalUsers={totalUsersInLeaderboard}
+          />
+        </div>
 
-        {/* Карточка 2: Грядущая гонка - 50% (2 колонки из 4) */}
+        {/* Грядущая гонка */}
         {openRace && (
           <div className="lg:col-span-2">
             <CurrentRaceCard race={openRace} votedCount={votedCount} />
           </div>
         )}
 
-        {/* Карточка 3: Прошлая гонка - 25% (1 колонка из 4) */}
+        {/* Прошлая гонка */}
 
         {previousRace && previousRaceData && (
           <div className="lg:col-span-1">
