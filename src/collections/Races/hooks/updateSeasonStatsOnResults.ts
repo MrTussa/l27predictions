@@ -13,7 +13,6 @@ export const updateSeasonStatsOnResults: CollectionAfterChangeHook = async ({
   // Если результаты изменены
   const resultsChanged =
     operation === 'update' && JSON.stringify(doc.results) !== JSON.stringify(previousDoc?.results)
-
   if ((operation === 'create' && doc.results?.length > 0) || resultsChanged) {
     try {
       // Все пользователи с прогнозом

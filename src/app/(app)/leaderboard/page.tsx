@@ -39,7 +39,6 @@ export default async function LeaderboardPage() {
   })
 
   const top10Stats = seasonStats.slice(0, 10)
-
   const { docs: completedRaces } = await payload.find({
     collection: 'races',
     where: {
@@ -64,13 +63,28 @@ export default async function LeaderboardPage() {
   const usersProgress = top10Stats.map((stat) => {
     const user = typeof stat.user === 'object' ? stat.user : null
 
-    const cumulativePoints = stat.raceHistory?.map((history) => history.cumulativePoints) || []
+    const historyMap = new Map(
+      stat.raceHistory?.map((history) => {
+        const raceId = typeof history.race === 'object' ? history.race.id : history.race
+        return [raceId, history]
+      }) || [],
+    )
+
+    const pointsByRace = completedRaces.map((race) => {
+      const history = historyMap.get(race.id)
+      return history?.points || 0
+    })
+
+    const cumulativePoints = completedRaces.map((race) => {
+      const history = historyMap.get(race.id)
+      return history?.cumulativePoints || 0
+    })
 
     return {
       userId: user?.id || '',
       nickname: user?.nickname || user?.email || 'Unknown',
       chartColor: user?.chartColor || '#FFDF2C',
-      pointsByRace: {},
+      pointsByRace,
       cumulativePoints,
     }
   })

@@ -1,13 +1,13 @@
 'use client'
 
-import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, Legend } from 'recharts'
-import type { Race, User } from '@/payload-types'
+import type { Race } from '@/payload-types'
+import { Legend, Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts'
 
 interface UserProgressData {
   userId: string
   nickname: string
   chartColor: string
-  pointsByRace: { [raceId: string]: number }
+  pointsByRace: number[]
   cumulativePoints: number[]
 }
 
@@ -23,17 +23,15 @@ interface PointsEvolutionChartProps {
 }
 
 export function PointsEvolutionChart({ races, usersProgress }: PointsEvolutionChartProps) {
-  // Сортируем гонки по раундам
   const sortedRaces = [...races].sort((a, b) => a.round - b.round)
 
-  // Формируем данные для графика
+  // данные для графика
   const chartData: ChartDataPoint[] = sortedRaces.map((race, index) => {
     const dataPoint: ChartDataPoint = {
       raceName: race.name,
       round: race.round,
     }
 
-    // Для каждого пользователя добавляем его накопленные очки на этой гонке
     usersProgress.forEach((user) => {
       dataPoint[user.nickname] = user.cumulativePoints[index] || 0
     })
@@ -49,7 +47,7 @@ export function PointsEvolutionChart({ races, usersProgress }: PointsEvolutionCh
       <div className="flex flex-wrap gap-3 justify-center mt-6">
         {payload.map((entry: any, index: number) => {
           const user = usersProgress[index]
-          const currentPoints = user?.cumulativePoints[user.cumulativePoints.length - 1] || 0
+          const totalPoints = user?.cumulativePoints[user.cumulativePoints.length - 1] || 0
 
           return (
             <div
@@ -57,14 +55,9 @@ export function PointsEvolutionChart({ races, usersProgress }: PointsEvolutionCh
               className="flex items-center gap-2 px-3 py-1.5 rounded-md bg-background/50 border"
               style={{ borderColor: entry.color }}
             >
-              <div
-                className="w-3 h-3 rounded-full"
-                style={{ backgroundColor: entry.color }}
-              />
+              <div className="w-3 h-3 rounded-full" style={{ backgroundColor: entry.color }} />
               <span className="text-sm font-medium">{entry.value}</span>
-              <span className="text-sm text-muted-foreground">
-                {currentPoints}
-              </span>
+              <span className="text-sm text-muted-foreground">Всего: {totalPoints}</span>
             </div>
           )
         })}
@@ -76,24 +69,31 @@ export function PointsEvolutionChart({ races, usersProgress }: PointsEvolutionCh
   const CustomTooltip = ({ active, payload, label }: any) => {
     if (!active || !payload || !payload.length) return null
 
+    // Находим индекс текущей гонки
+    const raceIndex = sortedRaces.findIndex((race) => race.name === label)
+
     return (
       <div className="bg-background/95 backdrop-blur-sm border-2 border-accent/20 rounded-lg p-4 shadow-xl">
         <p className="font-bold text-accent mb-2">{label}</p>
         <div className="space-y-1">
           {payload
             .sort((a: any, b: any) => b.value - a.value)
-            .map((entry: any, index: number) => (
-              <div key={index} className="flex items-center gap-2">
-                <div
-                  className="w-2 h-2 rounded-full"
-                  style={{ backgroundColor: entry.color }}
-                />
-                <span className="text-sm">{entry.name}:</span>
-                <span className="text-sm font-bold" style={{ color: entry.color }}>
-                  {entry.value}
-                </span>
-              </div>
-            ))}
+            .map((entry: any, index: number) => {
+              const user = usersProgress.find((u) => u.nickname === entry.name)
+              const pointsInRace = user?.pointsByRace[raceIndex] || 0
+
+              return (
+                <div key={index} className="flex flex-col gap-1">
+                  <div className="flex items-center gap-2">
+                    <div className="w-2 h-2 rounded-full" style={{ backgroundColor: entry.color }} />
+                    <span className="text-sm font-medium">{entry.name}</span>
+                  </div>
+                  <div className="ml-4 text-xs text-muted-foreground">
+                    +{pointsInRace} в гонке • Всего: {entry.value}
+                  </div>
+                </div>
+              )
+            })}
         </div>
       </div>
     )
@@ -110,10 +110,7 @@ export function PointsEvolutionChart({ races, usersProgress }: PointsEvolutionCh
   return (
     <div className="w-full">
       <ResponsiveContainer width="100%" height={500}>
-        <LineChart
-          data={chartData}
-          margin={{ top: 20, right: 30, left: 20, bottom: 20 }}
-        >
+        <LineChart data={chartData} margin={{ top: 20, right: 30, left: 20, bottom: 20 }}>
           <XAxis
             dataKey="raceName"
             stroke="#666"
@@ -138,7 +135,7 @@ export function PointsEvolutionChart({ races, usersProgress }: PointsEvolutionCh
           <Legend content={renderLegend} />
 
           {/* Линии для каждого пользователя */}
-          {usersProgress.map((user, index) => (
+          {usersProgress.map((user) => (
             <Line
               key={user.userId}
               type="monotone"

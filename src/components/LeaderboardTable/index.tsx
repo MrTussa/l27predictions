@@ -1,6 +1,7 @@
 'use client'
 
-import { useState } from 'react'
+import { Button } from '@/components/ui/button'
+import { Card } from '@/components/ui/card'
 import {
   Table,
   TableBody,
@@ -9,9 +10,8 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table'
-import { Card } from '@/components/ui/card'
-import { ArrowUpDown, Trophy, Medal, Award } from 'lucide-react'
-import { Button } from '@/components/ui/button'
+import { ArrowUpDown, Award, Medal, Trophy } from 'lucide-react'
+import { useState } from 'react'
 
 type LeaderboardEntry = {
   id: string
@@ -21,18 +21,25 @@ type LeaderboardEntry = {
   totalPredictions: number
   perfectPredictions: number
   averagePoints: number
+  currentStreak: number
+  bestStreak: number
 }
 
 type Props = {
   data: LeaderboardEntry[]
 }
 
-type SortKey = 'totalPoints' | 'totalPredictions' | 'perfectPredictions' | 'averagePoints'
+type SortKey =
+  | 'totalPoints'
+  | 'totalPredictions'
+  | 'perfectPredictions'
+  | 'averagePoints'
+  | 'currentStreak'
+  | 'bestStreak'
 
 export const LeaderboardTable: React.FC<Props> = ({ data: initialData }) => {
   const [sortKey, setSortKey] = useState<SortKey>('totalPoints')
   const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('desc')
-
   const handleSort = (key: SortKey) => {
     if (sortKey === key) {
       setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc')
@@ -75,7 +82,7 @@ export const LeaderboardTable: React.FC<Props> = ({ data: initialData }) => {
   }
 
   return (
-    <Card variant="yellow-glow" corners="cut-corner" className="overflow-hidden gap-0 py-0">
+    <Card variant="yellow-glow" corners="cut-corner" className="overflow-hidden gap-0">
       <Table>
         <TableHeader>
           <TableRow className="bg-muted/50">
@@ -125,6 +132,28 @@ export const LeaderboardTable: React.FC<Props> = ({ data: initialData }) => {
                 <ArrowUpDown className="ml-2 h-4 w-4" />
               </Button>
             </TableHead>
+            <TableHead className="text-right">
+              <Button
+                variant="ghost"
+                size="sm"
+                className="h-auto p-0 hover:bg-transparent"
+                onClick={() => handleSort('currentStreak')}
+              >
+                Стрик
+                <ArrowUpDown className="ml-2 h-4 w-4" />
+              </Button>
+            </TableHead>
+            <TableHead className="text-right">
+              <Button
+                variant="ghost"
+                size="sm"
+                className="h-auto p-0 hover:bg-transparent"
+                onClick={() => handleSort('bestStreak')}
+              >
+                Лучший стрик
+                <ArrowUpDown className="ml-2 h-4 w-4" />
+              </Button>
+            </TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -156,6 +185,16 @@ export const LeaderboardTable: React.FC<Props> = ({ data: initialData }) => {
                 </TableCell>
                 <TableCell className="text-right text-muted-foreground">
                   {entry.averagePoints.toFixed(2)}
+                </TableCell>
+                <TableCell className="text-right">
+                  {entry.currentStreak > 0 ? (
+                    <span className="text-accent font-semibold">🔥 {entry.currentStreak}</span>
+                  ) : (
+                    <span className="text-muted-foreground">-</span>
+                  )}
+                </TableCell>
+                <TableCell className="text-right text-muted-foreground">
+                  {entry.bestStreak > 0 ? entry.bestStreak : '-'}
                 </TableCell>
               </TableRow>
             )
