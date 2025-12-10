@@ -120,9 +120,9 @@ export default async function LeaderboardPage() {
           <div className="space-y-8">
             {/* График эволюции очков */}
             {completedRaces.length > 0 && usersProgress.length > 0 && (
-              <Card variant="default" corners="cut-corner" className="p-6">
-                <h2 className="text-2xl font-bold mb-6 text-accent uppercase tracking-tight">
-                  Эволюция очков • Топ-10
+              <Card variant="default" corners="cut-corner">
+                <h2 className="text-2xl font-bold mb-6 text-accent uppercase tracking-tight px-6">
+                  Топ-10
                 </h2>
                 <PointsEvolutionChart races={completedRaces} usersProgress={usersProgress} />
               </Card>
