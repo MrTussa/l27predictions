@@ -35,6 +35,17 @@
   max-width: 76.125rem;
 }
 
+@layer utilities {
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+
+  .no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+}
+
 :root {
   --background: hsl(0 0% 100%);
   --foreground: hsl(222.2 84% 4.9%);
@@ -175,51 +186,43 @@ button {
 
 .clip-path-cut-corner {
   --clip-size: 20px;
-  clip-path: polygon(
-    0 0,
-    calc(100% - var(--clip-size)) 0,
-    100% var(--clip-size),
-    100% 100%,
-    var(--clip-size) 100%,
-    0 calc(100% - var(--clip-size))
-  );
+  clip-path: polygon(0 0,
+      calc(100% - var(--clip-size)) 0,
+      100% var(--clip-size),
+      100% 100%,
+      var(--clip-size) 100%,
+      0 calc(100% - var(--clip-size)));
 }
 
 .clip-path-angled-top {
   --clip-size: 15px;
-  clip-path: polygon(
-    0 var(--clip-size),
-    var(--clip-size) 0,
-    calc(100% - var(--clip-size)) 0,
-    100% var(--clip-size),
-    100% 100%,
-    0 100%
-  );
+  clip-path: polygon(0 var(--clip-size),
+      var(--clip-size) 0,
+      calc(100% - var(--clip-size)) 0,
+      100% var(--clip-size),
+      100% 100%,
+      0 100%);
 }
 
 /* Срезанные углы для кнопок (меньшего размера) */
 .clip-path-cut-corner-sm {
   --clip-size: 8px;
-  clip-path: polygon(
-    0 0,
-    calc(100% - var(--clip-size)) 0,
-    100% var(--clip-size),
-    100% 100%,
-    var(--clip-size) 100%,
-    0 calc(100% - var(--clip-size))
-  );
+  clip-path: polygon(0 0,
+      calc(100% - var(--clip-size)) 0,
+      100% var(--clip-size),
+      100% 100%,
+      var(--clip-size) 100%,
+      0 calc(100% - var(--clip-size)));
 }
 
 .clip-path-angled-sm {
   --clip-size: 6px;
-  clip-path: polygon(
-    0 var(--clip-size),
-    var(--clip-size) 0,
-    calc(100% - var(--clip-size)) 0,
-    100% var(--clip-size),
-    100% 100%,
-    0 100%
-  );
+  clip-path: polygon(0 var(--clip-size),
+      var(--clip-size) 0,
+      calc(100% - var(--clip-size)) 0,
+      100% var(--clip-size),
+      100% 100%,
+      0 100%);
 }
 
 /* Дополнительные утилиты для F1 стиля */

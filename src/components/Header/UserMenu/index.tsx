@@ -1,7 +1,5 @@
 'use client'
 
-import { useAuth } from '@/providers/Auth'
-import Link from 'next/link'
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -10,7 +8,9 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
+import { useAuth } from '@/providers/Auth'
 import { User } from 'lucide-react'
+import Link from 'next/link'
 
 export const UserMenu: React.FC = () => {
   const { user, logout } = useAuth()
@@ -37,7 +37,7 @@ export const UserMenu: React.FC = () => {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <button className="inline-flex items-center justify-center gap-2 px-4 h-8 text-xs font-bold uppercase tracking-wider text-muted-foreground hover:text-accent hover:bg-accent/10 transition-colors rounded-md">
+        <button className="inline-flex items-center justify-center gap-2 px-4 h-8 text-xs font-bold uppercase tracking-wider text-muted-foreground hover:text-accent hover:bg-accent/10 hover:border hover:border-accent transition-colors cursor-pointer ">
           <User className="w-4 h-4" />
           <span className="hidden md:inline">{user.nickname}</span>
         </button>
@@ -45,8 +45,8 @@ export const UserMenu: React.FC = () => {
       <DropdownMenuContent align="end" className="w-56">
         <DropdownMenuLabel>
           <div className="flex flex-col gap-1">
-            <p className="text-sm font-medium">{user.nickname}</p>
-            <p className="text-xs text-muted-foreground">{user.email}</p>
+            <p className="text-sm text-accent font-medium">{user.nickname}</p>
+            <p className="text-xs font-extralight text-muted-foreground">{user.email}</p>
           </div>
         </DropdownMenuLabel>
         <DropdownMenuSeparator />

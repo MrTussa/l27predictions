@@ -2,7 +2,6 @@ import type { ReactNode } from 'react'
 
 import { AdminBar } from '@/components/AdminBar'
 import { Header } from '@/components/Header'
-import { LivePreviewListener } from '@/components/LivePreviewListener'
 import { Providers } from '@/providers'
 import { GeistMono } from 'geist/font/mono'
 import { GeistSans } from 'geist/font/sans'
@@ -50,7 +49,6 @@ export default async function RootLayout({ children }: { children: ReactNode }) 
       <body>
         <Providers>
           <AdminBar />
-          <LivePreviewListener />
 
           <Header />
           <main>{children}</main>
