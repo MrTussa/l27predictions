@@ -1,13 +1,13 @@
 'use client'
 
+import { RaceCarousel } from '@/components/RaceCarousel'
+import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 import type { Driver, Prediction, Race, User } from '@/payload-types'
 import { Trophy } from 'lucide-react'
 import Image from 'next/image'
 import Link from 'next/link'
 import { useMemo, useState } from 'react'
-import { Button } from '@/components/ui/button'
-import { RaceCarousel } from '@/components/RaceCarousel'
 
 interface PredictionsPageClientProps {
   races: Race[]
@@ -66,7 +66,6 @@ function PodiumDriver({ position, driver }: PodiumDriverProps) {
       >
         <div className="w-full h-full bg-background clip-path-cut-corner relative overflow-hidden p-0.5">
           <div className="w-full h-full bg-background clip-path-cut-corner relative overflow-hidden">
-            {/* Фоновый градиент */}
             <div
               className="absolute inset-0 opacity-20"
               style={{
@@ -74,7 +73,6 @@ function PodiumDriver({ position, driver }: PodiumDriverProps) {
               }}
             />
 
-            {/* Фото пилота */}
             {photo && photo.url && (
               <div className="absolute inset-0 flex items-end justify-center">
                 <div className="relative w-full h-full">
@@ -89,7 +87,6 @@ function PodiumDriver({ position, driver }: PodiumDriverProps) {
               </div>
             )}
 
-            {/* Позиция в углу */}
             <div
               className="absolute top-4 right-4 text-6xl font-black opacity-30"
               style={{ color: teamColor }}
@@ -97,14 +94,12 @@ function PodiumDriver({ position, driver }: PodiumDriverProps) {
               {position}
             </div>
 
-            {/* Трофей для первого места */}
             {position === 1 && (
               <div className="absolute top-4 left-4">
                 <Trophy className="w-10 h-10 text-accent" fill="#FFDF2C" />
               </div>
             )}
 
-            {/* Информация внизу */}
             <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-background via-background/95 to-transparent p-4 pt-12 flex flex-row items-center justify-between">
               <div>
                 <div
@@ -142,7 +137,6 @@ export function PredictionsPageClient({
   user,
   userPredictions,
 }: PredictionsPageClientProps) {
-  // Находим активную гонку (с результатами или открытую для прогнозов)
   const now = new Date()
   const defaultRace =
     races.find((race) => {
@@ -152,7 +146,6 @@ export function PredictionsPageClient({
 
   const [selectedRace, setSelectedRace] = useState<Race>(defaultRace)
 
-  // Получаем прогноз пользователя для выбранной гонки
   const userPrediction = useMemo(() => {
     return userPredictions.find((pred) => {
       const predRace = typeof pred.race === 'object' ? pred.race : null
@@ -160,7 +153,6 @@ export function PredictionsPageClient({
     })
   }, [userPredictions, selectedRace])
 
-  // Топ 3 пилота выбранной гонки
   const topDrivers = useMemo(() => {
     if (!selectedRace.results || selectedRace.results.length === 0) return []
     return selectedRace.results.slice(0, 3).map((result) => {
@@ -169,7 +161,6 @@ export function PredictionsPageClient({
     })
   }, [selectedRace])
 
-  // Прогноз пользователя
   const userPredictedDrivers = useMemo(() => {
     if (!userPrediction || !userPrediction.predictions) return []
     return userPrediction.predictions
@@ -180,19 +171,15 @@ export function PredictionsPageClient({
       }))
   }, [userPrediction])
 
-
   return (
     <div className="min-h-screen bg-background">
-      {/* Заголовок и топ 3 */}
       <div className="p-8">
         <div className="max-w-[1800px] mx-auto">
-          {/* Заголовок */}
           <div className="mb-8">
             <h1 className="text-4xl font-bold uppercase tracking-wide text-accent">Мои прогнозы</h1>
           </div>
 
           <div className="grid grid-cols-1 xl:grid-cols-[1fr_400px] gap-8">
-            {/* Топ 3 водителей */}
             <Card variant="gray" corners="cut-corner" className="p-8">
               <h2 className="text-2xl font-bold uppercase tracking-wide mb-6 text-center">
                 {selectedRace.name}
@@ -200,13 +187,10 @@ export function PredictionsPageClient({
               <div className="flex justify-center items-end gap-4">
                 {topDrivers.length > 0 ? (
                   <>
-                    {/* 2 место */}
                     <PodiumDriver position={2} driver={topDrivers[1] || null} />
 
-                    {/* 1 место */}
                     <PodiumDriver position={1} driver={topDrivers[0] || null} />
 
-                    {/* 3 место */}
                     <PodiumDriver position={3} driver={topDrivers[2] || null} />
                   </>
                 ) : (
@@ -217,7 +201,6 @@ export function PredictionsPageClient({
               </div>
             </Card>
 
-            {/* Правая часть - Прогноз пользователя */}
             <Card variant="gray" corners="cut-corner" className="p-6 sticky top-8">
               <h3 className="text-xl font-bold uppercase tracking-wide mb-6 text-center">
                 Мои результаты
@@ -225,7 +208,6 @@ export function PredictionsPageClient({
 
               {userPrediction ? (
                 <div className="space-y-6">
-                  {/* Очки */}
                   <div className="text-center">
                     <div className="text-sm text-muted-foreground uppercase tracking-wider mb-2">
                       Очки
@@ -235,7 +217,6 @@ export function PredictionsPageClient({
                     </div>
                   </div>
 
-                  {/* Мой прогноз */}
                   <div>
                     <div className="text-sm text-muted-foreground uppercase tracking-wider mb-3">
                       Мой прогноз
@@ -255,7 +236,6 @@ export function PredictionsPageClient({
                     </div>
                   </div>
 
-                  {/* Кнопка для редактирования прогноза */}
                   <Button asChild variant="outline" className="w-full">
                     <Link href={`/predictions/${selectedRace.id}`}>Изменить прогноз</Link>
                   </Button>
@@ -273,7 +253,6 @@ export function PredictionsPageClient({
         </div>
       </div>
 
-      {/* Карусель гонок на всю ширину */}
       <RaceCarousel races={races} selectedRace={selectedRace} onRaceSelect={setSelectedRace} />
     </div>
   )
