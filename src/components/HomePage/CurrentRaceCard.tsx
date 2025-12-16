@@ -33,10 +33,9 @@ export function CurrentRaceCard({ race, votedCount }: CurrentRaceCardProps) {
       <RaceTrackVisualization
         className="absolute w-full h-full z-1 -translate-y-8"
         backgroundColor="#141414"
-        // svgPath={}
+        svgPath={race.trackSVGPath ? race.trackSVGPath : undefined}
       />
       <div className="space-y-6 px-6 z-2 flex flex-col justify-between h-full mix-blend-lighten">
-        {/* Заголовок */}
         <div className="border-b border-accent/30 pb-4 flex justify-between">
           <div>
             <h2 className="text-2xl font-bold uppercase tracking-wide text-accent">{race.name}</h2>
@@ -44,7 +43,6 @@ export function CurrentRaceCard({ race, votedCount }: CurrentRaceCardProps) {
               {race.round} Раунд
             </p>
           </div>
-          {/* Флаг страны */}
           {race.countryFlag && typeof race.countryFlag === 'object' && (
             <div>
               <Image
@@ -67,14 +65,12 @@ export function CurrentRaceCard({ race, votedCount }: CurrentRaceCardProps) {
               <div className="text-6xl font-bold text-accent">{formatTimeRemaining()}</div>
             </div>
 
-            {/* Количество проголосовавших */}
             <div>
               <div className="text-sm tracking-wider text-muted-foreground uppercase text-right">
                 <div>Проголосовали</div>
                 <div className=" font-bold">{votedCount}</div>
               </div>
 
-              {/* Дата начала гонки */}
               <div className="text-sm text-muted-foreground uppercase tracking-wider text-right">
                 <div>Начало гонки</div>
                 <div className="text-lg font-bold">
@@ -88,15 +84,12 @@ export function CurrentRaceCard({ race, votedCount }: CurrentRaceCardProps) {
               </div>
             </div>
           </div>
-          {/* Кнопка */}
           <div className="pt-4">
             <Button asChild className="w-full" size="lg">
               <Link href={`/predictions/${race.id}`}>Сделать прогноз</Link>
             </Button>
           </div>
         </div>
-
-        {/* Время до закрытия */}
       </div>
     </Card>
   )

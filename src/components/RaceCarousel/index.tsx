@@ -59,33 +59,47 @@ export function RaceCarousel({ races, selectedRace, onRaceSelect }: RaceCarousel
         <ChevronLeft className="w-6 h-6" />
       </Button>
 
-      <div ref={scrollContainerRef} className="flex gap-4 overflow-x-auto px-16 py-4 no-scrollbar">
+      <div
+        ref={scrollContainerRef}
+        className="flex gap-4 overflow-x-auto px-16 py-4 no-scrollbar text-accent"
+      >
         {races.map((race) => {
           const isSelected = race.id === selectedRace.id
           const svgPath = race.trackSVGPath || undefined
+
+          // Заменяем fill для неактивных гонок
+          const svgWithColor = svgPath?.replace(/fill="[^"]*"/, 'fill="#666666"')
 
           return (
             <button
               key={race.id}
               ref={isSelected ? selectedCardRef : null}
               onClick={() => onRaceSelect(race)}
-              className={`shrink-0 transition-all ${
+              className={`shrink-0 cursor-pointer transition-all ${
                 isSelected ? 'scale-110' : 'scale-90 opacity-50 hover:opacity-75'
               }`}
             >
               <Card
                 variant={isSelected ? 'yellow' : 'gray'}
                 corners={isSelected ? 'cut-corner' : 'sharp'}
-                className="w-48 h-48 p-0 overflow-hidden"
+                className="w-48 h-48 p-0.5 overflow-hidden"
               >
-                <div className="h-32">
+                <div className="h-32 ">
                   {svgPath ? (
-                    <RaceTrackVisualization
-                      svgPath={svgPath}
-                      color={isSelected ? '#FFDF2C' : '#666666'}
-                      useBloom={false}
-                      rotationSpeed={0.001}
-                    />
+                    isSelected ? (
+                      <RaceTrackVisualization
+                        svgPath={svgPath}
+                        className={'absolute w-full h-full z-1 -translate-y-8'}
+                        color="#FFDF2C"
+                        useBloom={false}
+                        rotationSpeed={0.001}
+                      />
+                    ) : (
+                      <div
+                        className="w-full h-full flex items-center justify-center opacity-60 p-6"
+                        dangerouslySetInnerHTML={{ __html: svgWithColor || '' }}
+                      />
+                    )
                   ) : (
                     <div className="w-full h-full bg-muted/20 flex items-center justify-center">
                       <span className="text-muted-foreground text-sm">Нет трассы</span>

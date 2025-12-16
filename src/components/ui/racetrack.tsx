@@ -189,7 +189,7 @@ export default function RaceTrackVisualization({
           powerPreference: 'low-power',
           preserveDrawingBuffer: true,
         }}
-        style={{ background: 'transparent' }}
+        style={{ background: 'transparent', width: '100%', height: '100%' }}
       >
         <GlowingTrack svgPath={svgPath} color={color} rotationSpeed={rotationSpeed} />
         {useBloom && <Effects bloomStrength={bloomStrength} />}

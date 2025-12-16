@@ -43,9 +43,6 @@ export const Drivers: CollectionConfig = {
       type: 'upload',
       relationTo: 'media',
       label: 'Фото пилота',
-      admin: {
-        description: 'Рекомендуемый размер: 600x600px',
-      },
     },
     {
       name: 'team',

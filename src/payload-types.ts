@@ -180,9 +180,6 @@ export interface Driver {
   name: string;
   shortName: string;
   number: number;
-  /**
-   * Рекомендуемый размер: 600x600px
-   */
   photo?: (string | null) | Media;
   /**
    * Например: Red Bull Racing, Ferrari
