@@ -26,7 +26,6 @@ export function RaceCarousel({ races, selectedRace, onRaceSelect }: RaceCarousel
       const cardLeft = selectedCard.offsetLeft
       const cardWidth = selectedCard.offsetWidth
 
-      // Вычисляем позицию для центрирования
       const scrollPosition = cardLeft - containerWidth / 2 + cardWidth / 2
 
       container.scrollTo({
@@ -101,7 +100,7 @@ export function RaceCarousel({ races, selectedRace, onRaceSelect }: RaceCarousel
                       />
                     )
                   ) : (
-                    <div className="w-full h-full bg-muted/20 flex items-center justify-center">
+                    <div className="w-full h-full flex items-center justify-center">
                       <span className="text-muted-foreground text-sm">Нет трассы</span>
                     </div>
                   )}

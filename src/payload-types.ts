@@ -253,10 +253,6 @@ export interface Race {
   predictionCloseDate: string;
   raceDate: string;
   /**
-   * Можно обновлять вручную или автоматически через хуки
-   */
-  status: 'upcoming' | 'open' | 'closed' | 'completed';
-  /**
    * Заполняется после завершения гонки для расчета баллов
    */
   results?:
@@ -688,7 +684,6 @@ export interface RacesSelect<T extends boolean = true> {
   predictionOpenDate?: T;
   predictionCloseDate?: T;
   raceDate?: T;
-  status?: T;
   results?:
     | T
     | {

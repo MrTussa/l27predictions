@@ -1,17 +1,14 @@
-import { addDataAndFileToRequest } from 'payload'
 import type { PayloadRequest } from 'payload'
+import { addDataAndFileToRequest } from 'payload'
 
 export const updatePrediction = async (req: PayloadRequest) => {
   try {
-    // Добавляем данные из body в req
     await addDataAndFileToRequest(req)
 
-    // Проверяем авторизацию
     if (!req.user) {
       return Response.json({ message: 'Необходима авторизация' }, { status: 401 })
     }
 
-    // Получаем ID прогноза из параметров маршрута
     const predictionId = req.routeParams?.id as string
 
     if (!predictionId) {
@@ -20,12 +17,10 @@ export const updatePrediction = async (req: PayloadRequest) => {
 
     const { predictions } = req.data || {}
 
-    // Валидация: должно быть ровно 3 прогноза
     if (!predictions || predictions.length !== 3) {
       return Response.json({ message: 'Необходимо заполнить все 3 позиции' }, { status: 400 })
     }
 
-    // Получаем существующий прогноз
     const existingPrediction = await req.payload.findByID({
       collection: 'predictions',
       id: predictionId,
@@ -36,7 +31,6 @@ export const updatePrediction = async (req: PayloadRequest) => {
       return Response.json({ message: 'Прогноз не найден' }, { status: 404 })
     }
 
-    // Проверяем, что пользователь владеет этим прогнозом
     const predictionUserId =
       typeof existingPrediction.user === 'object'
         ? existingPrediction.user.id
@@ -46,7 +40,6 @@ export const updatePrediction = async (req: PayloadRequest) => {
       return Response.json({ message: 'Нет доступа к этому прогнозу' }, { status: 403 })
     }
 
-    // Получаем гонку и проверяем окно прогнозов
     const raceId =
       typeof existingPrediction.race === 'object'
         ? existingPrediction.race.id
@@ -65,13 +58,9 @@ export const updatePrediction = async (req: PayloadRequest) => {
     const closeDate = new Date(race.predictionCloseDate)
 
     if (now > closeDate) {
-      return Response.json(
-        { message: 'Окно прогнозов для этой гонки закрыто' },
-        { status: 400 },
-      )
+      return Response.json({ message: 'Окно прогнозов для этой гонки закрыто' }, { status: 400 })
     }
 
-    // Обновляем прогноз
     const updatedPrediction = await req.payload.update({
       collection: 'predictions',
       id: predictionId,
@@ -85,9 +74,6 @@ export const updatePrediction = async (req: PayloadRequest) => {
       prediction: updatedPrediction,
     })
   } catch (error: any) {
-    return Response.json(
-      { message: error.message || 'Внутренняя ошибка сервера' },
-      { status: 500 },
-    )
+    return Response.json({ message: error.message || 'Внутренняя ошибка сервера' }, { status: 500 })
   }
 }

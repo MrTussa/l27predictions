@@ -1,24 +1,20 @@
-import { addDataAndFileToRequest } from 'payload'
 import type { PayloadRequest } from 'payload'
+import { addDataAndFileToRequest } from 'payload'
 
 export const createPrediction = async (req: PayloadRequest) => {
   try {
-    // Добавляем данные из body в req
     await addDataAndFileToRequest(req)
 
-    // Проверяем авторизацию
     if (!req.user) {
       return Response.json({ message: 'Необходима авторизация' }, { status: 401 })
     }
 
     const { race: raceId, predictions } = req.data || {}
 
-    // Валидация: должно быть ровно 3 прогноза
     if (!predictions || predictions.length !== 3) {
       return Response.json({ message: 'Необходимо заполнить все 3 позиции' }, { status: 400 })
     }
 
-    // Проверяем, что гонка существует и окно прогнозов открыто
     const race = await req.payload.findByID({
       collection: 'races',
       id: raceId,
@@ -32,13 +28,9 @@ export const createPrediction = async (req: PayloadRequest) => {
     const closeDate = new Date(race.predictionCloseDate)
 
     if (now > closeDate) {
-      return Response.json(
-        { message: 'Окно прогнозов для этой гонки закрыто' },
-        { status: 400 },
-      )
+      return Response.json({ message: 'Окно прогнозов для этой гонки закрыто' }, { status: 400 })
     }
 
-    // Проверяем, нет ли уже прогноза для этой гонки от этого пользователя
     const existingPrediction = await req.payload.find({
       collection: 'predictions',
       where: {
@@ -65,7 +57,6 @@ export const createPrediction = async (req: PayloadRequest) => {
       )
     }
 
-    // Создаем новый прогноз
     const newPrediction = await req.payload.create({
       collection: 'predictions',
       data: {
@@ -83,9 +74,6 @@ export const createPrediction = async (req: PayloadRequest) => {
       { status: 201 },
     )
   } catch (error: any) {
-    return Response.json(
-      { message: error.message || 'Внутренняя ошибка сервера' },
-      { status: 500 },
-    )
+    return Response.json({ message: error.message || 'Внутренняя ошибка сервера' }, { status: 500 })
   }
 }
