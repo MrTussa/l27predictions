@@ -6,14 +6,15 @@ import { Calendar, Clock, Flag } from 'lucide-react'
 import { format } from 'date-fns'
 import { ru } from 'date-fns/locale'
 import Image from 'next/image'
+import { getRaceStatus } from '@/utils/raceStatus'
 
 type RaceCardProps = {
   race: Race
   user: User | null
-  status: 'open' | 'upcoming' | 'closed'
 }
 
-export const RaceCard: React.FC<RaceCardProps> = ({ race, status }) => {
+export const RaceCard: React.FC<RaceCardProps> = ({ race }) => {
+  const status = getRaceStatus(race)
   const raceDate = new Date(race.raceDate)
   const openDate = new Date(race.predictionOpenDate)
   const closeDate = new Date(race.predictionCloseDate)
@@ -38,7 +39,15 @@ export const RaceCard: React.FC<RaceCardProps> = ({ race, status }) => {
       corners: 'sharp' as const,
     },
     closed: {
-      badge: 'bg-muted/20 text-muted-foreground border border-muted font-bold tracking-wider',
+      badge: 'bg-orange-500/20 text-orange-400 border border-orange-500/40 font-bold tracking-wider',
+      badgeText: 'ЗАКРЫТА',
+      action: 'ПРОСМОТР',
+      buttonVariant: 'outline' as const,
+      cardVariant: 'gray' as const,
+      corners: 'sharp' as const,
+    },
+    completed: {
+      badge: 'bg-green-500/20 text-green-400 border border-green-500/40 font-bold tracking-wider',
       badgeText: 'ЗАВЕРШЕНА',
       action: 'РЕЗУЛЬТАТЫ',
       buttonVariant: 'outline' as const,

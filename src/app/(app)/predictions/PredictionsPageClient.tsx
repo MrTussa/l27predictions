@@ -4,6 +4,7 @@ import { RaceCarousel } from '@/components/RaceCarousel'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 import type { Driver, Prediction, Race, User } from '@/payload-types'
+import { canMakePrediction } from '@/utilities/raceStatus'
 import { Trophy } from 'lucide-react'
 import Image from 'next/image'
 import Link from 'next/link'
@@ -142,7 +143,6 @@ export function PredictionsPageClient({ races, userPredictions }: PredictionsPag
 
   const [selectedRace, setSelectedRace] = useState<Race>(defaultRace)
 
-  console.log(selectedRace)
   const userPrediction = useMemo(() => {
     return userPredictions.find((pred) => {
       const predRace = typeof pred.race === 'object' ? pred.race : null
@@ -164,10 +164,6 @@ export function PredictionsPageClient({ races, userPredictions }: PredictionsPag
     <div className="min-h-screen bg-background">
       <div className="px-8 pt-8 ">
         <div className="max-w-[1800px] mx-auto">
-          <div className="mb-1">
-            <h1 className="text-4xl font-bold uppercase tracking-wide text-accent">Прогнозы</h1>
-          </div>
-
           <div className="grid grid-cols-1 xl:grid-cols-[1fr_400px] gap-8">
             <div className="p-1">
               <h2 className="text-2xl font-bold uppercase tracking-wide mb-6 text-center">
@@ -217,8 +213,8 @@ export function PredictionsPageClient({ races, userPredictions }: PredictionsPag
                   Мои результаты
                 </h3>
 
-                {userPrediction ? (
-                  <div className="space-y-4">
+                {userPrediction && (
+                  <div className="space-y-4 mb-4">
                     <div className="text-center">
                       <div className="text-sm text-muted-foreground uppercase tracking-wider mb-2">
                         Очки
@@ -246,19 +242,21 @@ export function PredictionsPageClient({ races, userPredictions }: PredictionsPag
                         ))}
                       </div>
                     </div>
-
+                  </div>
+                )}
+                {canMakePrediction(selectedRace) &&
+                  (userPrediction ? (
                     <Button asChild variant="outline" className="w-full">
                       <Link href={`/predictions/${selectedRace.id}`}>Изменить прогноз</Link>
                     </Button>
-                  </div>
-                ) : (
-                  <div className="text-center py-8">
-                    <p className="text-muted-foreground mb-4">Вы еще не сделали прогноз</p>
-                    <Button asChild variant="default" className="w-full">
-                      <Link href={`/predictions/${selectedRace.id}`}>Сделать прогноз</Link>
-                    </Button>
-                  </div>
-                )}
+                  ) : (
+                    <div className="text-center py-8">
+                      <p className="text-muted-foreground mb-4">Вы еще не сделали прогноз</p>
+                      <Button asChild variant="default" className="w-full">
+                        <Link href={`/predictions/${selectedRace.id}`}>Сделать прогноз</Link>
+                      </Button>
+                    </div>
+                  ))}
               </div>
             </Card>
           </div>

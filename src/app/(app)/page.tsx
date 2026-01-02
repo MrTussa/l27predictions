@@ -103,7 +103,7 @@ export default async function HomePage() {
   }
 
   return (
-    <div className="p-16 min-h-[calc(100vw-100px)]">
+    <div className="p-16 min-h-[calc(100vh-100px)]">
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
         {/* Пользователь */}
         <div className="lg:col-span-1">

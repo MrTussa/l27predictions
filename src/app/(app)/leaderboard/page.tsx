@@ -39,27 +39,20 @@ export default async function LeaderboardPage() {
   })
 
   const top10Stats = seasonStats.slice(0, 10)
-  const { docs: completedRaces } = await payload.find({
+
+  const { docs: allRaces } = await payload.find({
     collection: 'races',
     where: {
-      and: [
-        {
-          season: {
-            equals: currentYear,
-          },
-        },
-        {
-          status: {
-            equals: 'completed',
-          },
-        },
-      ],
+      season: {
+        equals: currentYear,
+      },
     },
     sort: 'round',
     limit: 100,
   })
 
-  // Данные для графика
+  const completedRaces = allRaces.filter((race) => race.results && race.results.length > 0)
+
   const usersProgress = top10Stats.map((stat) => {
     const user = typeof stat.user === 'object' ? stat.user : null
 
@@ -92,23 +85,6 @@ export default async function LeaderboardPage() {
   return (
     <div className="container py-16">
       <div className="max-w-7xl mx-auto">
-        <div className="mb-12 relative">
-          <div className="inline-block relative">
-            <h1 className="text-5xl font-bold mb-2 tracking-tight text-accent uppercase">
-              RACE LEADERBOARD
-            </h1>
-            <div className="h-1 w-full bg-linear-to-r from-accent to-transparent" />
-          </div>
-          <p className="text-muted-foreground mt-4 text-lg">
-            Сезон {currentYear} • {leaderboardData.length}{' '}
-            {leaderboardData.length === 1
-              ? 'участник'
-              : leaderboardData.length < 5
-                ? 'участника'
-                : 'участников'}
-          </p>
-        </div>
-
         {leaderboardData.length === 0 ? (
           <div className="text-center py-16 border rounded-lg bg-muted/20">
             <p className="text-muted-foreground text-lg mb-2 font-bold">ПОКА НЕТ ДАННЫХ</p>
@@ -118,7 +94,6 @@ export default async function LeaderboardPage() {
           </div>
         ) : (
           <div className="space-y-8">
-            {/* График эволюции очков */}
             {completedRaces.length > 0 && usersProgress.length > 0 && (
               <Card variant="default" corners="cut-corner">
                 <h2 className="text-2xl font-bold mb-6 text-accent uppercase tracking-tight px-6">
@@ -128,7 +103,6 @@ export default async function LeaderboardPage() {
               </Card>
             )}
 
-            {/* Таблица лидеров */}
             <LeaderboardTable data={leaderboardData} />
           </div>
         )}

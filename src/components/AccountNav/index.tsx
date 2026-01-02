@@ -19,37 +19,25 @@ export const AccountNav: React.FC<Props> = ({ className }) => {
           <Button asChild variant="link">
             <Link
               href="/account"
-              className={clsx('text-primary/50 hover:text-primary/100 hover:no-underline', {
-                'text-primary/100': pathname === '/account',
+              className={clsx('text-primary/50 hover:text-primary hover:no-underline', {
+                'text-primary': pathname === '/account',
               })}
             >
-              Account settings
+              Настройки аккаунта
             </Link>
           </Button>
         </li>
 
         <li>
           <Button asChild variant="link">
-            <Link
-              href="/account/addresses"
-              className={clsx('text-primary/50 hover:text-primary/100 hover:no-underline', {
-                'text-primary/100': pathname === '/account/addresses',
+            <a
+              href="/account#predictions"
+              className={clsx('text-primary/50 hover:text-primary hover:no-underline', {
+                'text-primary': pathname === '/account#predictions',
               })}
             >
-              Addresses
-            </Link>
-          </Button>
-        </li>
-
-        <li>
-          <Button
-            asChild
-            variant="link"
-            className={clsx('text-primary/50 hover:text-primary/100 hover:no-underline', {
-              'text-primary/100': pathname === '/orders' || pathname.includes('/orders'),
-            })}
-          >
-            <Link href="/orders">Orders</Link>
+              Мои прогнозы
+            </a>
           </Button>
         </li>
       </ul>
@@ -59,11 +47,11 @@ export const AccountNav: React.FC<Props> = ({ className }) => {
       <Button
         asChild
         variant="link"
-        className={clsx('text-primary/50 hover:text-primary/100 hover:no-underline', {
-          'text-primary/100': pathname === '/logout',
+        className={clsx('text-primary/50 hover:text-primary hover:no-underline', {
+          'text-primary': pathname === '/logout',
         })}
       >
-        <Link href="/logout">Log out</Link>
+        <Link href="/logout">Выйти</Link>
       </Button>
     </div>
   )

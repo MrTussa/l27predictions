@@ -20,13 +20,13 @@ export function Header() {
 
   return (
     <div className="relative z-20 border-b">
-      <nav className="flex items-center md:items-end justify-between container pt-2">
+      <nav className="flex items-center justify-between container">
         <div className="block flex-none md:hidden">
           <Suspense fallback={null}>
             <MobileMenu menu={NAV_ITEMS} />
           </Suspense>
         </div>
-        <div className="flex w-full items-end justify-between">
+        <div className="flex w-full items-center justify-between">
           <div className="flex w-full gap-6 md:w-1/3 items-center">
             <Link className="flex w-full items-center justify-center pt-4 pb-4 md:w-auto" href="/">
               <LogoIcon className="w-6 h-auto" />

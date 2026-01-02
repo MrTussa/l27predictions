@@ -1,12 +1,14 @@
 import { formBuilderPlugin } from '@payloadcms/plugin-form-builder'
 import { seoPlugin } from '@payloadcms/plugin-seo'
+import { lexicalEditor } from '@payloadcms/richtext-lexical'
 import { Plugin } from 'payload'
-import { FixedToolbarFeature, HeadingFeature, lexicalEditor } from '@payloadcms/richtext-lexical'
 
 import { getServerSideURL } from '@/utilities/getURL'
 
 const generateTitle = ({ doc }: any) => {
-  return doc?.title ? `${doc.title} | L27 F1 Predictions` : 'L27 - Formula 1 Predictions Championship'
+  return doc?.title
+    ? `${doc.title} | L27 F1 Predictions`
+    : 'L27 - Formula 1 Predictions Championship'
 }
 
 const generateURL = ({ doc }: any) => {
@@ -38,15 +40,7 @@ export const plugins: Plugin[] = [
           if ('name' in field && field.name === 'confirmationMessage') {
             return {
               ...field,
-              editor: lexicalEditor({
-                features: ({ rootFeatures }) => {
-                  return [
-                    ...rootFeatures,
-                    FixedToolbarFeature(),
-                    HeadingFeature({ enabledHeadingSizes: ['h1', 'h2', 'h3', 'h4'] }),
-                  ]
-                },
-              }),
+              editor: lexicalEditor(),
             }
           }
           return field

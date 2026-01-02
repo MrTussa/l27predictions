@@ -14,7 +14,7 @@ export const Races: CollectionConfig = {
   },
   admin: {
     group: 'F1 Championship',
-    defaultColumns: ['name', 'round', 'season', 'raceDate', 'status'],
+    defaultColumns: ['name', 'round', 'season', 'raceDate'],
     useAsTitle: 'name',
   },
   fields: [
@@ -100,34 +100,6 @@ export const Races: CollectionConfig = {
           displayFormat: 'd MMM yyyy HH:mm',
           pickerAppearance: 'dayAndTime',
         },
-      },
-    },
-    {
-      name: 'status',
-      type: 'select',
-      required: true,
-      defaultValue: 'upcoming',
-      label: 'Статус',
-      options: [
-        {
-          label: 'Предстоящая',
-          value: 'upcoming',
-        },
-        {
-          label: 'Прогнозы открыты',
-          value: 'open',
-        },
-        {
-          label: 'Прогнозы закрыты',
-          value: 'closed',
-        },
-        {
-          label: 'Завершена',
-          value: 'completed',
-        },
-      ],
-      admin: {
-        description: 'Можно обновлять вручную или автоматически через хуки',
       },
     },
     {
