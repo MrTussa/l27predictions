@@ -1,17 +1,7 @@
 // storage-adapter-import-placeholder
 import { mongooseAdapter } from '@payloadcms/db-mongodb'
 
-import {
-  BoldFeature,
-  EXPERIMENTAL_TableFeature,
-  IndentFeature,
-  ItalicFeature,
-  LinkFeature,
-  OrderedListFeature,
-  UnderlineFeature,
-  UnorderedListFeature,
-  lexicalEditor,
-} from '@payloadcms/richtext-lexical'
+import { lexicalEditor } from '@payloadcms/richtext-lexical'
 import path from 'path'
 import { buildConfig } from 'payload'
 import { fileURLToPath } from 'url'
@@ -40,20 +30,7 @@ export default buildConfig({
   db: mongooseAdapter({
     url: process.env.DATABASE_URI || '',
   }),
-  editor: lexicalEditor({
-    features: () => {
-      return [
-        UnderlineFeature(),
-        BoldFeature(),
-        ItalicFeature(),
-        OrderedListFeature(),
-        UnorderedListFeature(),
-        LinkFeature(),
-        IndentFeature(),
-        EXPERIMENTAL_TableFeature(),
-      ]
-    },
-  }),
+  editor: lexicalEditor(),
   //email: nodemailerAdapter(),
   endpoints: [
     {
