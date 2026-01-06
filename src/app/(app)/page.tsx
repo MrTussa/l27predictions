@@ -3,6 +3,7 @@ import { PreviousRaceCard } from '@/components/HomePage/PreviousRaceCard'
 import { UserInfoCard } from '@/components/HomePage/UserInfoCard'
 import type { SeasonStat, User } from '@/payload-types'
 import { getServerSideUser } from '@/utilities/getServerSideUser'
+import { canMakePrediction, isRaceCompleted } from '@/utilities/raceStatus'
 import configPromise from '@payload-config'
 import type { Metadata } from 'next'
 import { getPayload } from 'payload'
@@ -10,7 +11,6 @@ import { getPayload } from 'payload'
 export default async function HomePage() {
   const payload = await getPayload({ config: configPromise })
   const currentYear = new Date().getFullYear()
-  const now = new Date()
 
   const { user: currentUser } = await getServerSideUser()
 
@@ -25,17 +25,11 @@ export default async function HomePage() {
     sort: 'round',
   })
 
-  // Открытые гонки
-  const openRace = races.find((race) => {
-    const openDate = new Date(race.predictionOpenDate)
-    const closeDate = new Date(race.predictionCloseDate)
-    return openDate <= now && now < closeDate
-  })
+  // Открытая гонка (используем унифицированную функцию)
+  const openRace = races.find((race) => canMakePrediction(race))
 
-  const completedRaces = races.filter((race) => {
-    const raceDate = new Date(race.raceDate)
-    return raceDate < now && race.results && race.results.length > 0
-  })
+  // Завершенные гонки (используем унифицированную функцию)
+  const completedRaces = races.filter((race) => isRaceCompleted(race))
   const previousRace = completedRaces[completedRaces.length - 1]
 
   const { docs: allPredictions } = await payload.find({

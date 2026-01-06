@@ -1,7 +1,7 @@
 import type { CollectionConfig } from 'payload'
 
 import { adminOnly } from '@/access/adminOnly'
-import { adminOrSelf } from '@/access/adminOrSelf'
+import { canMakePrediction } from '@/utilities/raceStatus'
 
 export const Predictions: CollectionConfig = {
   slug: 'predictions',
@@ -154,13 +154,9 @@ export const Predictions: CollectionConfig = {
               id: raceId,
             })
 
-            if (race) {
-              const now = new Date()
-              const closeDate = new Date(race.predictionCloseDate)
-
-              if (now > closeDate) {
-                throw new Error('Время для прогнозов на эту гонку истекло')
-              }
+            // Используем унифицированную функцию проверки
+            if (race && !canMakePrediction(race)) {
+              throw new Error('Время для прогнозов на эту гонку истекло')
             }
           }
         }
@@ -169,7 +165,7 @@ export const Predictions: CollectionConfig = {
       },
     ],
     beforeChange: [
-      async ({ data, operation, req }) => {
+      async ({ data, operation }) => {
         // Устанавливаем submittedAt при первом создании
         if (operation === 'create') {
           data.submittedAt = new Date().toISOString()

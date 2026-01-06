@@ -1,5 +1,6 @@
 import type { PayloadRequest } from 'payload'
 import { addDataAndFileToRequest } from 'payload'
+import { canMakePrediction } from '@/utilities/raceStatus'
 
 export const updatePrediction = async (req: PayloadRequest) => {
   try {
@@ -54,10 +55,8 @@ export const updatePrediction = async (req: PayloadRequest) => {
       return Response.json({ message: 'Гонка не найдена' }, { status: 404 })
     }
 
-    const now = new Date()
-    const closeDate = new Date(race.predictionCloseDate)
-
-    if (now > closeDate) {
+    // Проверяем возможность обновления прогноза (используем унифицированную функцию)
+    if (!canMakePrediction(race)) {
       return Response.json({ message: 'Окно прогнозов для этой гонки закрыто' }, { status: 400 })
     }
 

@@ -1,6 +1,7 @@
 import { LeaderboardTable } from '@/components/LeaderboardTable'
 import { PointsEvolutionChart } from '@/components/PointsEvolutionChart'
 import { Card } from '@/components/ui/card'
+import { isRaceCompleted } from '@/utilities/raceStatus'
 import configPromise from '@payload-config'
 import type { Metadata } from 'next'
 import { getPayload } from 'payload'
@@ -51,7 +52,7 @@ export default async function LeaderboardPage() {
     limit: 100,
   })
 
-  const completedRaces = allRaces.filter((race) => race.results && race.results.length > 0)
+  const completedRaces = allRaces.filter((race) => isRaceCompleted(race))
 
   const usersProgress = top10Stats.map((stat) => {
     const user = typeof stat.user === 'object' ? stat.user : null

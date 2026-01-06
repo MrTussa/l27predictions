@@ -82,6 +82,7 @@
     "@types/node": "22.5.4",
     "@types/react": "19.0.1",
     "@types/react-dom": "19.0.1",
+    "@types/three": "^0.182.0",
     "@vercel/git-hooks": "^1.0.0",
     "@vitejs/plugin-react": "4.5.2",
     "eslint": "^9.16.0",

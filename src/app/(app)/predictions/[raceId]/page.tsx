@@ -1,6 +1,7 @@
 import { PredictionForm } from '@/components/PredictionForm'
 import { AboutRace } from '@/components/PredictionPage/AboutRace'
 import type { User } from '@/payload-types'
+import { canMakePrediction, getRaceStatus } from '@/utilities/raceStatus'
 import configPromise from '@payload-config'
 import type { Metadata } from 'next'
 import { headers as getHeaders } from 'next/headers'
@@ -23,7 +24,6 @@ export default async function PredictionPage({ params }: Props) {
     redirect(`/login?redirect=${encodeURIComponent(`/predictions/${raceId}`)}`)
   }
 
-  // Получаем гонку
   const race = await payload.findByID({
     collection: 'races',
     id: raceId,
@@ -33,7 +33,6 @@ export default async function PredictionPage({ params }: Props) {
     notFound()
   }
 
-  // Получаем активных пилотов для этого сезона
   const { docs: drivers } = await payload.find({
     collection: 'drivers',
     where: {
@@ -54,7 +53,6 @@ export default async function PredictionPage({ params }: Props) {
     limit: 100,
   })
 
-  // Получаем существующий прогноз пользователя для этой гонки
   const { docs: existingPredictions } = await payload.find({
     collection: 'predictions',
     where: {
@@ -76,7 +74,7 @@ export default async function PredictionPage({ params }: Props) {
 
   const existingPrediction = existingPredictions[0] || null
 
-  // Получаем последних 5 проголосовавших
+  // последние 5 проголосовавших
   const { docs: allPredictions } = await payload.find({
     collection: 'predictions',
     where: {
@@ -93,13 +91,9 @@ export default async function PredictionPage({ params }: Props) {
     .map((pred) => (typeof pred.user === 'object' ? pred.user : null))
     .filter((u): u is User => u !== null)
 
-  // Проверяем временное окно для прогнозов
-  const now = new Date()
-  const openDate = new Date(race.predictionOpenDate)
-  const closeDate = new Date(race.predictionCloseDate)
-
-  const isPredictionOpen = openDate <= now && now < closeDate
-  const isPredictionClosed = closeDate <= now
+  const raceStatus = getRaceStatus(race)
+  const isPredictionOpen = canMakePrediction(race)
+  const isPredictionClosed = raceStatus === 'closed' || raceStatus === 'completed'
 
   return (
     <div className="p-16">
