@@ -1,3 +1,4 @@
+import type { Race } from '@/payload-types'
 import type { Payload } from 'payload'
 import { calculatePoints } from './calculatePoints'
 
@@ -5,14 +6,16 @@ import { calculatePoints } from './calculatePoints'
  * Пересчитывает статистику пользователя за сезон
  * Обновляет только нужных пользователей, использует bulk операции
  *
- * @param payload - Payload instanc
+ * @param payload - Payload instance
  * @param userIds - ID пользователей для пересчета (если не указаны - пересчитываются все)
  * @param season - Год сезона (по умолчанию - текущий год)
+ * @param updatedRace - Актуальная гонка из хука (избегает кеша payload)
  */
 export async function recalculateSeasonStats(
   payload: Payload,
   userIds?: string[],
   season?: number,
+  updatedRace?: Race,
 ): Promise<void> {
   const targetSeason = season || new Date().getFullYear()
 
@@ -25,14 +28,20 @@ export async function recalculateSeasonStats(
     },
     sort: 'round',
     limit: 100,
+    depth: 0,
   })
 
-  if (seasonRaces.length === 0) {
+  let racesToUse = seasonRaces
+  if (updatedRace) {
+    racesToUse = seasonRaces.map((race) => (race.id === updatedRace.id ? updatedRace : race))
+  }
+
+  if (racesToUse.length === 0) {
     console.log(`No races found for season ${targetSeason}`)
     return
   }
 
-  const raceIds = seasonRaces.map((race) => race.id)
+  const raceIds = racesToUse.map((race) => race.id)
 
   const whereCondition: any = {
     race: {
@@ -52,7 +61,6 @@ export async function recalculateSeasonStats(
     limit: 10000,
   })
 
-  // Группируем прогнозы по пользователям
   const predictionsByUser = predictions.reduce(
     (acc, pred) => {
       const userId = typeof pred.user === 'object' ? pred.user.id : pred.user
@@ -71,7 +79,7 @@ export async function recalculateSeasonStats(
   }> = []
 
   for (const [userId, userPredictions] of Object.entries(predictionsByUser)) {
-    const sortedRaces = [...seasonRaces].sort((a, b) => a.round - b.round)
+    const sortedRaces = [...racesToUse].sort((a, b) => a.round - b.round)
 
     let totalPoints = 0
     let perfectPredictions = 0
@@ -81,14 +89,12 @@ export async function recalculateSeasonStats(
       cumulativePoints: number
     }> = []
 
-    // Проходим по каждой гонке и считаем очки
     for (const race of sortedRaces) {
       const prediction = userPredictions.find((p) => {
         const predRaceId = typeof p.race === 'object' ? p.race.id : p.race
         return predRaceId === race.id
       })
 
-      // Если у гонки есть результаты
       if (prediction) {
         let points = 0
         if (race.results && race.results.length > 0) {
@@ -185,6 +191,4 @@ export async function recalculateSeasonStats(
       })
     }
   }
-
-  console.log(`Recalculated season stats for ${updates.length} users in season ${targetSeason}`)
 }

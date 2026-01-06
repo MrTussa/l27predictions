@@ -10,12 +10,11 @@ export const updateSeasonStatsOnResults: CollectionAfterChangeHook = async ({
   req,
   operation,
 }) => {
-  // Если результаты изменены
   const resultsChanged =
     operation === 'update' && JSON.stringify(doc.results) !== JSON.stringify(previousDoc?.results)
+
   if ((operation === 'create' && doc.results?.length > 0) || resultsChanged) {
     try {
-      // Все пользователи с прогнозом
       const { docs: predictions } = await req.payload.find({
         collection: 'predictions',
         where: {
@@ -30,7 +29,6 @@ export const updateSeasonStatsOnResults: CollectionAfterChangeHook = async ({
         return doc
       }
 
-      // ID пользователей
       const userIds = [
         ...new Set(
           predictions.map((p) => (typeof p.user === 'object' ? p.user.id : p.user)) as string[],
@@ -54,7 +52,7 @@ export const updateSeasonStatsOnResults: CollectionAfterChangeHook = async ({
       }
 
       const { recalculateSeasonStats } = await import('@/utilities/recalculateSeasonStats')
-      await recalculateSeasonStats(req.payload, userIds, doc.season)
+      await recalculateSeasonStats(req.payload, userIds, doc.season, doc)
 
       console.log(
         `Updated season stats for ${userIds.length} users after race ${doc.name} results changed`,
