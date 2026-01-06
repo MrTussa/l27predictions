@@ -1,12 +1,12 @@
-import { Race, User } from '@/payload-types'
-import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
-import { Calendar, Clock, Flag } from 'lucide-react'
+import { Race, User } from '@/payload-types'
+import { getRaceStatus } from '@/utilities/raceStatus'
 import { format } from 'date-fns'
 import { ru } from 'date-fns/locale'
+import { Calendar, Clock, Flag } from 'lucide-react'
 import Image from 'next/image'
-import { getRaceStatus } from '@/utils/raceStatus'
+import Link from 'next/link'
 
 type RaceCardProps = {
   race: Race
@@ -39,7 +39,8 @@ export const RaceCard: React.FC<RaceCardProps> = ({ race }) => {
       corners: 'sharp' as const,
     },
     closed: {
-      badge: 'bg-orange-500/20 text-orange-400 border border-orange-500/40 font-bold tracking-wider',
+      badge:
+        'bg-orange-500/20 text-orange-400 border border-orange-500/40 font-bold tracking-wider',
       badgeText: 'ЗАКРЫТА',
       action: 'ПРОСМОТР',
       buttonVariant: 'outline' as const,

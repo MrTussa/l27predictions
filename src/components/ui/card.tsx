@@ -32,21 +32,18 @@ const cardOuterVariants = cva('relative transition-all duration-200', {
   },
 })
 
-const cardInnerVariants = cva(
-  'bg-card text-card-foreground w-full h-full flex flex-col gap-4 py-4',
-  {
-    variants: {
-      corners: {
-        sharp: '',
-        'cut-corner': 'clip-path-cut-corner',
-        'angled-top': 'clip-path-angled-top',
-      },
-    },
-    defaultVariants: {
-      corners: 'sharp',
+const cardInnerVariants = cva('bg-card text-card-foreground w-full h-full flex flex-col gap-4 ', {
+  variants: {
+    corners: {
+      sharp: '',
+      'cut-corner': 'clip-path-cut-corner py-4',
+      'angled-top': 'clip-path-angled-top py-4',
     },
   },
-)
+  defaultVariants: {
+    corners: 'sharp',
+  },
+})
 
 export interface CardProps
   extends React.ComponentProps<'div'>,

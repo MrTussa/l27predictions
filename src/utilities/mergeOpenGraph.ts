@@ -2,14 +2,19 @@ import type { Metadata } from 'next'
 
 const defaultOpenGraph: Metadata['openGraph'] = {
   type: 'website',
-  description: 'An open-source website built with Payload and Next.js.',
+  description:
+    'Чемпионат по прогнозам Формулы 1 — делайте прогнозы на результаты гонок и соревнуйтесь с друзьями за первое место в таблице лидеров',
   images: [
     {
-      url: 'https://payloadcms.com/images/og-image.jpg',
+      url: '/og-image.jpg',
+      width: 1200,
+      height: 630,
+      alt: 'L27 F1 Predictions',
     },
   ],
-  siteName: 'Payload Website Template',
-  title: 'Payload Website Template',
+  siteName: 'L27 F1 Predictions',
+  title: 'L27 F1 Predictions — Чемпионат прогнозов Формулы 1',
+  locale: 'ru_RU',
 }
 
 export const mergeOpenGraph = (og?: Partial<Metadata['openGraph']>): Metadata['openGraph'] => {

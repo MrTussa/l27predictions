@@ -3,53 +3,50 @@
 import { Button } from '@/components/ui/button'
 import clsx from 'clsx'
 import Link from 'next/link'
-import { usePathname } from 'next/navigation'
+import { useSearchParams } from 'next/navigation'
 
 type Props = {
   className?: string
 }
 
 export const AccountNav: React.FC<Props> = ({ className }) => {
-  const pathname = usePathname()
+  const searchParams = useSearchParams()
+  const activeTab = searchParams.get('tab') || 'stats'
 
   return (
     <div className={clsx(className)}>
-      <ul className="flex flex-col gap-2">
+      <ul className="flex flex-row gap-2">
         <li>
           <Button asChild variant="link">
             <Link
-              href="/account"
-              className={clsx('text-primary/50 hover:text-primary hover:no-underline', {
-                'text-primary': pathname === '/account',
+              href="/account?tab=stats"
+              className={clsx('text-muted-foreground hover:text-accent hover:no-underline', {
+                'text-primary': activeTab === 'stats',
               })}
             >
-              Настройки аккаунта
+              Статистика
             </Link>
           </Button>
         </li>
 
         <li>
           <Button asChild variant="link">
-            <a
-              href="/account#predictions"
-              className={clsx('text-primary/50 hover:text-primary hover:no-underline', {
-                'text-primary': pathname === '/account#predictions',
+            <Link
+              href="/account?tab=settings"
+              className={clsx('text-muted-foreground hover:text-accent hover:no-underline', {
+                'text-primary': activeTab === 'settings',
               })}
             >
-              Мои прогнозы
-            </a>
+              Настройки
+            </Link>
           </Button>
         </li>
       </ul>
 
-      <hr className="w-full border-white/5" />
-
       <Button
         asChild
         variant="link"
-        className={clsx('text-primary/50 hover:text-primary hover:no-underline', {
-          'text-primary': pathname === '/logout',
-        })}
+        className={clsx('text-muted-foreground hover:text-red-500 hover:no-underline')}
       >
         <Link href="/logout">Выйти</Link>
       </Button>

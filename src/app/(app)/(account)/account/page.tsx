@@ -1,45 +1,49 @@
-import type { Metadata } from 'next'
-
-import { mergeOpenGraph } from '@/utilities/mergeOpenGraph'
-import { headers as getHeaders } from 'next/headers.js'
-import configPromise from '@payload-config'
 import { AccountForm } from '@/components/forms/AccountForm'
-import { getPayload } from 'payload'
-import { redirect } from 'next/navigation'
+import { mergeOpenGraph } from '@/utilities/mergeOpenGraph'
+import type { Metadata } from 'next'
+import { Suspense } from 'react'
+import { AccountStats } from './AccountStats'
 
-export default async function AccountPage() {
-  const headers = await getHeaders()
-  const payload = await getPayload({ config: configPromise })
-  const { user } = await payload.auth({ headers })
-
-  if (!user) {
-    redirect(
-      `/login?warning=${encodeURIComponent('Please login to access your account settings.')}`,
-    )
-  }
+export default async function AccountPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ tab?: string }>
+}) {
+  const params = await searchParams
+  const activeTab = params.tab || 'stats'
 
   return (
-    <>
-      <div className="border p-8 rounded-lg bg-primary-foreground">
-        <h1 className="text-3xl font-medium mb-8">Настройки аккаунта</h1>
-        <AccountForm />
-      </div>
+    <div>
+      {activeTab === 'stats' && (
+        <Suspense fallback={<TabSkeleton />}>
+          <AccountStats />
+        </Suspense>
+      )}
 
-      <div className="border p-8 rounded-lg bg-primary-foreground">
-        <h2 className="text-3xl font-medium mb-8">Мои прогнозы</h2>
-        <div className="prose dark:prose-invert mb-8">
-          <p>Здесь будет отображаться история ваших прогнозов на гонки Формулы 1.</p>
-        </div>
-      </div>
-    </>
+      {activeTab === 'settings' && (
+        <Suspense fallback={<TabSkeleton />}>
+          <AccountForm />
+        </Suspense>
+      )}
+    </div>
+  )
+}
+
+function TabSkeleton() {
+  return (
+    <div className="space-y-6">
+      <div className="h-8 w-48 bg-muted animate-pulse rounded" />
+      <div className="h-64 bg-muted animate-pulse rounded" />
+      <div className="h-32 bg-muted animate-pulse rounded" />
+    </div>
   )
 }
 
 export const metadata: Metadata = {
-  description: 'Create an account or log in to your existing account.',
+  description: 'Управление аккаунтом и статистика',
   openGraph: mergeOpenGraph({
-    title: 'Account',
+    title: 'Личный кабинет',
     url: '/account',
   }),
-  title: 'Account',
+  title: 'Личный кабинет',
 }

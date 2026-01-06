@@ -1,8 +1,8 @@
+import configPromise from '@payload-config'
 import type { Metadata } from 'next'
 import { headers as getHeaders } from 'next/headers'
-import configPromise from '@payload-config'
-import { getPayload } from 'payload'
 import { redirect } from 'next/navigation'
+import { getPayload } from 'payload'
 import { PredictionsPageClient } from './PredictionsPageClient'
 
 export default async function PredictionsPage() {
@@ -14,7 +14,6 @@ export default async function PredictionsPage() {
     redirect(`/login?redirect=${encodeURIComponent('/predictions')}`)
   }
 
-  // Получаем активные гонки текущего сезона
   const currentYear = new Date().getFullYear()
 
   const { docs: races } = await payload.find({
@@ -29,7 +28,6 @@ export default async function PredictionsPage() {
     depth: 2,
   })
 
-  // Получаем прогнозы пользователя
   const { docs: userPredictions } = await payload.find({
     collection: 'predictions',
     where: {
@@ -41,9 +39,7 @@ export default async function PredictionsPage() {
     limit: 100,
   })
 
-  return (
-    <PredictionsPageClient races={races} user={user} userPredictions={userPredictions} />
-  )
+  return <PredictionsPageClient races={races} user={user} userPredictions={userPredictions} />
 }
 
 export const metadata: Metadata = {
