@@ -29,9 +29,9 @@ export function CurrentRaceCard({ race, votedCount }: CurrentRaceCardProps) {
   }
 
   return (
-    <Card variant="yellow-glow" corners="cut-corner" className="h-full ">
+    <Card variant="yellow-glow" corners="cut-corner" className="h-full">
       <RaceTrackVisualization
-        className="absolute w-full h-full z-1 -translate-y-8"
+        className="absolute w-full h-full z-1 -translate-y-6"
         backgroundColor="#141414"
         svgPath={race.trackSVGPath ? race.trackSVGPath : undefined}
       />

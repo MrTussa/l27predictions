@@ -96,7 +96,7 @@ export default async function PredictionPage({ params }: Props) {
   const isPredictionClosed = raceStatus === 'closed' || raceStatus === 'completed'
 
   return (
-    <div className="p-16">
+    <div className="px-16 py-6">
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
         {/* Форма прогноза - 75% */}
         <div className="lg:col-span-3">

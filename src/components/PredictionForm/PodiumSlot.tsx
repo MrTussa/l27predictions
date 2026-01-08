@@ -1,6 +1,6 @@
 import { Driver } from '@/payload-types'
-import { useSortable } from '@dnd-kit/sortable'
 import { useDroppable } from '@dnd-kit/core'
+import { useSortable } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
 import { IconX } from '@tabler/icons-react'
 import Image from 'next/image'
@@ -15,7 +15,6 @@ interface PodiumSlotProps {
 export function PodiumSlot({ position, driver, onRemove, disabled }: PodiumSlotProps) {
   const podiumSlotId = `podium-${position}`
 
-  // Всегда используем и droppable и sortable
   const { setNodeRef: setDroppableRef, isOver: isDroppableOver } = useDroppable({
     id: podiumSlotId,
   })
@@ -30,25 +29,12 @@ export function PodiumSlot({ position, driver, onRemove, disabled }: PodiumSlotP
   } = useSortable({
     id: driver?.id || podiumSlotId,
     disabled: !driver || disabled,
-    animateLayoutChanges: () => false, // Отключаем анимацию перемещения
+    animateLayoutChanges: () => false,
     data: {
       type: 'podium',
       position,
     },
   })
-
-  const style = driver
-    ? {
-        transform: CSS.Transform.toString(transform),
-        transition,
-        opacity: isDragging ? 0.5 : 1,
-      }
-    : {}
-
-  const photo = driver && typeof driver.photo === 'object' ? driver.photo : null
-  const countryFlag = driver && typeof driver.countryFlag === 'object' ? driver.countryFlag : null
-
-  const teamColor = driver?.teamColor || '#FFDF2C'
 
   const positionLabels = {
     1: '1ST',
@@ -86,6 +72,20 @@ export function PodiumSlot({ position, driver, onRemove, disabled }: PodiumSlotP
       </div>
     )
   }
+
+  const style = driver
+    ? {
+        transform: CSS.Transform.toString(transform),
+        transition,
+        opacity: isDragging ? 0.5 : 1,
+      }
+    : {}
+
+  const photo = driver && typeof driver.photo === 'object' ? driver.photo : null
+  const countryFlag = driver && typeof driver.countryFlag === 'object' ? driver.countryFlag : null
+  const team = typeof driver.team === 'object' ? driver.team : null
+  const teamColor = team?.teamColor ?? '#FFDF2C'
+  const teamName = team?.name ?? 'Unknown Team'
 
   // Заполненный слот
   return (
@@ -164,7 +164,7 @@ export function PodiumSlot({ position, driver, onRemove, disabled }: PodiumSlotP
                 <div className="text-sm font-bold text-foreground/90 mb-1 truncate">
                   {driver.name}
                 </div>
-                <div className="text-xs text-muted-foreground truncate">{driver.team}</div>
+                <div className="text-xs text-muted-foreground truncate">{teamName}</div>
               </div>
               {countryFlag && countryFlag.url && (
                 <div className="relative w-10 h-7 flex items-center overflow-hidden shrink-0">

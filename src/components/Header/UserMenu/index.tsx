@@ -1,5 +1,6 @@
 'use client'
 
+import { Button } from '@/components/ui/button'
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -18,18 +19,12 @@ export const UserMenu: React.FC = () => {
   if (!user) {
     return (
       <div className="flex items-center gap-2">
-        <Link
-          href="/login"
-          className="inline-flex items-center justify-center gap-2 px-4 h-8 text-xs font-bold uppercase tracking-wider text-muted-foreground hover:text-accent hover:bg-accent/10 transition-colors rounded-md"
-        >
-          Вход
-        </Link>
-        <Link
-          href="/create-account"
-          className="inline-flex items-center justify-center gap-2 px-4 h-8 text-xs font-bold uppercase tracking-wider bg-accent text-black shadow-[0_0_20px_rgba(255,223,44,0.3)] hover:shadow-[0_0_30px_rgba(255,223,44,0.5)] hover:scale-[1.02] border-2 border-accent transition-all duration-200 rounded-md"
-        >
-          Регистрация
-        </Link>
+        <Button asChild variant={'ghost'}>
+          <Link href="/login">Вход</Link>
+        </Button>
+        <Button asChild>
+          <Link href="/create-account">Регистрация</Link>
+        </Button>
       </div>
     )
   }

@@ -2,6 +2,7 @@ import { Card } from '@/components/ui/card'
 import type { SeasonStat, User } from '@/payload-types'
 import { IconAlertCircle, IconFlame, IconTrophy } from '@tabler/icons-react'
 import Link from 'next/link'
+import { Button } from '../ui/button'
 
 interface UserInfoCardProps {
   user: User | null
@@ -11,7 +12,6 @@ interface UserInfoCardProps {
 }
 
 export function UserInfoCard({ user, seasonStats, userRank, totalUsers }: UserInfoCardProps) {
-  // Если пользователь не авторизован
   if (!user) {
     return (
       <Card variant="gray" corners="cut-corner" className="h-full">
@@ -24,12 +24,9 @@ export function UserInfoCard({ user, seasonStats, userRank, totalUsers }: UserIn
                 Войдите в систему, чтобы увидеть свою статистику и участвовать в прогнозах
               </p>
             </div>
-            <Link
-              href="/admin/login"
-              className="mt-4 px-6 py-2 bg-accent text-background font-bold uppercase tracking-wide hover:bg-accent/90 transition-colors"
-            >
-              Войти
-            </Link>
+            <Button asChild>
+              <Link href="/login">Войти</Link>
+            </Button>
           </div>
         </div>
       </Card>
@@ -88,9 +85,7 @@ export function UserInfoCard({ user, seasonStats, userRank, totalUsers }: UserIn
 
         {/* Лучшая серия */}
         <div className="space-y-1">
-          <div className="text-sm text-muted-foreground uppercase tracking-wider">
-            Лучшая серия
-          </div>
+          <div className="text-sm text-muted-foreground uppercase tracking-wider">Лучшая серия</div>
           <div className="flex items-baseline gap-2">
             <span className="text-3xl font-bold">{bestStreak}</span>
             <span className="text-sm text-muted-foreground">гонок</span>

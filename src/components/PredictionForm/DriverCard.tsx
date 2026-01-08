@@ -4,7 +4,7 @@ import { CSS } from '@dnd-kit/utilities'
 import Image from 'next/image'
 
 interface DriverCardProps {
-  driver: Driver
+  driver: Driver | null
   onClick?: () => void
   disabled?: boolean
   className?: string
@@ -18,15 +18,20 @@ export function DriverCard({
   className,
   draggable = false,
 }: DriverCardProps) {
+  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
+    id: driver?.id ?? '',
+    disabled: !draggable || disabled || !driver,
+  })
+
+  if (!driver) {
+    return null
+  }
+
   const photo = typeof driver.photo === 'object' ? driver.photo : null
   const countryFlag = typeof driver.countryFlag === 'object' ? driver.countryFlag : null
-  const teamColor = driver.teamColor || '#FFDF2C'
-
-  // Используем sortable только если draggable=true
-  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
-    id: driver.id,
-    disabled: !draggable || disabled,
-  })
+  const team = typeof driver.team === 'object' ? driver.team : null
+  const teamColor = team?.teamColor ?? '#FFDF2C'
+  const teamName = team?.name ?? 'Unknown Team'
 
   const style = draggable
     ? {
@@ -109,7 +114,7 @@ export function DriverCard({
 
               {/* Команда и флаг */}
               <div className="flex items-center justify-between gap-2">
-                <div className="text-xs text-muted-foreground truncate flex-1">{driver.team}</div>
+                <div className="text-xs text-muted-foreground truncate flex-1">{teamName}</div>
               </div>
             </div>
             {countryFlag && countryFlag.url && (

@@ -153,7 +153,6 @@ export const PredictionForm: React.FC<Props> = ({
         ? `/api/predictions/${existingPrediction.id}`
         : `/api/predictions`
 
-      
       const response = await fetch(url, {
         method,
         headers: {
@@ -197,7 +196,6 @@ export const PredictionForm: React.FC<Props> = ({
           onDragStart={handleDragStart}
           onDragEnd={handleDragEnd}
         >
-          {/* Подиум с отдельным SortableContext */}
           <SortableContext
             items={[
               'podium-1',
@@ -240,7 +238,6 @@ export const PredictionForm: React.FC<Props> = ({
             </div>
           </SortableContext>
 
-          {/* Доступные пилоты с отдельным SortableContext */}
           <SortableContext items={availableDrivers.map((d) => d.id)} strategy={rectSortingStrategy}>
             <div>
               <h2 className="text-2xl font-bold mb-6">
