@@ -46,24 +46,11 @@ export const Drivers: CollectionConfig = {
     },
     {
       name: 'team',
-      type: 'text',
-      label: 'Команда',
+      type: 'relationship',
+      relationTo: 'teams',
+      label: 'Команда-конструктор',
       admin: {
-        description: 'Например: Red Bull Racing, Ferrari',
-      },
-    },
-    {
-      name: 'teamColor',
-      type: 'text',
-      label: 'Цвет команды (HEX)',
-      admin: {
-        description: 'Например: #0600EF для Red Bull',
-      },
-      validate: (val: string | null | undefined) => {
-        if (val && !/^#[0-9A-F]{6}$/i.test(val)) {
-          return 'Неверный формат цвета. Используйте формат #RRGGBB'
-        }
-        return true
+        description: 'Выберите команду-конструктор из справочника',
       },
     },
     {

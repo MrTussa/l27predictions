@@ -68,13 +68,14 @@ export interface Config {
   blocks: {};
   collections: {
     users: User;
+    teams: Team;
     drivers: Driver;
     races: Race;
     predictions: Prediction;
     'season-stats': SeasonStat;
+    events: Event;
+    'event-responses': EventResponse;
     media: Media;
-    forms: Form;
-    'form-submissions': FormSubmission;
     'payload-kv': PayloadKv;
     'payload-locked-documents': PayloadLockedDocument;
     'payload-preferences': PayloadPreference;
@@ -83,13 +84,14 @@ export interface Config {
   collectionsJoins: {};
   collectionsSelect: {
     users: UsersSelect<false> | UsersSelect<true>;
+    teams: TeamsSelect<false> | TeamsSelect<true>;
     drivers: DriversSelect<false> | DriversSelect<true>;
     races: RacesSelect<false> | RacesSelect<true>;
     predictions: PredictionsSelect<false> | PredictionsSelect<true>;
     'season-stats': SeasonStatsSelect<false> | SeasonStatsSelect<true>;
+    events: EventsSelect<false> | EventsSelect<true>;
+    'event-responses': EventResponsesSelect<false> | EventResponsesSelect<true>;
     media: MediaSelect<false> | MediaSelect<true>;
-    forms: FormsSelect<false> | FormsSelect<true>;
-    'form-submissions': FormSubmissionsSelect<false> | FormSubmissionsSelect<true>;
     'payload-kv': PayloadKvSelect<false> | PayloadKvSelect<true>;
     'payload-locked-documents': PayloadLockedDocumentsSelect<false> | PayloadLockedDocumentsSelect<true>;
     'payload-preferences': PayloadPreferencesSelect<false> | PayloadPreferencesSelect<true>;
@@ -151,6 +153,10 @@ export interface User {
    * HEX цвет для отображения в таблице лидеров и графиках
    */
   chartColor: string;
+  /**
+   * Виртуальная валюта для покупок в магазине
+   */
+  pitCoins?: number | null;
   name?: string | null;
   roles?: ('admin' | 'user')[] | null;
   updatedAt: string;
@@ -173,32 +179,21 @@ export interface User {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "drivers".
+ * via the `definition` "teams".
  */
-export interface Driver {
+export interface Team {
   id: string;
-  name: string;
-  shortName: string;
-  number: number;
-  photo?: (string | null) | Media;
   /**
-   * Например: Red Bull Racing, Ferrari
+   * Например: Red Bull Racing, Mercedes-AMG Petronas
    */
-  team?: string | null;
+  name: string;
+  logo?: (string | null) | Media;
   /**
    * Например: #0600EF для Red Bull
    */
-  teamColor?: string | null;
+  teamColor: string;
   /**
-   * Флаг страны рождения пилота
-   */
-  countryFlag?: (string | null) | Media;
-  /**
-   * Год сезона (например, 2025)
-   */
-  season: number;
-  /**
-   * Снимите галочку, чтобы скрыть пилота из списка для прогнозов
+   * Снимите галочку, чтобы скрыть команду из списка для прогнозов
    */
   isActive?: boolean | null;
   updatedAt: string;
@@ -222,6 +217,35 @@ export interface Media {
   height?: number | null;
   focalX?: number | null;
   focalY?: number | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "drivers".
+ */
+export interface Driver {
+  id: string;
+  name: string;
+  shortName: string;
+  number: number;
+  photo?: (string | null) | Media;
+  /**
+   * Выберите команду-конструктор из справочника
+   */
+  team?: (string | null) | Team;
+  /**
+   * Флаг страны рождения пилота
+   */
+  countryFlag?: (string | null) | Media;
+  /**
+   * Год сезона (например, 2025)
+   */
+  season: number;
+  /**
+   * Снимите галочку, чтобы скрыть пилота из списка для прогнозов
+   */
+  isActive?: boolean | null;
+  updatedAt: string;
+  createdAt: string;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -300,9 +324,17 @@ export interface SeasonStat {
    */
   season: number;
   /**
-   * Сумма всех очков за сезон
+   * Сумма всех очков за прогнозы на гонки
    */
   totalPoints: number;
+  /**
+   * Очки за прогноз победителей сезона (макс. 140)
+   */
+  seasonPredictionPoints: number;
+  /**
+   * totalPoints + seasonPredictionPoints
+   */
+  totalPointsWithSeasonPrediction: number;
   predictionsCount: number;
   /**
    * Количество прогнозов где все 3 позиции угаданы точно
@@ -339,193 +371,127 @@ export interface SeasonStat {
   createdAt: string;
 }
 /**
+ * Универсальные события: голосования, квизы, предсказания
+ *
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "forms".
+ * via the `definition` "events".
  */
-export interface Form {
+export interface Event {
   id: string;
-  title: string;
-  fields?:
-    | (
-        | {
-            name: string;
-            label?: string | null;
-            width?: number | null;
-            required?: boolean | null;
-            defaultValue?: boolean | null;
-            id?: string | null;
-            blockName?: string | null;
-            blockType: 'checkbox';
-          }
-        | {
-            name: string;
-            label?: string | null;
-            width?: number | null;
-            required?: boolean | null;
-            id?: string | null;
-            blockName?: string | null;
-            blockType: 'country';
-          }
-        | {
-            name: string;
-            label?: string | null;
-            width?: number | null;
-            required?: boolean | null;
-            id?: string | null;
-            blockName?: string | null;
-            blockType: 'email';
-          }
-        | {
-            message?: {
-              root: {
-                type: string;
-                children: {
-                  type: any;
-                  version: number;
-                  [k: string]: unknown;
-                }[];
-                direction: ('ltr' | 'rtl') | null;
-                format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
-                indent: number;
-                version: number;
-              };
-              [k: string]: unknown;
-            } | null;
-            id?: string | null;
-            blockName?: string | null;
-            blockType: 'message';
-          }
-        | {
-            name: string;
-            label?: string | null;
-            width?: number | null;
-            defaultValue?: number | null;
-            required?: boolean | null;
-            id?: string | null;
-            blockName?: string | null;
-            blockType: 'number';
-          }
-        | {
-            name: string;
-            label?: string | null;
-            width?: number | null;
-            defaultValue?: string | null;
-            placeholder?: string | null;
-            options?:
-              | {
-                  label: string;
-                  value: string;
-                  id?: string | null;
-                }[]
-              | null;
-            required?: boolean | null;
-            id?: string | null;
-            blockName?: string | null;
-            blockType: 'select';
-          }
-        | {
-            name: string;
-            label?: string | null;
-            width?: number | null;
-            required?: boolean | null;
-            id?: string | null;
-            blockName?: string | null;
-            blockType: 'state';
-          }
-        | {
-            name: string;
-            label?: string | null;
-            width?: number | null;
-            defaultValue?: string | null;
-            required?: boolean | null;
-            id?: string | null;
-            blockName?: string | null;
-            blockType: 'text';
-          }
-        | {
-            name: string;
-            label?: string | null;
-            width?: number | null;
-            defaultValue?: string | null;
-            required?: boolean | null;
-            id?: string | null;
-            blockName?: string | null;
-            blockType: 'textarea';
-          }
-      )[]
-    | null;
-  submitButtonLabel?: string | null;
   /**
-   * Choose whether to display an on-page message or redirect to a different page after they submit the form.
+   * general: обычные голосования и квизы | season-prediction: прогноз итогов сезона
    */
-  confirmationType?: ('message' | 'redirect') | null;
-  confirmationMessage?: {
-    root: {
-      type: string;
-      children: {
-        type: any;
-        version: number;
-        [k: string]: unknown;
-      }[];
-      direction: ('ltr' | 'rtl') | null;
-      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
-      indent: number;
-      version: number;
-    };
-    [k: string]: unknown;
-  } | null;
-  redirect?: {
-    url: string;
-  };
+  eventType: 'general' | 'season-prediction';
   /**
-   * Send custom emails when the form submits. Use comma separated lists to send the same email to multiple recipients. To reference a value from this form, wrap that field's name with double curly brackets, i.e. {{firstName}}. You can use a wildcard {{*}} to output all data and {{*:table}} to format it as an HTML table in the email.
+   * Краткое название (например: "Голосование за MVP сезона")
    */
-  emails?:
-    | {
-        emailTo?: string | null;
-        cc?: string | null;
-        bcc?: string | null;
-        replyTo?: string | null;
-        emailFrom?: string | null;
-        subject: string;
-        /**
-         * Enter the message that should be sent in this email.
-         */
-        message?: {
-          root: {
-            type: string;
-            children: {
-              type: any;
-              version: number;
-              [k: string]: unknown;
-            }[];
-            direction: ('ltr' | 'rtl') | null;
-            format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
-            indent: number;
-            version: number;
-          };
-          [k: string]: unknown;
-        } | null;
-        id?: string | null;
-      }[]
-    | null;
+  name: string;
+  /**
+   * Подробное описание события для пользователей
+   */
+  description?: string | null;
+  /**
+   * draft: не виден пользователям | open: принимаются ответы | closed: ответы закрыты | completed: результаты подведены
+   */
+  status: 'draft' | 'open' | 'closed' | 'completed';
+  /**
+   * Тип награды для всех вопросов в этом событии
+   */
+  rewardType: 'points' | 'pit-coins';
+  /**
+   * Добавьте один или несколько вопросов
+   */
+  questions: {
+    questionText: string;
+    questionType: 'single-choice' | 'multiple-choice' | 'yes-no' | 'driver-select' | 'team-select';
+    /**
+     * Количество очков/монет за правильный ответ на этот вопрос
+     */
+    rewardPoints: number;
+    /**
+     * Добавьте варианты для single-choice и multiple-choice
+     */
+    options?:
+      | {
+          optionText: string;
+          /**
+           * Отметьте правильные варианты (устанавливается после закрытия)
+           */
+          isCorrect?: boolean | null;
+          id?: string | null;
+        }[]
+      | null;
+    /**
+     * Правильный ответ для вопроса типа Да/Нет
+     */
+    correctAnswer?: ('yes' | 'no') | null;
+    /**
+     * Выберите правильного пилота после завершения события
+     */
+    correctDriver?: (string | null) | Driver;
+    /**
+     * Выберите правильную команду после завершения события
+     */
+    correctTeam?: (string | null) | Team;
+    id?: string | null;
+  }[];
+  /**
+   * Опционально: привязка к сезону Ф1
+   */
+  season?: number | null;
+  openedAt?: string | null;
+  closedAt?: string | null;
+  completedAt?: string | null;
   updatedAt: string;
   createdAt: string;
 }
 /**
+ * Ответы пользователей на события
+ *
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "form-submissions".
+ * via the `definition` "event-responses".
  */
-export interface FormSubmission {
+export interface EventResponse {
   id: string;
-  form: string | Form;
-  submissionData?:
-    | {
-        field: string;
-        value: string;
-        id?: string | null;
-      }[]
-    | null;
+  user: string | User;
+  event: string | Event;
+  /**
+   * Ответы пользователя на каждый вопрос
+   */
+  answers: {
+    /**
+     * Порядковый номер вопроса в массиве questions события
+     */
+    questionIndex: number;
+    selectedOptions?:
+      | {
+          optionIndex: number;
+          id?: string | null;
+        }[]
+      | null;
+    /**
+     * Значение: "yes" или "no"
+     */
+    selectedAnswer?: string | null;
+    /**
+     * ID выбранного пилота
+     */
+    selectedDriver?: (string | null) | Driver;
+    /**
+     * ID выбранной команды
+     */
+    selectedTeam?: (string | null) | Team;
+    id?: string | null;
+  }[];
+  /**
+   * Рассчитывается автоматически после завершения события
+   */
+  correctAnswersCount?: number | null;
+  /**
+   * Очки или Pit Coins (в зависимости от типа награды события)
+   */
+  reward?: number | null;
+  submittedAt: string;
   updatedAt: string;
   createdAt: string;
 }
@@ -558,6 +524,10 @@ export interface PayloadLockedDocument {
         value: string | User;
       } | null)
     | ({
+        relationTo: 'teams';
+        value: string | Team;
+      } | null)
+    | ({
         relationTo: 'drivers';
         value: string | Driver;
       } | null)
@@ -574,16 +544,16 @@ export interface PayloadLockedDocument {
         value: string | SeasonStat;
       } | null)
     | ({
+        relationTo: 'events';
+        value: string | Event;
+      } | null)
+    | ({
+        relationTo: 'event-responses';
+        value: string | EventResponse;
+      } | null)
+    | ({
         relationTo: 'media';
         value: string | Media;
-      } | null)
-    | ({
-        relationTo: 'forms';
-        value: string | Form;
-      } | null)
-    | ({
-        relationTo: 'form-submissions';
-        value: string | FormSubmission;
       } | null);
   globalSlug?: string | null;
   user: {
@@ -635,6 +605,7 @@ export interface UsersSelect<T extends boolean = true> {
   nickname?: T;
   telegramUsername?: T;
   chartColor?: T;
+  pitCoins?: T;
   name?: T;
   roles?: T;
   updatedAt?: T;
@@ -656,6 +627,18 @@ export interface UsersSelect<T extends boolean = true> {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "teams_select".
+ */
+export interface TeamsSelect<T extends boolean = true> {
+  name?: T;
+  logo?: T;
+  teamColor?: T;
+  isActive?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "drivers_select".
  */
 export interface DriversSelect<T extends boolean = true> {
@@ -664,7 +647,6 @@ export interface DriversSelect<T extends boolean = true> {
   number?: T;
   photo?: T;
   team?: T;
-  teamColor?: T;
   countryFlag?: T;
   season?: T;
   isActive?: T;
@@ -721,6 +703,8 @@ export interface SeasonStatsSelect<T extends boolean = true> {
   user?: T;
   season?: T;
   totalPoints?: T;
+  seasonPredictionPoints?: T;
+  totalPointsWithSeasonPrediction?: T;
   predictionsCount?: T;
   perfectPredictions?: T;
   currentStreak?: T;
@@ -735,6 +719,69 @@ export interface SeasonStatsSelect<T extends boolean = true> {
         id?: T;
       };
   lastCalculated?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "events_select".
+ */
+export interface EventsSelect<T extends boolean = true> {
+  eventType?: T;
+  name?: T;
+  description?: T;
+  status?: T;
+  rewardType?: T;
+  questions?:
+    | T
+    | {
+        questionText?: T;
+        questionType?: T;
+        rewardPoints?: T;
+        options?:
+          | T
+          | {
+              optionText?: T;
+              isCorrect?: T;
+              id?: T;
+            };
+        correctAnswer?: T;
+        correctDriver?: T;
+        correctTeam?: T;
+        id?: T;
+      };
+  season?: T;
+  openedAt?: T;
+  closedAt?: T;
+  completedAt?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "event-responses_select".
+ */
+export interface EventResponsesSelect<T extends boolean = true> {
+  user?: T;
+  event?: T;
+  answers?:
+    | T
+    | {
+        questionIndex?: T;
+        selectedOptions?:
+          | T
+          | {
+              optionIndex?: T;
+              id?: T;
+            };
+        selectedAnswer?: T;
+        selectedDriver?: T;
+        selectedTeam?: T;
+        id?: T;
+      };
+  correctAnswersCount?: T;
+  reward?: T;
+  submittedAt?: T;
   updatedAt?: T;
   createdAt?: T;
 }
@@ -755,155 +802,6 @@ export interface MediaSelect<T extends boolean = true> {
   height?: T;
   focalX?: T;
   focalY?: T;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "forms_select".
- */
-export interface FormsSelect<T extends boolean = true> {
-  title?: T;
-  fields?:
-    | T
-    | {
-        checkbox?:
-          | T
-          | {
-              name?: T;
-              label?: T;
-              width?: T;
-              required?: T;
-              defaultValue?: T;
-              id?: T;
-              blockName?: T;
-            };
-        country?:
-          | T
-          | {
-              name?: T;
-              label?: T;
-              width?: T;
-              required?: T;
-              id?: T;
-              blockName?: T;
-            };
-        email?:
-          | T
-          | {
-              name?: T;
-              label?: T;
-              width?: T;
-              required?: T;
-              id?: T;
-              blockName?: T;
-            };
-        message?:
-          | T
-          | {
-              message?: T;
-              id?: T;
-              blockName?: T;
-            };
-        number?:
-          | T
-          | {
-              name?: T;
-              label?: T;
-              width?: T;
-              defaultValue?: T;
-              required?: T;
-              id?: T;
-              blockName?: T;
-            };
-        select?:
-          | T
-          | {
-              name?: T;
-              label?: T;
-              width?: T;
-              defaultValue?: T;
-              placeholder?: T;
-              options?:
-                | T
-                | {
-                    label?: T;
-                    value?: T;
-                    id?: T;
-                  };
-              required?: T;
-              id?: T;
-              blockName?: T;
-            };
-        state?:
-          | T
-          | {
-              name?: T;
-              label?: T;
-              width?: T;
-              required?: T;
-              id?: T;
-              blockName?: T;
-            };
-        text?:
-          | T
-          | {
-              name?: T;
-              label?: T;
-              width?: T;
-              defaultValue?: T;
-              required?: T;
-              id?: T;
-              blockName?: T;
-            };
-        textarea?:
-          | T
-          | {
-              name?: T;
-              label?: T;
-              width?: T;
-              defaultValue?: T;
-              required?: T;
-              id?: T;
-              blockName?: T;
-            };
-      };
-  submitButtonLabel?: T;
-  confirmationType?: T;
-  confirmationMessage?: T;
-  redirect?:
-    | T
-    | {
-        url?: T;
-      };
-  emails?:
-    | T
-    | {
-        emailTo?: T;
-        cc?: T;
-        bcc?: T;
-        replyTo?: T;
-        emailFrom?: T;
-        subject?: T;
-        message?: T;
-        id?: T;
-      };
-  updatedAt?: T;
-  createdAt?: T;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "form-submissions_select".
- */
-export interface FormSubmissionsSelect<T extends boolean = true> {
-  form?: T;
-  submissionData?:
-    | T
-    | {
-        field?: T;
-        value?: T;
-        id?: T;
-      };
-  updatedAt?: T;
-  createdAt?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema

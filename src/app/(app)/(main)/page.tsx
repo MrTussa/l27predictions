@@ -14,7 +14,6 @@ export default async function HomePage() {
 
   const { user: currentUser } = await getServerSideUser()
 
-  // Получаем все гонки
   const { docs: races } = await payload.find({
     collection: 'races',
     where: {
@@ -25,10 +24,8 @@ export default async function HomePage() {
     sort: 'round',
   })
 
-  // Открытая гонка (используем унифицированную функцию)
   const openRace = races.find((race) => canMakePrediction(race))
 
-  // Завершенные гонки (используем унифицированную функцию)
   const completedRaces = races.filter((race) => isRaceCompleted(race))
   const previousRace = completedRaces[completedRaces.length - 1]
 
@@ -100,28 +97,28 @@ export default async function HomePage() {
     <div className="p-16 min-h-[calc(100vh-100px)]">
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
         {/* Пользователь */}
-        <div className="lg:col-span-1">
+        <section className="lg:col-span-1">
           <UserInfoCard
             user={currentUser}
             seasonStats={userSeasonStats}
             userRank={userRank}
             totalUsers={totalUsersInLeaderboard}
           />
-        </div>
+        </section>
 
         {/* Грядущая гонка */}
         {openRace && (
-          <div className="lg:col-span-2">
+          <section className="lg:col-span-2">
             <CurrentRaceCard race={openRace} votedCount={votedCount} />
-          </div>
+          </section>
         )}
 
         {/* Прошлая гонка */}
 
         {previousRace && previousRaceData && (
-          <div className="lg:col-span-1">
+          <section className="lg:col-span-1">
             <PreviousRaceCard race={previousRace} {...previousRaceData} />
-          </div>
+          </section>
         )}
       </div>
     </div>

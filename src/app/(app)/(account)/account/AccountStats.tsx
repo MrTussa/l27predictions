@@ -1,4 +1,5 @@
 import { Card } from '@/components/ui/card'
+import { SeasonPredictionBlock } from '@/components/SeasonPredictionBlock'
 import { getServerSideUser } from '@/utilities/getServerSideUser'
 import configPromise from '@payload-config'
 import { IconChartLine, IconFlame, IconTarget, IconTrophy } from '@tabler/icons-react'
@@ -40,12 +41,16 @@ export async function AccountStats() {
     limit: 100,
   })
 
+  const totalPointsWithSeason = userStats?.totalPointsWithSeasonPrediction || userStats?.totalPoints || 0
+  const seasonPoints = userStats?.seasonPredictionPoints || 0
+
   const stats = [
     {
       label: 'Всего очков',
-      value: userStats?.totalPoints || 0,
+      value: totalPointsWithSeason,
       icon: IconTrophy,
       color: 'text-accent',
+      subtitle: seasonPoints > 0 ? `+${seasonPoints} за сезон` : undefined,
     },
     {
       label: 'Место в таблице',
@@ -90,11 +95,17 @@ export async function AccountStats() {
                   {stat.label}
                 </p>
                 <p className="text-3xl font-bold">{stat.value}</p>
+                {'subtitle' in stat && stat.subtitle && (
+                  <p className="text-xs text-muted-foreground">{stat.subtitle}</p>
+                )}
               </div>
             </div>
           </Card>
         ))}
       </div>
+
+      {/* Сезонный прогноз */}
+      <SeasonPredictionBlock user={user} season={currentYear} />
 
       {/* История прогнозов */}
       <Card variant="default" corners="sharp" className="p-0.5">

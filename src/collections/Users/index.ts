@@ -75,6 +75,16 @@ export const Users: CollectionConfig = {
       },
     },
     {
+      name: 'pitCoins',
+      type: 'number',
+      defaultValue: 0,
+      label: 'Pit Coins',
+      admin: {
+        description: 'Виртуальная валюта для покупок в магазине',
+        readOnly: true,
+      },
+    },
+    {
       name: 'name',
       type: 'text',
       label: 'Полное имя (опционально)',

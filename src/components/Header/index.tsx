@@ -12,6 +12,7 @@ import { usePathname } from 'next/navigation'
 
 const NAV_ITEMS = [
   { label: 'Прогнозы', href: '/predictions' },
+  { label: 'События', href: '/events' },
   { label: 'Таблица лидеров', href: '/leaderboard' },
 ]
 
@@ -27,7 +28,7 @@ export function Header() {
           </Suspense>
         </div>
         <div className="flex w-full items-center justify-between">
-          <div className="flex w-full gap-6 md:w-1/3 items-center">
+          <div className="flex w-full gap-6 items-center">
             <Link className="flex w-full items-center justify-center pt-4 pb-4 md:w-auto" href="/">
               <LogoIcon className="w-6 h-auto" />
             </Link>

@@ -76,6 +76,7 @@ export async function recalculateSeasonStats(
   const updates: Array<{
     userId: string
     data: any
+    totalPoints: number
   }> = []
 
   for (const [userId, userPredictions] of Object.entries(predictionsByUser)) {
@@ -153,6 +154,7 @@ export async function recalculateSeasonStats(
         raceHistory,
         lastCalculated: new Date().toISOString(),
       },
+      totalPoints, // Сохраняем для дальнейшего использования
     })
   }
 
@@ -176,18 +178,36 @@ export async function recalculateSeasonStats(
       limit: 1,
     })
 
+    // Получаем seasonPredictionPoints из существующей записи (если есть)
+    const seasonPredictionPoints = existing.length > 0 ? existing[0].seasonPredictionPoints || 0 : 0
+
+    // Рассчитываем totalPointsWithSeasonPrediction
+    const totalPointsWithSeasonPrediction = update.totalPoints + seasonPredictionPoints
+
+    // Добавляем новые поля к данным обновления
+    const dataToSave = {
+      ...update.data,
+      totalPointsWithSeasonPrediction,
+    }
+
     // Обновляем существующую
     if (existing.length > 0) {
       await payload.update({
         collection: 'season-stats',
         id: existing[0].id,
-        data: update.data,
+        data: {
+          ...dataToSave,
+          seasonPredictionPoints, // Сохраняем существующее значение
+        },
       })
     } else {
       // Создаем новую
       await payload.create({
         collection: 'season-stats',
-        data: update.data,
+        data: {
+          ...dataToSave,
+          seasonPredictionPoints: 0, // Для новой записи = 0
+        },
       })
     }
   }
