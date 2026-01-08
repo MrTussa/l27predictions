@@ -1,4 +1,5 @@
 import type { CollectionAfterChangeHook } from 'payload'
+import { normalizeIDs } from '@/utilities/normalizeID'
 
 /**
  * Хук для пересчета статистики сезона при обновлении результатов гонки
@@ -29,11 +30,7 @@ export const updateSeasonStatsOnResults: CollectionAfterChangeHook = async ({
         return doc
       }
 
-      const userIds = [
-        ...new Set(
-          predictions.map((p) => (typeof p.user === 'object' ? p.user.id : p.user)) as string[],
-        ),
-      ]
+      const userIds = [...new Set(normalizeIDs(predictions.map((p) => p.user)))]
 
       const { calculatePoints } = await import('@/utilities/calculatePoints')
 

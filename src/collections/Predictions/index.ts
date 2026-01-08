@@ -2,6 +2,7 @@ import type { CollectionConfig } from 'payload'
 
 import { adminOnly } from '@/access/adminOnly'
 import { canMakePrediction } from '@/utilities/raceStatus'
+import { normalizeID, normalizeIDs } from '@/utilities/normalizeID'
 
 export const Predictions: CollectionConfig = {
   slug: 'predictions',
@@ -137,8 +138,8 @@ export const Predictions: CollectionConfig = {
           }
 
           // Проверяем уникальность пилотов
-          const drivers = data.predictions.map((p: any) => p.driver)
-          const uniqueDrivers = new Set(drivers.map((d: any) => (typeof d === 'object' ? d.id : d)))
+          const drivers = normalizeIDs(data.predictions.map((p: any) => p.driver))
+          const uniqueDrivers = new Set(drivers)
 
           if (drivers.length !== uniqueDrivers.size) {
             throw new Error('Каждый пилот может быть выбран только один раз')
@@ -148,10 +149,9 @@ export const Predictions: CollectionConfig = {
         // Проверяем, что окно прогнозов ещё открыто (только для не-админов)
         if (req.user && !req.user.roles?.includes('admin')) {
           if (data?.race) {
-            const raceId = typeof data.race === 'object' ? data.race.id : data.race
             const race = await req.payload.findByID({
               collection: 'races',
-              id: raceId,
+              id: normalizeID(data.race),
             })
 
             // Используем унифицированную функцию проверки

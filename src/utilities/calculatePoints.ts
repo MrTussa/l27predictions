@@ -1,3 +1,5 @@
+import { normalizeID } from './normalizeID'
+
 /**
  * Рассчитывает баллы за прогноз на основе фактических результатов гонки
  *
@@ -21,21 +23,16 @@ export function calculatePoints(
   let points = 0
   let exactMatches = 0 // Количество точных совпадений (пилот + позиция)
 
-  // Нормализуем ID пилотов для сравнения
-  const normalizeDriverId = (driver: string | { id: string }): string => {
-    return typeof driver === 'object' ? driver.id : driver
-  }
-
   // Проходим по каждому прогнозу
   predictions.forEach((prediction) => {
-    const predDriverId = normalizeDriverId(prediction.driver)
+    const predDriverId = normalizeID(prediction.driver)
     const predPosition = prediction.position
 
     // Ищем результат для этой позиции
     const actualResult = results.find((r) => r.position === predPosition)
 
     if (actualResult) {
-      const actualDriverId = normalizeDriverId(actualResult.driver)
+      const actualDriverId = normalizeID(actualResult.driver)
 
       // Проверяем точное совпадение (пилот + позиция)
       if (predDriverId === actualDriverId) {
@@ -43,14 +40,14 @@ export function calculatePoints(
         points += 3
       } else {
         // Пилот есть в топ-3, но на другой позиции
-        const driverInTop3 = results.some((r) => normalizeDriverId(r.driver) === predDriverId)
+        const driverInTop3 = results.some((r) => normalizeID(r.driver) === predDriverId)
         if (driverInTop3) {
           points += 1
         }
       }
     } else {
       // Если результата для этой позиции нет, проверяем, есть ли пилот в топ-3
-      const driverInTop3 = results.some((r) => normalizeDriverId(r.driver) === predDriverId)
+      const driverInTop3 = results.some((r) => normalizeID(r.driver) === predDriverId)
       if (driverInTop3) {
         points += 1
       }
