@@ -2,9 +2,9 @@ import { PredictionForm } from '@/components/PredictionForm'
 import { AboutRace } from '@/components/PredictionPage/AboutRace'
 import type { User } from '@/payload-types'
 import { canMakePrediction, getRaceStatus } from '@/utilities/raceStatus'
+import { getServerSideUser } from '@/utilities/getServerSideUser'
 import configPromise from '@payload-config'
 import type { Metadata } from 'next'
-import { headers as getHeaders } from 'next/headers'
 import { notFound, redirect } from 'next/navigation'
 import { getPayload } from 'payload'
 
@@ -16,9 +16,8 @@ type Props = {
 
 export default async function PredictionPage({ params }: Props) {
   const { raceId } = await params
-  const headers = await getHeaders()
+  const { user } = await getServerSideUser()
   const payload = await getPayload({ config: configPromise })
-  const { user } = await payload.auth({ headers })
 
   if (!user) {
     redirect(`/login?redirect=${encodeURIComponent(`/predictions/${raceId}`)}`)

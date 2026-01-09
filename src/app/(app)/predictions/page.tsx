@@ -1,14 +1,13 @@
 import configPromise from '@payload-config'
 import type { Metadata } from 'next'
-import { headers as getHeaders } from 'next/headers'
 import { redirect } from 'next/navigation'
 import { getPayload } from 'payload'
+import { getServerSideUser } from '@/utilities/getServerSideUser'
 import { PredictionsPageClient } from './PredictionsPageClient'
 
 export default async function PredictionsPage() {
-  const headers = await getHeaders()
+  const { user } = await getServerSideUser()
   const payload = await getPayload({ config: configPromise })
-  const { user } = await payload.auth({ headers })
 
   if (!user) {
     redirect(`/login?redirect=${encodeURIComponent('/predictions')}`)
