@@ -25,17 +25,15 @@ interface PointsEvolutionChartProps {
 }
 
 export function PointsEvolutionChart({ races, usersProgress }: PointsEvolutionChartProps) {
-  // Состояние выбранных пользователей (по умолчанию все выбраны)
+  // (по умолчанию все выбраны)
   const [selectedUsers, setSelectedUsers] = useState<Set<string>>(
     new Set(usersProgress.map((u) => u.userId)),
   )
 
   const sortedRaces = [...races].sort((a, b) => a.round - b.round)
 
-  // Фильтруем пользователей для отображения
   const visibleUsers = usersProgress.filter((user) => selectedUsers.has(user.userId))
 
-  // данные для графика
   const chartData: ChartDataPoint[] = sortedRaces.map((race, index) => {
     const dataPoint: ChartDataPoint = {
       raceName: race.name,
@@ -49,7 +47,6 @@ export function PointsEvolutionChart({ races, usersProgress }: PointsEvolutionCh
     return dataPoint
   })
 
-  // Переключение выбора пользователя
   const toggleUser = (userId: string) => {
     setSelectedUsers((prev) => {
       const newSet = new Set(prev)
@@ -62,11 +59,9 @@ export function PointsEvolutionChart({ races, usersProgress }: PointsEvolutionCh
     })
   }
 
-  // Кастомный тултип
   const CustomTooltip = ({ active, payload, label }: any) => {
     if (!active || !payload || !payload.length) return null
 
-    // Находим индекс текущей гонки
     const raceIndex = sortedRaces.findIndex((race) => race.name === label)
 
     return (

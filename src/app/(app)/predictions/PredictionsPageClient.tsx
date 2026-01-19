@@ -55,7 +55,9 @@ function PodiumDriver({ position, driver }: PodiumDriverProps) {
 
   const photo = driver && typeof driver.photo === 'object' ? driver.photo : null
   const countryFlag = driver && typeof driver.countryFlag === 'object' ? driver.countryFlag : null
-  const teamColor = driver?.teamColor || '#FFDF2C'
+  const team = typeof driver.team === 'object' ? driver.team : null
+  const teamColor = team?.teamColor ?? '#FFDF2C'
+  const teamName = team?.name ?? 'Unknown Team'
 
   return (
     <div
@@ -101,7 +103,7 @@ function PodiumDriver({ position, driver }: PodiumDriverProps) {
               </div>
             )}
 
-            <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-background via-background/95 to-transparent p-4 pt-12 flex flex-row items-center justify-between">
+            <div className="absolute bottom-0 left-0 right-0 bg-linear-to-t from-background via-background/95 to-transparent p-4 pt-12 flex flex-row items-center justify-between">
               <div>
                 <div
                   className="text-2xl font-black mb-1 tracking-wider"
@@ -112,7 +114,7 @@ function PodiumDriver({ position, driver }: PodiumDriverProps) {
                 <div className="text-sm font-bold text-foreground/90 mb-1 truncate">
                   {driver.name}
                 </div>
-                <div className="text-xs text-muted-foreground truncate">{driver.team}</div>
+                <div className="text-xs text-muted-foreground truncate">{teamName}</div>
               </div>
               {countryFlag && countryFlag.url && (
                 <div className="relative w-10 h-7 flex items-center overflow-hidden shrink-0">

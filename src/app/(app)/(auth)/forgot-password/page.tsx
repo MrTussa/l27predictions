@@ -1,7 +1,6 @@
 import type { Metadata } from 'next'
 
 import { mergeOpenGraph } from '@/utilities/mergeOpenGraph'
-import React from 'react'
 
 import { ForgotPasswordForm } from '@/components/forms/ForgotPasswordForm'
 
@@ -14,10 +13,10 @@ export default async function ForgotPasswordPage() {
 }
 
 export const metadata: Metadata = {
-  description: 'Enter your email address to recover your password.',
+  description: 'Введите почту для сброса пароля.',
   openGraph: mergeOpenGraph({
-    title: 'Forgot Password',
+    title: 'Забыли пароль',
     url: '/forgot-password',
   }),
-  title: 'Forgot Password',
+  title: 'Забыли пароль',
 }

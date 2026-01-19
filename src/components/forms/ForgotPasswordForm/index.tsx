@@ -6,7 +6,6 @@ import { Message } from '@/components/Message'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import Link from 'next/link'
 import React, { Fragment, useCallback, useState } from 'react'
 import { useForm } from 'react-hook-form'
 
@@ -50,20 +49,16 @@ export const ForgotPasswordForm: React.FC = () => {
     <Fragment>
       {!success && (
         <React.Fragment>
-          <h1 className="text-xl mb-4">Forgot Password</h1>
+          <h1 className="text-xl mb-4">Забыли пароль</h1>
           <div className="prose dark:prose-invert mb-8">
-            <p>
-              {`Please enter your email below. You will receive an email message with instructions on
-              how to reset your password. To manage your all users, `}
-              <Link href="/admin/collections/users">login to the admin dashboard</Link>.
-            </p>
+            <p>Пожалуйства введите почтовый адрес. Вы получите инструкцию по сбросу пароля</p>
           </div>
           <form className="max-w-lg" onSubmit={handleSubmit(onSubmit)}>
             <Message className="mb-8" error={error} />
 
             <FormItem className="mb-8">
               <Label htmlFor="email" className="mb-2">
-                Email address
+                Почта
               </Label>
               <Input
                 id="email"
@@ -74,16 +69,16 @@ export const ForgotPasswordForm: React.FC = () => {
             </FormItem>
 
             <Button type="submit" variant="default">
-              Forgot Password
+              Подтвердить
             </Button>
           </form>
         </React.Fragment>
       )}
       {success && (
         <React.Fragment>
-          <h1 className="text-xl mb-4">Request submitted</h1>
+          <h1 className="text-xl mb-4">Заявка отправлена</h1>
           <div className="prose dark:prose-invert">
-            <p>Check your email for a link that will allow you to securely reset your password.</p>
+            <p>Скоро на вашу почту придет инструкция по сбросу вашего пароля</p>
           </div>
         </React.Fragment>
       )}

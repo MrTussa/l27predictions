@@ -1,5 +1,6 @@
 'use client'
 
+import { Button } from '@/components/ui/button'
 import { useAuth } from '@/providers/Auth'
 import Link from 'next/link'
 import React, { Fragment, useEffect, useState } from 'react'
@@ -27,16 +28,14 @@ export const LogoutPage: React.FC = (props) => {
       {(error || success) && (
         <div className="prose dark:prose-invert">
           <h1>{error || success}</h1>
-          <p>
-            What would you like to do next?
-            <Fragment>
-              {' '}
-              <Link href="/search">Click here</Link>
-              {` to shop.`}
-            </Fragment>
-            {` To log back in, `}
-            <Link href="/login">click here</Link>.
-          </p>
+          <div>
+            <Button asChild variant={'default'}>
+              <Link href="/login">Войти</Link>
+            </Button>
+            <Button asChild variant={'outline'}>
+              <Link href="/login">На Главную</Link>
+            </Button>
+          </div>
         </div>
       )}
     </Fragment>
