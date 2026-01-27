@@ -87,7 +87,8 @@ export const EventCard: React.FC<Props> = ({ event, hasResponded, userResponse }
           <div className="flex items-center gap-1 text-muted-foreground">
             {getRewardIcon()}
             <span>
-              {event.rewardAmount} {getRewardLabel()} за правильный ответ
+              {event.questions?.reduce((sum, q) => sum + (q.rewardPoints || 0), 0) || 0}{' '}
+              {getRewardLabel()} за все вопросы
             </span>
           </div>
           <div className="flex items-center gap-1 text-muted-foreground">

@@ -62,7 +62,8 @@ export const SortableDriverItem: React.FC<Props> = ({ driver, position, onRemove
       <div className="flex-1 min-w-0">
         <div className="font-medium truncate">{driver.name}</div>
         <div className="text-sm text-muted-foreground truncate">
-          {positionLabels[position - 1]} • {driver.team}
+          {positionLabels[position - 1]} •{' '}
+          {typeof driver.team === 'object' && driver.team ? driver.team.name : driver.team}
         </div>
       </div>
 
