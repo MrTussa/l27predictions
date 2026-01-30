@@ -2,9 +2,8 @@ import type { Metadata } from 'next'
 
 import { RenderParams } from '@/components/RenderParams'
 import { mergeOpenGraph } from '@/utilities/mergeOpenGraph'
-import React from 'react'
-import { headers as getHeaders } from 'next/headers'
 import configPromise from '@payload-config'
+import { headers as getHeaders } from 'next/headers'
 import { getPayload } from 'payload'
 
 import { CreateAccountForm } from '@/components/forms/CreateAccountForm'
@@ -20,7 +19,7 @@ export default async function CreateAccount() {
   }
 
   return (
-    <div className="container py-16 max-w-2xl mx-auto">
+    <div className="container py-8 max-w-2xl mx-auto">
       <h1 className="text-3xl font-bold mb-2">Регистрация</h1>
       <p className="text-muted-foreground mb-8">
         Присоединяйтесь к чемпионату L27 по прогнозам Формулы 1

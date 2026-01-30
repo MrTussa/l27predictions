@@ -20,7 +20,6 @@ export default async function EventDetailPage({ params }: Props) {
     redirect('/login')
   }
 
-  // Получаем событие
   const event = await payload.findByID({
     collection: 'events',
     id: eventId,
@@ -30,7 +29,6 @@ export default async function EventDetailPage({ params }: Props) {
     redirect('/events')
   }
 
-  // Проверяем, не отправлял ли пользователь уже ответ
   const { docs: existingResponses } = await payload.find({
     collection: 'event-responses',
     where: {
@@ -41,12 +39,10 @@ export default async function EventDetailPage({ params }: Props) {
 
   const hasResponded = existingResponses.length > 0
 
-  // Если событие не открыто или пользователь уже участвовал, редирект
   if (event.status !== 'open' || hasResponded) {
     redirect('/events')
   }
 
-  // Получаем пилотов и команды для селектов (если нужны)
   const { docs: drivers } = await payload.find({
     collection: 'drivers',
     where: {

@@ -96,7 +96,7 @@ export function PointsEvolutionChart({ races, usersProgress }: PointsEvolutionCh
 
   if (chartData.length === 0) {
     return (
-      <div className="text-center py-16 border rounded-lg bg-muted/20">
+      <div className="text-center py-8 border rounded-lg bg-muted/20">
         <p className="text-muted-foreground text-lg">Недостаточно данных для графика</p>
       </div>
     )

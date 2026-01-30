@@ -7,7 +7,6 @@ export default async function EventsPage() {
   const { user } = await getServerSideUser()
   const payload = await getPayload({ config: configPromise })
 
-  // Получаем все открытые и завершенные события
   const { docs: events } = await payload.find({
     collection: 'events',
     where: {
@@ -19,7 +18,6 @@ export default async function EventsPage() {
     limit: 50,
   })
 
-  // Получаем ответы пользователя (если авторизован)
   let userResponses: any[] = []
   if (user) {
     const { docs } = await payload.find({

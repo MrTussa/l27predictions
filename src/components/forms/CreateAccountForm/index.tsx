@@ -56,7 +56,7 @@ export const CreateAccountForm: React.FC = () => {
       })
 
       if (!response.ok) {
-        const message = response.statusText || 'There was an error creating the account.'
+        const message = response.statusText || 'Проблема в создании аккаунта.'
         setError(message)
         return
       }
@@ -71,10 +71,10 @@ export const CreateAccountForm: React.FC = () => {
         await login(data)
         clearTimeout(timer)
         if (redirect) router.push(redirect)
-        else router.push(`/account?success=${encodeURIComponent('Account created successfully')}`)
+        else router.push(`/account?success=${encodeURIComponent('Аккаунт успешно создан')}`)
       } catch (_) {
         clearTimeout(timer)
-        setError('There was an error with the credentials provided. Please try again.')
+        setError('Ошибка проверки ваших данных. Пожалуйста, повторите попытку.')
       }
     },
     [login, router, searchParams],
@@ -82,13 +82,6 @@ export const CreateAccountForm: React.FC = () => {
 
   return (
     <form className="max-w-lg py-4" onSubmit={handleSubmit(onSubmit)}>
-      <div className="prose dark:prose-invert mb-6">
-        <p>
-          Создайте аккаунт для участия в чемпионате по прогнозам Формулы 1. После регистрации вы
-          сможете делать прогнозы на гонки и соревноваться с другими участниками.
-        </p>
-      </div>
-
       <Message error={error} />
 
       <div className="flex flex-col gap-8 mb-8">

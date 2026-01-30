@@ -84,10 +84,10 @@ export default async function LeaderboardPage() {
   })
 
   return (
-    <div className="container py-16">
+    <div className="container py-8">
       <div className="max-w-7xl mx-auto">
         {leaderboardData.length === 0 ? (
-          <div className="text-center py-16 border bg-muted/20">
+          <div className="text-center py-8 border bg-muted/20">
             <p className="text-muted-foreground text-lg mb-2 font-bold">ПОКА НЕТ ДАННЫХ</p>
             <p className="text-sm text-muted-foreground">
               Сделайте свой первый прогноз, чтобы попасть в таблицу лидеров
