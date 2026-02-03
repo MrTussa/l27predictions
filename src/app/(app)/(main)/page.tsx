@@ -22,6 +22,8 @@ export default async function HomePage() {
       },
     },
     sort: 'round',
+    depth: 2,
+    pagination: false,
   })
 
   const openRace = races.find((race) => canMakePrediction(race))

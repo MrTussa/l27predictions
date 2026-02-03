@@ -1,6 +1,6 @@
 import { Card } from '@/components/ui/card'
-import { IconFlag, IconTrophy, IconCalendar } from '@tabler/icons-react'
 import type { Race, User } from '@/payload-types'
+import { IconCalendar, IconFlag, IconTrophy } from '@tabler/icons-react'
 
 interface TopDriver {
   position: number
@@ -24,12 +24,10 @@ export function PreviousRaceCard({ race, topDrivers, topPredictors }: PreviousRa
 
   return (
     <Card variant="elevated" corners="cut-corner" className="h-full">
-      <div className="space-y-6">
+      <div className="space-y-6 px-6 py-8">
         {/* Заголовок */}
         <div className="border-b border-muted pb-4">
-          <h2 className="text-lg font-bold uppercase tracking-wide text-accent">
-            Прошлая гонка
-          </h2>
+          <h2 className="text-lg font-bold uppercase tracking-wide text-accent">Прошлая гонка</h2>
         </div>
 
         {/* Название гонки */}
@@ -58,10 +56,7 @@ export function PreviousRaceCard({ race, topDrivers, topPredictors }: PreviousRa
           </div>
           <div className="space-y-2">
             {topDrivers.map((driver) => (
-              <div
-                key={driver.position}
-                className="flex items-center gap-3 text-sm"
-              >
+              <div key={driver.position} className="flex items-center gap-3 text-sm">
                 <div
                   className={`w-6 h-6 rounded-full flex items-center justify-center font-bold text-xs ${
                     driver.position === 1
@@ -104,10 +99,7 @@ export function PreviousRaceCard({ race, topDrivers, topPredictors }: PreviousRa
             {topPredictors.map((predictor) => {
               const user = predictor.user
               return (
-                <div
-                  key={predictor.position}
-                  className="flex items-center justify-between text-sm"
-                >
+                <div key={predictor.position} className="flex items-center justify-between text-sm">
                   <div className="flex items-center gap-2">
                     <div
                       className={`w-6 h-6 rounded-full flex items-center justify-center font-bold text-xs ${

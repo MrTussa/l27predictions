@@ -1,5 +1,5 @@
-import { vercelBlobStorage } from '@payloadcms/storage-vercel-blob'
 import { mongooseAdapter } from '@payloadcms/db-mongodb'
+import { vercelBlobStorage } from '@payloadcms/storage-vercel-blob'
 
 import { lexicalEditor } from '@payloadcms/richtext-lexical'
 import path from 'path'
@@ -18,8 +18,6 @@ import { Races } from '@/collections/Races'
 import { SeasonStats } from '@/collections/SeasonStats'
 import { Teams } from '@/collections/Teams'
 import { Users } from '@/collections/Users'
-import { Footer } from '@/globals/Footer'
-import { Header } from '@/globals/Header'
 import { plugins } from './plugins'
 
 const filename = fileURLToPath(import.meta.url)
@@ -41,6 +39,8 @@ export default buildConfig({
     EventResponses,
     Media,
   ],
+  defaultDepth: 0,
+  maxDepth: 3,
   db: mongooseAdapter({
     url: process.env.DATABASE_URI || '',
   }),
@@ -63,7 +63,6 @@ export default buildConfig({
       handler: submitEventResponse,
     },
   ],
-  globals: [Header, Footer],
   plugins: [
     ...plugins,
     vercelBlobStorage({

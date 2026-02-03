@@ -2,7 +2,7 @@
 
 import { Card } from '@/components/ui/card'
 import { Event } from '@/payload-types'
-import { IconTrophy, IconCoins, IconCalendar } from '@tabler/icons-react'
+import { IconCalendar, IconCoins, IconTrophy } from '@tabler/icons-react'
 
 type Props = {
   event: Event
@@ -23,7 +23,7 @@ export const EventHeader: React.FC<Props> = ({ event }) => {
 
   return (
     <Card variant="default" corners="cut-corner" className="p-0.5 mb-6">
-      <div className="p-6 space-y-4">
+      <div className="px-4 space-y-4">
         <div>
           <h1 className="text-3xl font-bold uppercase tracking-tight mb-2">{event.name}</h1>
           {event.description && <p className="text-muted-foreground">{event.description}</p>}

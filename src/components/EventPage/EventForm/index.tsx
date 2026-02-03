@@ -2,8 +2,8 @@
 
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
-import { Label } from '@/components/ui/label'
 import { Checkbox } from '@/components/ui/checkbox'
+import { Label } from '@/components/ui/label'
 import {
   Select,
   SelectContent,
@@ -12,8 +12,8 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 import type { Driver, Event, Team } from '@/payload-types'
-import { useState } from 'react'
 import { useRouter } from 'next/navigation'
+import { useState } from 'react'
 import { toast } from 'sonner'
 
 type Answer = {
@@ -183,7 +183,7 @@ export const EventForm: React.FC<Props> = ({ event, drivers = [], teams = [] }) 
           <Card key={questionIndex} variant="default" corners="sharp" className="p-0.5">
             <div className="p-4 space-y-3">
               <div className="flex items-start gap-3">
-                <div className="flex-shrink-0 w-8 h-8 rounded-full bg-accent flex items-center justify-center text-sm font-bold">
+                <div className="shrink-0 w-8 h-8 rounded-full bg-accent flex items-center justify-center text-sm font-bold text-black">
                   {questionIndex + 1}
                 </div>
                 <div className="flex-1">
@@ -192,7 +192,7 @@ export const EventForm: React.FC<Props> = ({ event, drivers = [], teams = [] }) 
               </div>
 
               {/* Answer Options */}
-              <div className="space-y-2 pl-11">
+              <div className="space-y-2">
                 {question.questionType === 'yes-no' && (
                   <div className="flex gap-3">
                     <Button

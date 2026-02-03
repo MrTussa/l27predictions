@@ -5,6 +5,8 @@
 
 @custom-variant dark (&:is([data-theme='dark'] *));
 
+
+
 /*
   The default border color has changed to `currentColor` in Tailwind CSS v4,
   so we've added these compatibility styles to make sure everything still
@@ -43,6 +45,12 @@
   .no-scrollbar {
     -ms-overflow-style: none;
     scrollbar-width: none;
+  }
+
+  .text-outline-black {
+    -webkit-text-stroke: 1px black;
+    color: white;
+    /* Optional: set fill color */
   }
 }
 
@@ -89,7 +97,7 @@
   --card: hsl(0, 0%, 8%);
   --card-foreground: hsl(210 40% 98%);
 
-  --popover: hsl(222.2 84% 4.9%);
+  --popover: hsl(60, 80%, 6%);
   --popover-foreground: hsl(210 40% 98%);
 
   --primary: hsl(210 40% 98%);
