@@ -1,99 +1,22 @@
 import { CurrentRaceCard } from '@/components/HomePage/CurrentRaceCard'
 import { PreviousRaceCard } from '@/components/HomePage/PreviousRaceCard'
 import { UserInfoCard } from '@/components/HomePage/UserInfoCard'
-import type { SeasonStat, User } from '@/payload-types'
 import { getServerSideUser } from '@/utilities/getServerSideUser'
-import { canMakePrediction, isRaceCompleted } from '@/utilities/raceStatus'
-import configPromise from '@payload-config'
 import type { Metadata } from 'next'
-import { getPayload } from 'payload'
+import { getHomePageData } from './_lib/getHomePageData'
 
 export default async function HomePage() {
-  const payload = await getPayload({ config: configPromise })
-  const currentYear = new Date().getFullYear()
-
   const { user: currentUser } = await getServerSideUser()
 
-  const { docs: races } = await payload.find({
-    collection: 'races',
-    where: {
-      season: {
-        equals: currentYear,
-      },
-    },
-    sort: 'round',
-    depth: 2,
-    pagination: false,
-  })
-
-  const openRace = races.find((race) => canMakePrediction(race))
-
-  const completedRaces = races.filter((race) => isRaceCompleted(race))
-  const previousRace = completedRaces[completedRaces.length - 1]
-
-  const { docs: allPredictions } = await payload.find({
-    collection: 'predictions',
-    limit: 10000,
-    depth: 2,
-  })
-
-  let userSeasonStats: SeasonStat | null = null
-  let userRank: number | null = null
-  let totalUsersInLeaderboard = 0
-  if (currentUser) {
-    const { docs: stats } = await payload.find({
-      collection: 'season-stats',
-      where: {
-        and: [{ user: { equals: currentUser.id } }, { season: { equals: currentYear } }],
-      },
-      limit: 1,
-    })
-    userSeasonStats = stats[0] || null
-
-    const { docs: allStats } = await payload.find({
-      collection: 'season-stats',
-      where: { season: { equals: currentYear } },
-      sort: '-totalPoints',
-    })
-    totalUsersInLeaderboard = allStats.length
-
-    if (userSeasonStats && userSeasonStats.id) {
-      userRank = allStats.findIndex((s) => s.id === userSeasonStats!.id) + 1
-    }
-  }
-
-  let votedCount = 0
-  if (openRace) {
-    votedCount = allPredictions.filter((pred) => {
-      const race = typeof pred.race === 'object' ? pred.race : null
-      return race && race.id === openRace.id
-    }).length
-  }
-
-  let previousRaceData = null
-  if (previousRace) {
-    const topDrivers =
-      previousRace.results?.slice(0, 3).map((result, index) => ({
-        position: index + 1,
-        name: typeof result.driver === 'object' ? result.driver.name : 'Unknown',
-      })) || []
-
-    const racePredictions = allPredictions.filter((pred) => {
-      const race = typeof pred.race === 'object' ? pred.race : null
-      return race && race.id === previousRace.id
-    })
-
-    const topPredictors = racePredictions
-      .sort((a, b) => (b.points || 0) - (a.points || 0))
-      .slice(0, 3)
-      .map((pred, index) => ({
-        position: index + 1,
-        user: (typeof pred.user === 'object' ? pred.user : {}) as User,
-        points: pred.points || 0,
-      }))
-
-    previousRaceData = { topDrivers, topPredictors }
-  }
+  const {
+    openRace,
+    previousRace,
+    previousRaceData,
+    votedCount,
+    userSeasonStats,
+    userRank,
+    totalUsersInLeaderboard,
+  } = await getHomePageData(currentUser?.id)
 
   return (
     <div className="p-16 min-h-[calc(100vh-100px)]">

@@ -33,7 +33,6 @@ export const Drivers: CollectionConfig = {
     {
       name: 'number',
       type: 'number',
-      required: true,
       min: 1,
       max: 99,
       label: 'Гоночный номер',

@@ -1,0 +1,256 @@
+import type { User } from '@/payload-types'
+import configPromise from '@payload-config'
+import { getPayload } from 'payload'
+
+const payload = await getPayload({ config: configPromise })
+
+const currentYear = new Date().getFullYear()
+
+// RACES
+
+export async function getRaces(options?: { year?: number | null; depth?: number }) {
+  const { year = null, depth = 1 } = options || {}
+  const races = await payload.find({
+    collection: 'races',
+    where: {
+      season: {
+        equals: year ?? currentYear,
+      },
+    },
+    sort: 'round',
+    depth,
+    pagination: false,
+  })
+
+  return races.docs || []
+}
+
+export async function getRaceById(raceId: string) {
+  return payload.findByID({
+    collection: 'races',
+    id: raceId,
+  })
+}
+
+// PREDICTIONS
+
+export async function getAllPredictions(options?: {
+  raceId?: string
+  limit?: number
+  depth?: number
+}) {
+  const { raceId, limit = 10000, depth = 2 } = options || {}
+
+  const where: { race?: { equals: string } } = {}
+  if (raceId) {
+    where.race = { equals: raceId }
+  }
+
+  const { docs } = await payload.find({
+    collection: 'predictions',
+    where: Object.keys(where).length > 0 ? where : undefined,
+    limit,
+    depth,
+  })
+
+  return docs
+}
+
+export async function getUserPredictions(
+  userId: string,
+  options?: { depth?: number; limit?: number },
+) {
+  const { depth = 2, limit = 100 } = options || {}
+
+  const { docs } = await payload.find({
+    collection: 'predictions',
+    where: {
+      user: { equals: userId },
+    },
+    depth,
+    limit,
+  })
+
+  return docs
+}
+
+export async function getPredictionsForRace(
+  raceId: string,
+  options?: { limit?: number; sort?: string; depth?: number },
+) {
+  const { limit = 100, sort = '-createdAt', depth = 1 } = options || {}
+
+  const { docs } = await payload.find({
+    collection: 'predictions',
+    where: {
+      race: { equals: raceId },
+    },
+    sort,
+    limit,
+    depth,
+  })
+
+  return docs
+}
+
+export async function getUserPredictionForRace(userId: string, raceId: string) {
+  const { docs } = await payload.find({
+    collection: 'predictions',
+    where: {
+      and: [{ user: { equals: userId } }, { race: { equals: raceId } }],
+    },
+    limit: 1,
+  })
+
+  return docs[0] || null
+}
+
+// SEASON STATS
+
+export async function getUserStats({ user }: { user: User }) {
+  const userStats = await payload.find({
+    collection: 'season-stats',
+    where: {
+      and: [{ user: { equals: user.id } }, { season: { equals: currentYear } }],
+    },
+    limit: 1,
+    pagination: false,
+  })
+  return userStats.docs || []
+}
+
+export async function getUserSeasonStats(userId: string, year?: number) {
+  const { docs } = await payload.find({
+    collection: 'season-stats',
+    where: {
+      and: [{ user: { equals: userId } }, { season: { equals: year ?? currentYear } }],
+    },
+    limit: 1,
+  })
+
+  return docs[0] || null
+}
+
+export async function getAllSeasonStats(options?: {
+  year?: number
+  sort?: string
+  limit?: number
+  depth?: number
+}) {
+  const { year, sort = '-totalPoints', limit = 1000, depth = 1 } = options || {}
+
+  const { docs } = await payload.find({
+    collection: 'season-stats',
+    where: {
+      season: { equals: year ?? currentYear },
+    },
+    sort,
+    limit,
+    depth,
+  })
+
+  return docs
+}
+
+export async function getUserRank(
+  userId: string,
+  year?: number,
+): Promise<{ rank: number | null; total: number }> {
+  const allStats = await getAllSeasonStats({ year, sort: '-totalPoints' })
+  const userStatIndex = allStats.findIndex((s) => {
+    const statUser = typeof s.user === 'object' ? s.user : null
+    return statUser?.id === userId
+  })
+
+  return {
+    rank: userStatIndex >= 0 ? userStatIndex + 1 : null,
+    total: allStats.length,
+  }
+}
+
+// DRIVERS & TEAMS
+
+export async function getDrivers(options?: {
+  season?: number
+  activeOnly?: boolean
+  depth?: number
+  sort?: string
+}) {
+  const { season, activeOnly = true, depth = 1, sort = 'team' } = options || {}
+
+  type WhereCondition = { season?: { equals: number } } | { isActive?: { equals: boolean } }
+  const conditions: WhereCondition[] = []
+  if (season) {
+    conditions.push({ season: { equals: season } })
+  }
+  if (activeOnly) {
+    conditions.push({ isActive: { equals: true } })
+  }
+
+  const { docs } = await payload.find({
+    collection: 'drivers',
+    where: conditions.length > 0 ? { and: conditions } : undefined,
+    sort,
+    depth,
+    limit: 100,
+  })
+
+  return docs
+}
+
+export async function getTeams(options?: { activeOnly?: boolean }) {
+  const { activeOnly = true } = options || {}
+
+  const { docs } = await payload.find({
+    collection: 'teams',
+    where: activeOnly ? { isActive: { equals: true } } : undefined,
+    sort: 'name',
+    limit: 100,
+  })
+
+  return docs
+}
+
+// EVENTS
+
+export async function getEvents(status?: string[]) {
+  const { docs } = await payload.find({
+    collection: 'events',
+    where: status ? { status: { in: status } } : undefined,
+    sort: '-openedAt',
+    limit: 50,
+  })
+
+  return docs
+}
+
+export async function getEventById(eventId: string) {
+  return payload.findByID({
+    collection: 'events',
+    id: eventId,
+  })
+}
+
+export async function getUserEventResponses(userId: string) {
+  const { docs } = await payload.find({
+    collection: 'event-responses',
+    where: {
+      user: { equals: userId },
+    },
+    limit: 100,
+  })
+
+  return docs
+}
+
+export async function getUserEventResponse(userId: string, eventId: string) {
+  const { docs } = await payload.find({
+    collection: 'event-responses',
+    where: {
+      and: [{ user: { equals: userId } }, { event: { equals: eventId } }],
+    },
+    limit: 1,
+  })
+
+  return docs[0] || null
+}

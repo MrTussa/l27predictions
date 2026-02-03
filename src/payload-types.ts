@@ -220,7 +220,7 @@ export interface Driver {
   id: string;
   name: string;
   shortName: string;
-  number: number;
+  number?: number | null;
   photo?: (string | null) | Media;
   /**
    * Выберите команду-конструктор из справочника

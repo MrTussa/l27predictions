@@ -1,45 +1,18 @@
 import { Card } from '@/components/ui/card'
 import { SeasonPredictionBlock } from '@/components/SeasonPredictionBlock'
 import { getServerSideUser } from '@/utilities/getServerSideUser'
-import configPromise from '@payload-config'
 import { IconChartLine, IconFlame, IconTarget, IconTrophy } from '@tabler/icons-react'
-import { getPayload } from 'payload'
+import { getAccountData } from './_lib/getAccountData'
 
 export async function AccountStats() {
   const { user } = await getServerSideUser()
-  const payload = await getPayload({ config: configPromise })
   const currentYear = new Date().getFullYear()
 
   if (!user) {
     return <div>Не авторизован</div>
   }
 
-  const { docs: seasonStats } = await payload.find({
-    collection: 'season-stats',
-    where: {
-      and: [{ user: { equals: user.id } }, { season: { equals: currentYear } }],
-    },
-    limit: 1,
-  })
-
-  const userStats = seasonStats[0]
-
-  const { docs: allStats } = await payload.find({
-    collection: 'season-stats',
-    where: { season: { equals: currentYear } },
-    sort: '-totalPoints',
-  })
-
-  const userRank = userStats ? allStats.findIndex((s) => s.id === userStats.id) + 1 : null
-
-  const { docs: userPredictions } = await payload.find({
-    collection: 'predictions',
-    where: {
-      user: { equals: user.id },
-    },
-    depth: 2,
-    limit: 100,
-  })
+  const { userStats, userRank, userPredictions } = await getAccountData(user.id)
 
   const totalPointsWithSeason = userStats?.totalPointsWithSeasonPrediction || userStats?.totalPoints || 0
   const seasonPoints = userStats?.seasonPredictionPoints || 0

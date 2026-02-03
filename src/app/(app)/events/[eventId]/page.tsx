@@ -1,9 +1,13 @@
 import { EventForm } from '@/components/EventPage/EventForm'
 import { EventHeader } from '@/components/EventPage/EventHeader'
 import { getServerSideUser } from '@/utilities/getServerSideUser'
-import configPromise from '@payload-config'
+import {
+  getDrivers,
+  getEventById,
+  getTeams,
+  getUserEventResponse,
+} from '@/utilities/queries'
 import { redirect } from 'next/navigation'
-import { getPayload } from 'payload'
 
 type Props = {
   params: Promise<{
@@ -14,52 +18,27 @@ type Props = {
 export default async function EventDetailPage({ params }: Props) {
   const { eventId } = await params
   const { user } = await getServerSideUser()
-  const payload = await getPayload({ config: configPromise })
 
   if (!user) {
     redirect('/login')
   }
 
-  const event = await payload.findByID({
-    collection: 'events',
-    id: eventId,
-  })
+  const event = await getEventById(eventId)
 
   if (!event) {
     redirect('/events')
   }
 
-  const { docs: existingResponses } = await payload.find({
-    collection: 'event-responses',
-    where: {
-      and: [{ user: { equals: user.id } }, { event: { equals: eventId } }],
-    },
-    limit: 1,
-  })
+  const existingResponse = await getUserEventResponse(user.id, eventId)
 
-  const hasResponded = existingResponses.length > 0
-
-  if (event.status !== 'open' || hasResponded) {
+  if (event.status !== 'open' || existingResponse) {
     redirect('/events')
   }
 
-  const { docs: drivers } = await payload.find({
-    collection: 'drivers',
-    where: {
-      isActive: { equals: true },
-    },
-    sort: 'name',
-    limit: 100,
-  })
-
-  const { docs: teams } = await payload.find({
-    collection: 'teams',
-    where: {
-      isActive: { equals: true },
-    },
-    sort: 'name',
-    limit: 100,
-  })
+  const [drivers, teams] = await Promise.all([
+    getDrivers({ activeOnly: true, sort: 'name' }),
+    getTeams({ activeOnly: true }),
+  ])
 
   return (
     <div className="container mx-auto py-8 px-4 max-w-3xl">

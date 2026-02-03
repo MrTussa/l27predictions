@@ -1,12 +1,16 @@
 import { PredictionForm } from '@/components/PredictionForm'
 import { AboutRace } from '@/components/PredictionPage/AboutRace'
 import type { User } from '@/payload-types'
-import { canMakePrediction, getRaceStatus } from '@/utilities/raceStatus'
 import { getServerSideUser } from '@/utilities/getServerSideUser'
-import configPromise from '@payload-config'
+import {
+  getDrivers,
+  getPredictionsForRace,
+  getRaceById,
+  getUserPredictionForRace,
+} from '@/utilities/queries'
+import { canMakePrediction, getRaceStatus } from '@/utilities/raceStatus'
 import type { Metadata } from 'next'
 import { notFound, redirect } from 'next/navigation'
-import { getPayload } from 'payload'
 
 type Props = {
   params: Promise<{
@@ -17,76 +21,24 @@ type Props = {
 export default async function PredictionPage({ params }: Props) {
   const { raceId } = await params
   const { user } = await getServerSideUser()
-  const payload = await getPayload({ config: configPromise })
 
   if (!user) {
     redirect(`/login?redirect=${encodeURIComponent(`/predictions/${raceId}`)}`)
   }
 
-  const race = await payload.findByID({
-    collection: 'races',
-    id: raceId,
-  })
+  const race = await getRaceById(raceId)
 
   if (!race) {
     notFound()
   }
 
-  const { docs: drivers } = await payload.find({
-    collection: 'drivers',
-    where: {
-      and: [
-        {
-          season: {
-            equals: race.season,
-          },
-        },
-        {
-          isActive: {
-            equals: true,
-          },
-        },
-      ],
-    },
-    sort: 'number',
-    limit: 100,
-  })
+  const [drivers, existingPrediction, recentPredictions] = await Promise.all([
+    getDrivers({ season: race.season, activeOnly: true }),
+    getUserPredictionForRace(user.id, raceId),
+    getPredictionsForRace(raceId, { limit: 5, sort: '-createdAt' }),
+  ])
 
-  const { docs: existingPredictions } = await payload.find({
-    collection: 'predictions',
-    where: {
-      and: [
-        {
-          user: {
-            equals: user.id,
-          },
-        },
-        {
-          race: {
-            equals: raceId,
-          },
-        },
-      ],
-    },
-    limit: 1,
-  })
-
-  const existingPrediction = existingPredictions[0] || null
-
-  // последние 5 проголосовавших
-  const { docs: allPredictions } = await payload.find({
-    collection: 'predictions',
-    where: {
-      race: {
-        equals: raceId,
-      },
-    },
-    sort: '-createdAt',
-    limit: 5,
-    depth: 1,
-  })
-
-  const recentPredictors = allPredictions
+  const recentPredictors = recentPredictions
     .map((pred) => (typeof pred.user === 'object' ? pred.user : null))
     .filter((u): u is User => u !== null)
 
@@ -126,13 +78,9 @@ export default async function PredictionPage({ params }: Props) {
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { raceId } = await params
-  const payload = await getPayload({ config: configPromise })
 
   try {
-    const race = await payload.findByID({
-      collection: 'races',
-      id: raceId,
-    })
+    const race = await getRaceById(raceId)
 
     return {
       title: `Прогноз на ${race.name}`,

@@ -1,36 +1,13 @@
 import { EventCard } from '@/components/EventPage/EventCard'
 import { getServerSideUser } from '@/utilities/getServerSideUser'
-import configPromise from '@payload-config'
-import { getPayload } from 'payload'
+import { getEvents, getUserEventResponses } from '@/utilities/queries'
 
 export default async function EventsPage() {
   const { user } = await getServerSideUser()
-  const payload = await getPayload({ config: configPromise })
 
-  const { docs: events } = await payload.find({
-    collection: 'events',
-    where: {
-      status: {
-        in: ['open', 'closed', 'completed'],
-      },
-    },
-    sort: '-openedAt',
-    limit: 50,
-  })
+  const events = await getEvents(['open', 'closed', 'completed'])
 
-  let userResponses: any[] = []
-  if (user) {
-    const { docs } = await payload.find({
-      collection: 'event-responses',
-      where: {
-        user: {
-          equals: user.id,
-        },
-      },
-      limit: 100,
-    })
-    userResponses = docs
-  }
+  const userResponses = user ? await getUserEventResponses(user.id) : []
 
   return (
     <div className="container mx-auto py-8 px-4">
@@ -62,8 +39,8 @@ export default async function EventsPage() {
                 userResponse={
                   userResponse
                     ? {
-                        correctAnswersCount: userResponse.correctAnswersCount,
-                        reward: userResponse.reward,
+                        correctAnswersCount: userResponse.correctAnswersCount ?? undefined,
+                        reward: userResponse.reward ?? undefined,
                       }
                     : undefined
                 }
