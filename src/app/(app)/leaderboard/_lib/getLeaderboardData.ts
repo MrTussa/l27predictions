@@ -71,9 +71,13 @@ export async function getLeaderboardData(year?: number): Promise<LeaderboardData
       return history?.points || 0
     })
 
+    let lastCumulative = 0
     const cumulativePoints = completedRaces.map((race) => {
       const history = historyMap.get(race.id)
-      return history?.cumulativePoints || 0
+      if (history) {
+        lastCumulative = history.cumulativePoints
+      }
+      return lastCumulative
     })
 
     return {

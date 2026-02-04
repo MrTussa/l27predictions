@@ -1,6 +1,7 @@
-import type { Race } from '@/payload-types'
+import type { Race, SeasonStat } from '@/payload-types'
 import type { Payload } from 'payload'
 import { calculatePoints } from './calculatePoints'
+import { normalizeID } from './normalizeID'
 
 /**
  * Пересчитывает статистику пользователя за сезон
@@ -73,15 +74,25 @@ export async function recalculateSeasonStats(
     {} as Record<string, typeof predictions>,
   )
 
+  const sortedRaces = [...racesToUse].sort((a, b) => a.round - b.round)
+
   const updates: Array<{
     userId: string
-    data: any
+    data: {
+      user: string
+      season: number
+      totalPoints: number
+      predictionsCount: number
+      perfectPredictions: number
+      currentStreak: number
+      bestStreak: number
+      raceHistory: Array<{ race: string; points: number; cumulativePoints: number }>
+      lastCalculated: string
+    }
     totalPoints: number
   }> = []
 
   for (const [userId, userPredictions] of Object.entries(predictionsByUser)) {
-    const sortedRaces = [...racesToUse].sort((a, b) => a.round - b.round)
-
     let totalPoints = 0
     let perfectPredictions = 0
     const raceHistory: Array<{
@@ -120,7 +131,6 @@ export async function recalculateSeasonStats(
     let bestStreak = 0
     let tempStreak = 0
 
-    // Гонки с конца (самые свежие)
     for (let i = sortedRaces.length - 1; i >= 0; i--) {
       const race = sortedRaces[i]
       const hasPrediction = userPredictions.some((p) => {
@@ -154,59 +164,51 @@ export async function recalculateSeasonStats(
         raceHistory,
         lastCalculated: new Date().toISOString(),
       },
-      totalPoints, // Сохраняем для дальнейшего использования
+      totalPoints,
     })
   }
 
+  // batch-запрос
+  const userIdsToUpdate = updates.map((u) => u.userId)
+  const { docs: existingStats } = await payload.find({
+    collection: 'season-stats',
+    where: {
+      and: [{ user: { in: userIdsToUpdate } }, { season: { equals: targetSeason } }],
+    },
+    limit: 1000,
+  })
+
+  const existingStatsMap = new Map<string, SeasonStat>(
+    existingStats.map((stat) => [normalizeID(stat.user), stat]),
+  )
+
   for (const update of updates) {
-    const { docs: existing } = await payload.find({
-      collection: 'season-stats',
-      where: {
-        and: [
-          {
-            user: {
-              equals: update.userId,
-            },
-          },
-          {
-            season: {
-              equals: targetSeason,
-            },
-          },
-        ],
-      },
-      limit: 1,
-    })
+    const existing = existingStatsMap.get(update.userId)
 
-    // Получаем seasonPredictionPoints из существующей записи (если есть)
-    const seasonPredictionPoints = existing.length > 0 ? existing[0].seasonPredictionPoints || 0 : 0
+    const seasonPredictionPoints = existing?.seasonPredictionPoints || 0
 
-    // Рассчитываем totalPointsWithSeasonPrediction
     const totalPointsWithSeasonPrediction = update.totalPoints + seasonPredictionPoints
 
-    // Добавляем новые поля к данным обновления
     const dataToSave = {
       ...update.data,
       totalPointsWithSeasonPrediction,
     }
 
-    // Обновляем существующую
-    if (existing.length > 0) {
+    if (existing) {
       await payload.update({
         collection: 'season-stats',
-        id: existing[0].id,
+        id: existing.id,
         data: {
           ...dataToSave,
-          seasonPredictionPoints, // Сохраняем существующее значение
+          seasonPredictionPoints,
         },
       })
     } else {
-      // Создаем новую
       await payload.create({
         collection: 'season-stats',
         data: {
           ...dataToSave,
-          seasonPredictionPoints: 0, // Для новой записи = 0
+          seasonPredictionPoints: 0,
         },
       })
     }

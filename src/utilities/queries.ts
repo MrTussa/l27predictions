@@ -238,6 +238,7 @@ export async function getUserEventResponses(userId: string) {
       user: { equals: userId },
     },
     limit: 100,
+    pagination: false,
   })
 
   return docs
@@ -250,6 +251,7 @@ export async function getUserEventResponse(userId: string, eventId: string) {
       and: [{ user: { equals: userId } }, { event: { equals: eventId } }],
     },
     limit: 1,
+    pagination: false,
   })
 
   return docs[0] || null
