@@ -1,12 +1,11 @@
 'use client'
 
+import { PodiumDriver } from '@/components/DriverCard'
 import { RaceCarousel } from '@/components/RaceCarousel'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
-import type { Driver, Prediction, Race, User } from '@/payload-types'
+import type { Prediction, Race, User } from '@/payload-types'
 import { canMakePrediction } from '@/utilities/raceStatus'
-import { Trophy } from 'lucide-react'
-import Image from 'next/image'
 import Link from 'next/link'
 import { useMemo, useState } from 'react'
 
@@ -14,125 +13,6 @@ interface PredictionsPageClientProps {
   races: Race[]
   user: User
   userPredictions: Prediction[]
-}
-
-interface PodiumDriverProps {
-  position: 1 | 2 | 3
-  driver: Driver | null
-}
-
-function PodiumDriver({ position, driver }: PodiumDriverProps) {
-  const positionHeights = {
-    1: 'h-[340px]',
-    2: 'h-[320px]',
-    3: 'h-[300px]',
-  }
-
-  const positionWidths = {
-    1: 'w-[260px]',
-    2: 'w-[240px]',
-    3: 'w-[220px]',
-  }
-
-  const positionLabels = {
-    1: '1ST',
-    2: '2ND',
-    3: '3RD',
-  }
-
-  if (!driver) {
-    return (
-      <div
-        className={`${positionHeights[position]} ${positionWidths[position]} p-0.5 clip-path-cut-corner bg-border transition-all duration-200`}
-      >
-        <div className="w-full h-full bg-background clip-path-cut-corner flex flex-col items-center justify-center">
-          <div className="text-6xl font-black opacity-20 text-muted-foreground">{position}</div>
-          <div className="text-sm text-muted-foreground">{positionLabels[position]}</div>
-        </div>
-      </div>
-    )
-  }
-
-  const photo = driver && typeof driver.photo === 'object' ? driver.photo : null
-  const countryFlag = driver && typeof driver.countryFlag === 'object' ? driver.countryFlag : null
-  const team = typeof driver.team === 'object' ? driver.team : null
-  const teamColor = team?.teamColor ?? '#FFDF2C'
-  const teamName = team?.name ?? 'Unknown Team'
-
-  return (
-    <div
-      className={`${positionHeights[position]} ${positionWidths[position]} p-0.5 clip-path-cut-corner transition-all duration-200`}
-    >
-      <div
-        className="w-full h-full clip-path-cut-corner relative overflow-hidden p-0.5"
-        style={{ backgroundColor: teamColor }}
-      >
-        <div className="w-full h-full bg-background clip-path-cut-corner relative overflow-hidden p-0.5">
-          <div className="w-full h-full bg-background clip-path-cut-corner relative overflow-hidden">
-            <div
-              className="absolute inset-0 opacity-20"
-              style={{
-                background: `linear-gradient(135deg, ${teamColor}40 0%, transparent 70%)`,
-              }}
-            />
-
-            {photo && photo.url && (
-              <div className="absolute inset-0 flex items-end justify-center">
-                <div className="relative w-full h-full">
-                  <Image
-                    src={photo.url}
-                    alt={driver.name}
-                    fill
-                    className="object-cover object-top"
-                    sizes="(max-width: 768px) 100vw, 33vw"
-                  />
-                </div>
-              </div>
-            )}
-
-            <div
-              className="absolute top-4 right-4 text-6xl font-black opacity-30"
-              style={{ color: teamColor }}
-            >
-              {position}
-            </div>
-
-            {position === 1 && (
-              <div className="absolute top-4 left-4">
-                <Trophy className="w-10 h-10 text-accent" fill="#FFDF2C" />
-              </div>
-            )}
-
-            <div className="absolute bottom-0 left-0 right-0 bg-linear-to-t from-background via-background/95 to-transparent p-4 pt-12 flex flex-row items-center justify-between">
-              <div>
-                <div
-                  className="text-2xl font-black mb-1 tracking-wider"
-                  style={{ color: teamColor }}
-                >
-                  {driver.shortName}
-                </div>
-                <div className="text-sm font-bold text-foreground/90 mb-1 truncate">
-                  {driver.name}
-                </div>
-                <div className="text-xs text-muted-foreground truncate">{teamName}</div>
-              </div>
-              {countryFlag && countryFlag.url && (
-                <div className="relative w-10 h-7 flex items-center overflow-hidden shrink-0">
-                  <Image
-                    src={countryFlag.url}
-                    alt="Country flag"
-                    fill
-                    className="object-cover"
-                    sizes="28px"
-                  />
-                </div>
-              )}
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  )
 }
 
 export function PredictionsPageClient({ races, userPredictions }: PredictionsPageClientProps) {

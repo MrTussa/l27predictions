@@ -24,7 +24,7 @@ export function PreviousRaceCard({ race, topDrivers, topPredictors }: PreviousRa
 
   return (
     <Card variant="elevated" corners="cut-corner" className="h-full">
-      <div className="space-y-6 px-6 py-8">
+      <div className="space-y-6 px-6">
         {/* Заголовок */}
         <div className="border-b border-muted pb-4">
           <h2 className="text-lg font-bold uppercase tracking-wide text-accent">Прошлая гонка</h2>

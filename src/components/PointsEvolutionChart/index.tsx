@@ -112,6 +112,7 @@ export function PointsEvolutionChart({ races, usersProgress }: PointsEvolutionCh
         <div className="space-y-1">
           {usersProgress.map((user) => {
             const isSelected = selectedUsers.has(user.userId)
+            console.log(user)
             const totalPoints = user.cumulativePoints[user.cumulativePoints.length - 1] || 0
 
             return (

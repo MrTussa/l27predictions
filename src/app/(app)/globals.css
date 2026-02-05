@@ -110,7 +110,7 @@
   --muted-foreground: hsl(215 20.2% 65.1%);
 
   --accent: #FFDF2C;
-  --accent-foreground: hsl(217.2 32.6% 17.5%);
+  --accent-foreground: hsl(41, 33%, 17%);
 
   --destructive: hsl(0 62.8% 30.6%);
   --destructive-foreground: hsl(210 40% 98%);
@@ -267,4 +267,54 @@ button {
   clip-path: polygon(0 0, 100% 0, 100% 100%);
   opacity: 0.3;
   pointer-events: none;
+}
+
+/* Glow эффект для блоков с clip-path через drop-shadow */
+@keyframes glow-pulse {
+
+  0%,
+  100% {
+    filter: drop-shadow(0 0 5px var(--glow-color, #FFDF2C)) drop-shadow(0 0 10px color-mix(in srgb, var(--glow-color, #FFDF2C) 50%, transparent));
+  }
+
+  50% {
+    filter: drop-shadow(0 0 5px var(--glow-color, #FFDF2C)) drop-shadow(0 0 3px color-mix(in srgb, var(--glow-color, #FFDF2C) 60%, transparent));
+  }
+}
+
+.glow-border {
+  animation: glow-pulse 2s ease-in-out infinite;
+}
+
+
+.canvas::before {
+  --spread: 35;
+  --dot: 1;
+  --size: 256;
+  --speed: 40;
+  --brightness: 1;
+  --intersect: source-in, xor;
+  --intersect-moz: intersect;
+  --depth: 100px;
+  --bg: gray;
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background: var(--bg);
+  mask:
+    radial-gradient(circle at 50% 50%, white calc(var(--dot) * 1px), transparent calc((var(--dot) * 1px) + 0.5px)) 50% 50% / calc(var(--spread) * 1px) calc(var(--spread) * 1px),
+    url("/media/noise-mask.webp") calc(var(--size) * 1px) 50% / calc(var(--size) * 1px) calc(var(--size) * 1px);
+  -webkit-mask-composite: var(--intersect);
+  mask-composite: var(--intersect-moz);
+  animation: flicker calc(var(--speed) * 1s) infinite linear;
+  filter: brightness(var(--brightness));
+  border-radius: 12px;
+}
+
+@keyframes flicker {
+  to {
+    mask-position: 50% 50%, 0 50%;
+  }
 }

@@ -52,7 +52,7 @@ export function AboutRace({
 
   return (
     <Card variant="elevated" corners="cut-corner" className="h-fit sticky top-4 ">
-      <div className="space-y-6 px-4">
+      <div className="space-y-4 px-4">
         {/* Заголовок */}
         <div className="border-b border-muted pb-4">
           <div className="flex items-start gap-3">
@@ -107,7 +107,7 @@ export function AboutRace({
 
         {/* Статус */}
         {status && (
-          <div className="pt-2 border-t border-muted">
+          <div className="pt-4 border-t border-muted">
             <div
               className={`flex items-center gap-2 font-bold uppercase tracking-wider text-sm ${status.color}`}
             >
@@ -119,7 +119,7 @@ export function AboutRace({
 
         {/* Список проголосовавших */}
         {recentPredictors.length > 0 && (
-          <div className="pt-2 border-t border-muted">
+          <div className="pt-4 border-t border-muted">
             <div className="text-sm text-muted-foreground uppercase tracking-wider mb-3 flex items-center gap-2">
               <IconUser className="w-4 h-4" />
               Уже проголосовали ({recentPredictors.length})

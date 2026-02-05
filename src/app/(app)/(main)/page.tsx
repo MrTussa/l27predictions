@@ -22,7 +22,7 @@ export default async function HomePage() {
     <div className="p-16 min-h-[calc(100vh-100px)]">
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
         {/* Пользователь */}
-        <section className="lg:col-span-1">
+        <section className="lg:-span-1">
           <UserInfoCard
             user={currentUser}
             seasonStats={userSeasonStats}
@@ -33,7 +33,7 @@ export default async function HomePage() {
 
         {/* Грядущая гонка */}
         {openRace && (
-          <section className="lg:col-span-2">
+          <section className="glow-border lg:col-span-2">
             <CurrentRaceCard race={openRace} votedCount={votedCount} />
           </section>
         )}

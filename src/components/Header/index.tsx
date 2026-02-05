@@ -20,7 +20,7 @@ export function Header() {
   const pathname = usePathname()
 
   return (
-    <div className="relative z-20 border-b">
+    <div className="relative z-20 border-b bg-background">
       <nav className="flex items-center justify-between container">
         <div className="block flex-none md:hidden">
           <Suspense fallback={null}>

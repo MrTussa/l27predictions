@@ -3,7 +3,7 @@ import { Skeleton } from '@/components/ui/skeleton'
 
 export default function PredictionFormLoading() {
   return (
-    <div className="px-16 py-6">
+    <div className="px-4 md:px-16 py-6">
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
         {/* Форма прогноза - 75% */}
         <div className="lg:col-span-3 space-y-8">
@@ -45,7 +45,7 @@ export default function PredictionFormLoading() {
         {/* Информация о гонке - 25% */}
         <div className="lg:col-span-1">
           <Card variant="elevated" corners="cut-corner" className="h-fit sticky top-4">
-            <div className="space-y-6 px-4">
+            <div className="space-y-4 px-4">
               {/* Заголовок */}
               <div className="border-b border-muted pb-4">
                 <div className="flex items-start gap-3">
@@ -72,12 +72,12 @@ export default function PredictionFormLoading() {
               </div>
 
               {/* Статус */}
-              <div className="pt-2 border-t border-muted">
+              <div className="pt-4 border-t border-muted">
                 <Skeleton className="w-36 h-5" />
               </div>
 
               {/* Проголосовавшие */}
-              <div className="pt-2 border-t border-muted">
+              <div className="pt-4 border-t border-muted">
                 <Skeleton className="w-44 h-4 mb-3" />
                 {Array.from({ length: 5 }).map((_, i) => (
                   <div key={i} className="flex items-center gap-2 mb-2">

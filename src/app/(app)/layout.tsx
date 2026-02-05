@@ -1,6 +1,7 @@
 import type { ReactNode } from 'react'
 
 import { AdminBar } from '@/components/AdminBar'
+import Footer from '@/components/Footer'
 import { Header } from '@/components/Header'
 import { Providers } from '@/providers'
 import { GeistMono } from 'geist/font/mono'
@@ -51,7 +52,8 @@ export default async function RootLayout({ children }: { children: ReactNode }) 
           <AdminBar />
 
           <Header />
-          <main>{children}</main>
+          <main className="canvas min-h-[70dvh]">{children}</main>
+          <Footer />
         </Providers>
       </body>
     </html>

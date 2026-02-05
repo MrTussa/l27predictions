@@ -19,8 +19,7 @@ import {
 import { rectSortingStrategy, SortableContext } from '@dnd-kit/sortable'
 import { useRouter } from 'next/navigation'
 import { toast } from 'sonner'
-import { DriverCard } from './DriverCard'
-import { PodiumSlot } from './PodiumSlot'
+import { DriverCardSelectable, PodiumSlot } from '@/components/DriverCard'
 
 type Props = {
   race: Race
@@ -41,7 +40,6 @@ export const PredictionForm: React.FC<Props> = ({
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [activeId, setActiveId] = useState<string | null>(null)
 
-  // Инициализируем подиум: [null, null, null] или с данными из прогноза
   const initialPodium: (string | null)[] = [null, null, null]
   if (existingPrediction) {
     existingPrediction.predictions
@@ -205,40 +203,45 @@ export const PredictionForm: React.FC<Props> = ({
             ]}
             strategy={rectSortingStrategy}
           >
-            <div className="flex items-end justify-center gap-6 mb-8">
-              {/* 2 место (слева) */}
-              <div className="flex-1 max-w-[280px]">
-                <PodiumSlot
-                  position={2}
-                  driver={getPodiumDriver(1)}
-                  onRemove={() => handleRemoveFromPodium(1)}
-                  disabled={!isPredictionOpen}
-                />
+            {/* Подиум слоты */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:flex lg:items-end lg:justify-center gap-4 lg:gap-6 mb-8">
+              <div className="md:col-span-2 lg:order-2 lg:flex-1 lg:max-w-[280px] flex justify-center">
+                <div className="w-full max-w-[280px]">
+                  <PodiumSlot
+                    position={1}
+                    driver={getPodiumDriver(0)}
+                    onRemove={() => handleRemoveFromPodium(0)}
+                    disabled={!isPredictionOpen}
+                  />
+                </div>
               </div>
 
-              {/* 1 место (центр, выше) */}
-              <div className="flex-1 max-w-[280px]">
-                <PodiumSlot
-                  position={1}
-                  driver={getPodiumDriver(0)}
-                  onRemove={() => handleRemoveFromPodium(0)}
-                  disabled={!isPredictionOpen}
-                />
+              <div className="lg:order-1 lg:flex-1 lg:max-w-[280px] flex justify-center">
+                <div className="w-full max-w-[280px]">
+                  <PodiumSlot
+                    position={2}
+                    driver={getPodiumDriver(1)}
+                    onRemove={() => handleRemoveFromPodium(1)}
+                    disabled={!isPredictionOpen}
+                  />
+                </div>
               </div>
 
-              {/* 3 место (справа) */}
-              <div className="flex-1 max-w-[280px]">
-                <PodiumSlot
-                  position={3}
-                  driver={getPodiumDriver(2)}
-                  onRemove={() => handleRemoveFromPodium(2)}
-                  disabled={!isPredictionOpen}
-                />
+              <div className="lg:order-3 lg:flex-1 lg:max-w-[280px] flex justify-center">
+                <div className="w-full max-w-[280px]">
+                  <PodiumSlot
+                    position={3}
+                    driver={getPodiumDriver(2)}
+                    onRemove={() => handleRemoveFromPodium(2)}
+                    disabled={!isPredictionOpen}
+                  />
+                </div>
               </div>
             </div>
           </SortableContext>
 
           <SortableContext items={availableDrivers.map((d) => d.id)} strategy={rectSortingStrategy}>
+            {/* Список пилотов */}
             <div>
               <h2 className="text-2xl font-bold mb-6">
                 Доступные пилоты ({availableDrivers.length})
@@ -251,7 +254,7 @@ export const PredictionForm: React.FC<Props> = ({
                 ) : (
                   <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
                     {availableDrivers.map((driver) => (
-                      <DriverCard
+                      <DriverCardSelectable
                         key={driver.id}
                         driver={driver}
                         draggable
@@ -267,7 +270,7 @@ export const PredictionForm: React.FC<Props> = ({
           <DragOverlay>
             {activeId ? (
               <div className="opacity-50">
-                <DriverCard driver={drivers.find((d) => d.id === activeId)!} />
+                <DriverCardSelectable driver={drivers.find((d) => d.id === activeId)!} />
               </div>
             ) : null}
           </DragOverlay>
