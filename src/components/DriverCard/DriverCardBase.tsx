@@ -45,7 +45,7 @@ export function DriverCardBase({
           className="absolute inset-0 w-[200%] left-[-50%]"
           style={{
             backgroundColor: `color-mix(in srgb, #000 100%, ${teamColor} 50%)`,
-            maskImage: 'url(/media/mask.webp)',
+            maskImage: 'url(/mask.webp)',
             maskSize: 'contain',
             maskPosition: 'center',
           }}
@@ -124,7 +124,11 @@ export interface EmptySlotProps {
   isHighlighted?: boolean
 }
 
-export function EmptySlot({ position, height = 'h-[280px]', isHighlighted = false }: EmptySlotProps) {
+export function EmptySlot({
+  position,
+  height = 'h-[280px]',
+  isHighlighted = false,
+}: EmptySlotProps) {
   const positionLabels = {
     1: '1ST',
     2: '2ND',

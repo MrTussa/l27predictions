@@ -305,7 +305,7 @@ button {
   background: var(--bg);
   mask:
     radial-gradient(circle at 50% 50%, white calc(var(--dot) * 1px), transparent calc((var(--dot) * 1px) + 0.5px)) 50% 50% / calc(var(--spread) * 1px) calc(var(--spread) * 1px),
-    url("/media/noise-mask.webp") calc(var(--size) * 1px) 50% / calc(var(--size) * 1px) calc(var(--size) * 1px);
+    url("/noise-mask.webp") calc(var(--size) * 1px) 50% / calc(var(--size) * 1px) calc(var(--size) * 1px);
   -webkit-mask-composite: var(--intersect);
   mask-composite: var(--intersect-moz);
   animation: flicker calc(var(--speed) * 1s) infinite linear;
