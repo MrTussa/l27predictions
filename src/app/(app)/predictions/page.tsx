@@ -23,3 +23,5 @@ export const metadata: Metadata = {
   title: 'Прогнозы',
   description: 'Делайте прогнозы на гонки Формулы 1 и соревнуйтесь с другими участниками',
 }
+
+export const dynamic = 'force-dynamic'

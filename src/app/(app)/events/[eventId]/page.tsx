@@ -9,6 +9,8 @@ import {
 } from '@/utilities/queries'
 import { redirect } from 'next/navigation'
 
+export const dynamic = 'force-dynamic'
+
 type Props = {
   params: Promise<{
     eventId: string

@@ -47,3 +47,5 @@ export const metadata: Metadata = {
   }),
   title: 'Личный кабинет',
 }
+
+export const dynamic = 'force-dynamic'

@@ -2,6 +2,8 @@ import { EventCard } from '@/components/EventPage/EventCard'
 import { getServerSideUser } from '@/utilities/getServerSideUser'
 import { getEvents, getUserEventResponses } from '@/utilities/queries'
 
+export const dynamic = 'force-dynamic'
+
 export default async function EventsPage() {
   const { user } = await getServerSideUser()
 

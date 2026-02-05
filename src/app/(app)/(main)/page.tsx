@@ -54,3 +54,5 @@ export const metadata: Metadata = {
   title: 'L27 F1 Predictions',
   description: 'Чемпионат по прогнозам Формулы 1 — делайте прогнозы и соревнуйтесь с друзьями',
 }
+
+export const dynamic = 'force-dynamic'

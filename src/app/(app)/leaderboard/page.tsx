@@ -40,3 +40,6 @@ export const metadata: Metadata = {
   title: 'Таблица лидеров',
   description: 'Таблица лидеров чемпионата по прогнозам Формулы 1',
 }
+
+// Disable caching for dynamic leaderboard data
+export const dynamic = 'force-dynamic'
