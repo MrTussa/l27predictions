@@ -3,7 +3,7 @@ import { Skeleton } from '@/components/ui/skeleton'
 
 export default function PredictionsLoading() {
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen">
       <div className="px-8 pt-8">
         <div className="max-w-[1800px] mx-auto">
           <div className="grid grid-cols-1 xl:grid-cols-[1fr_400px] gap-8">
