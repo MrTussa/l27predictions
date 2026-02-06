@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button'
 import { Driver, Prediction, Race, User } from '@/payload-types'
 import { useState } from 'react'
 
+import { DriverCardSelectable, PodiumSlot } from '@/components/DriverCard'
 import type { CollisionDetection } from '@dnd-kit/core'
 import {
   closestCenter,
@@ -11,15 +12,15 @@ import {
   DragEndEvent,
   DragOverlay,
   DragStartEvent,
-  PointerSensor,
+  MouseSensor,
   pointerWithin,
+  TouchSensor,
   useSensor,
   useSensors,
 } from '@dnd-kit/core'
 import { rectSortingStrategy, SortableContext } from '@dnd-kit/sortable'
 import { useRouter } from 'next/navigation'
 import { toast } from 'sonner'
-import { DriverCardSelectable, PodiumSlot } from '@/components/DriverCard'
 
 type Props = {
   race: Race
@@ -54,9 +55,15 @@ export const PredictionForm: React.FC<Props> = ({
   const [podium, setPodium] = useState<(string | null)[]>(initialPodium)
 
   const sensors = useSensors(
-    useSensor(PointerSensor, {
+    useSensor(MouseSensor, {
       activationConstraint: {
         distance: 8,
+      },
+    }),
+    useSensor(TouchSensor, {
+      activationConstraint: {
+        delay: 300,
+        tolerance: 8,
       },
     }),
   )
@@ -269,7 +276,7 @@ export const PredictionForm: React.FC<Props> = ({
 
           <DragOverlay>
             {activeId ? (
-              <div className="opacity-50">
+              <div className="opacity-50 scale-110 ">
                 <DriverCardSelectable driver={drivers.find((d) => d.id === activeId)!} />
               </div>
             ) : null}
