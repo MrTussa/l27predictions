@@ -211,8 +211,8 @@ export const PredictionForm: React.FC<Props> = ({
             strategy={rectSortingStrategy}
           >
             {/* Подиум слоты */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:flex lg:items-end lg:justify-center gap-4 lg:gap-6 mb-8">
-              <div className="md:col-span-2 lg:order-2 lg:flex-1 lg:max-w-[280px] flex justify-center">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:flex lg:items-end lg:justify-center gap-4 lg:gap-6 mb-8">
+              <div className="sm:col-span-2 lg:order-2 lg:flex-1 flex justify-center">
                 <div className="w-full max-w-[280px]">
                   <PodiumSlot
                     position={1}
@@ -223,7 +223,7 @@ export const PredictionForm: React.FC<Props> = ({
                 </div>
               </div>
 
-              <div className="lg:order-1 lg:flex-1 lg:max-w-[280px] flex justify-center">
+              <div className="lg:order-1 lg:flex-1 flex justify-center">
                 <div className="w-full max-w-[280px]">
                   <PodiumSlot
                     position={2}
@@ -234,7 +234,7 @@ export const PredictionForm: React.FC<Props> = ({
                 </div>
               </div>
 
-              <div className="lg:order-3 lg:flex-1 lg:max-w-[280px] flex justify-center">
+              <div className="lg:order-3 lg:flex-1 flex justify-center">
                 <div className="w-full max-w-[280px]">
                   <PodiumSlot
                     position={3}
@@ -259,7 +259,7 @@ export const PredictionForm: React.FC<Props> = ({
                     <p>Все пилоты на подиуме</p>
                   </div>
                 ) : (
-                  <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
                     {availableDrivers.map((driver) => (
                       <DriverCardSelectable
                         key={driver.id}

@@ -31,7 +31,7 @@ function Footer() {
   return (
     <footer className="relative z-10 bg-linear-to-t from-neutral-900 via-neutral-900/80 to-neutral-950/0 backdrop-blur-[2px] border-t border-white/10">
       <div className="container mx-auto px-4 py-8 lg:py-12">
-        <span className="text-7xl md:text-8xl lg:text-9xl scale-x-[1.2] font-normal bg-linear-to-b from-primary to-accent/50 bg-clip-text text-transparent">
+        <span className="text-4xl sm:text-6xl md:text-7xl lg:text-8xl scale-x-[1.2] font-normal bg-linear-to-b from-primary to-accent/50 bg-clip-text text-transparent">
           L27 Predictions
         </span>
 

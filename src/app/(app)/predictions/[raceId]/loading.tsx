@@ -12,18 +12,18 @@ export default function PredictionFormLoading() {
             <Skeleton variant="title" className="w-64 h-8 mb-6" />
 
             {/* Podium Slots */}
-            <div className="flex items-end justify-center gap-6 mb-8">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:flex lg:items-end lg:justify-center gap-4 lg:gap-6mb-8">
               {/* 2 место */}
-              <div className="flex-1 max-w-[280px]">
-                <Skeleton className="h-[280px] w-full clip-path-cut-corner" />
+              <div className="md:col-span-2 lg:order-2 lg:flex-1 flex justify-center">
+                <Skeleton className="h-[250px] lg:h-[320px] w-full clip-path-cut-corner max-w-[280px] lg:max-w-none" />
               </div>
               {/* 1 место */}
-              <div className="flex-1 max-w-[280px]">
-                <Skeleton className="h-[320px] w-full clip-path-cut-corner" />
+              <div className="lg:order-1 lg:flex-1 flex justify-center">
+                <Skeleton className="h-[250px] lg:h-[280px] w-full clip-path-cut-corner max-w-[280px] lg:max-w-none" />
               </div>
               {/* 3 место */}
-              <div className="flex-1 max-w-[280px]">
-                <Skeleton className="h-[260px] w-full clip-path-cut-corner" />
+              <div className="lg:order-3 lg:flex-1 flex justify-center">
+                <Skeleton className="h-[250px] lg:h-[260px] w-full clip-path-cut-corner max-w-[280px] lg:max-w-none" />
               </div>
             </div>
           </div>

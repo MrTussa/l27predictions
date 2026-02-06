@@ -65,9 +65,11 @@ export function RaceCarousel({ races, selectedRace, onRaceSelect }: RaceCarousel
         {races.map((race) => {
           const isSelected = race.id === selectedRace.id
           const svgPath = race.trackSVGPath || undefined
-
+          const fillRegExp = /fill="[^"]*"/
           // Заменяем fill для неактивных гонок
-          const svgWithColor = svgPath?.replace(/fill="[^"]*"/, 'fill="#666666"')
+          const svgWithColor = svgPath?.match(fillRegExp)
+            ? svgPath?.replace(/fill="[^"]*"/, 'fill="#FFFFFF"')
+            : svgPath?.replace(/<svg /, '<svg fill="#FFFFFF"')
 
           return (
             <button

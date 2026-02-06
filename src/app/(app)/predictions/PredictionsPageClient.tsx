@@ -43,7 +43,7 @@ export function PredictionsPageClient({ races, userPredictions }: PredictionsPag
   }, [userPrediction])
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen">
       <div className="px-8 pt-8 ">
         <div className="max-w-[1800px] mx-auto">
           <div className="grid grid-cols-1 xl:grid-cols-[1fr_400px] gap-8">
@@ -53,33 +53,43 @@ export function PredictionsPageClient({ races, userPredictions }: PredictionsPag
               </h2>
               <div className=" min-h-[400px]">
                 {selectedRace.results && selectedRace.results.length > 0 ? (
-                  <div className="flex justify-center items-end gap-4">
-                    <PodiumDriver
-                      position={2}
-                      driver={
-                        typeof selectedRace.results[1]?.driver === 'object'
-                          ? selectedRace.results[1].driver
-                          : null
-                      }
-                    />
-
-                    <PodiumDriver
-                      position={1}
-                      driver={
-                        typeof selectedRace.results[0]?.driver === 'object'
-                          ? selectedRace.results[0].driver
-                          : null
-                      }
-                    />
-
-                    <PodiumDriver
-                      position={3}
-                      driver={
-                        typeof selectedRace.results[2]?.driver === 'object'
-                          ? selectedRace.results[2].driver
-                          : null
-                      }
-                    />
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:flex lg:items-end lg:justify-center gap-4 lg:gap-6">
+                    <div className="sm:col-span-2 lg:order-2 lg:flex-1 flex justify-center">
+                      <div className="w-full max-w-[280px] lg:max-w-none">
+                        <PodiumDriver
+                          position={1}
+                          driver={
+                            typeof selectedRace.results[0]?.driver === 'object'
+                              ? selectedRace.results[0].driver
+                              : null
+                          }
+                        />
+                      </div>
+                    </div>
+                    <div className="lg:order-1 lg:flex-1 flex justify-center">
+                      <div className="w-full max-w-[280px] lg:max-w-none">
+                        <PodiumDriver
+                          position={2}
+                          driver={
+                            typeof selectedRace.results[1]?.driver === 'object'
+                              ? selectedRace.results[1].driver
+                              : null
+                          }
+                        />
+                      </div>
+                    </div>
+                    <div className="lg:order-3 lg:flex-1 flex justify-center">
+                      <div className="w-full max-w-[280px] lg:max-w-none">
+                        <PodiumDriver
+                          position={3}
+                          driver={
+                            typeof selectedRace.results[2]?.driver === 'object'
+                              ? selectedRace.results[2].driver
+                              : null
+                          }
+                        />
+                      </div>
+                    </div>
                   </div>
                 ) : (
                   <div className="text-center text-muted-foreground py-8">

@@ -103,7 +103,7 @@ export function PointsEvolutionChart({ races, usersProgress }: PointsEvolutionCh
   }
 
   return (
-    <div className="w-full flex gap-6 px-6">
+    <div className="w-full flex flex-col md:flex-row gap-6 px-6">
       {/* Левая панель - список пользователей */}
       <div className="w-64 shrink-0 space-y-2">
         <h3 className="text-sm font-bold uppercase tracking-wider text-muted-foreground mb-4">
@@ -112,7 +112,6 @@ export function PointsEvolutionChart({ races, usersProgress }: PointsEvolutionCh
         <div className="space-y-1">
           {usersProgress.map((user) => {
             const isSelected = selectedUsers.has(user.userId)
-            console.log(user)
             const totalPoints = user.cumulativePoints[user.cumulativePoints.length - 1] || 0
 
             return (

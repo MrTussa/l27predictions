@@ -13,9 +13,9 @@ interface PodiumSlotProps {
 }
 
 const POSITION_HEIGHTS = {
-  1: 'h-[340px]',
-  2: 'h-[320px]',
-  3: 'h-[300px]',
+  1: 'h-[250px] lg:h-[340px]',
+  2: 'h-[250px] lg:h-[320px]',
+  3: 'h-[250px] lg:h-[300px]',
 } as const
 
 /**

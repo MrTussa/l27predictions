@@ -10,13 +10,19 @@ export default function PredictionsLoading() {
             {/* Podium секция */}
             <div className="p-1">
               <Skeleton variant="title" className="w-64 h-8 mx-auto mb-6" />
-              <div className="flex justify-center items-end gap-4 min-h-[400px]">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:flex lg:items-end lg:justify-center gap-4 lg:gap-6mb-8">
                 {/* 2 место */}
-                <Skeleton className="w-[240px] h-[320px] clip-path-cut-corner" />
+                <div className="md:col-span-2 lg:order-2 lg:flex-1 flex justify-center">
+                  <Skeleton className="h-[250px] lg:h-[320px] w-full clip-path-cut-corner max-w-[280px] lg:max-w-none" />
+                </div>
                 {/* 1 место */}
-                <Skeleton className="w-[260px] h-[340px] clip-path-cut-corner" />
+                <div className="lg:order-1 lg:flex-1 flex justify-center">
+                  <Skeleton className="h-[250px] lg:h-[280px] w-full clip-path-cut-corner max-w-[280px] lg:max-w-none" />
+                </div>
                 {/* 3 место */}
-                <Skeleton className="w-[220px] h-[300px] clip-path-cut-corner" />
+                <div className="lg:order-3 lg:flex-1 flex justify-center">
+                  <Skeleton className="h-[250px] lg:h-[260px] w-full clip-path-cut-corner max-w-[280px] lg:max-w-none" />
+                </div>
               </div>
             </div>
 
