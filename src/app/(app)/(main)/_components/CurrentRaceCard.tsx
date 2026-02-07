@@ -62,18 +62,20 @@ export function CurrentRaceCard({ race, votedCount }: CurrentRaceCardProps) {
                 <IconClock className="w-4 h-4" />
                 Осталось
               </div>
-              <div className="text-6xl font-bold text-accent">{formatTimeRemaining()}</div>
+              <div className="text-3xl md:text-6xl font-bold text-accent">
+                {formatTimeRemaining()}
+              </div>
             </div>
 
             <div>
-              <div className="text-sm tracking-wider text-muted-foreground uppercase text-right">
+              <div className="text-xs md:text-sm tracking-wider text-muted-foreground uppercase text-right">
                 <div>Проголосовали</div>
-                <div className=" font-bold">{votedCount}</div>
+                <div className="text-sm md:text-base font-bold">{votedCount}</div>
               </div>
 
-              <div className="text-sm text-muted-foreground uppercase tracking-wider text-right">
+              <div className="text-xs md:text-sm text-muted-foreground uppercase tracking-wider text-right">
                 <div>Начало гонки</div>
-                <div className="text-lg font-bold">
+                <div className="text-base md:text-lg font-bold">
                   {raceDate.toLocaleDateString('ru-RU', {
                     day: 'numeric',
                     month: 'long',
