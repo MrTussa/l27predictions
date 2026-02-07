@@ -19,10 +19,19 @@ export const UserMenu: React.FC = () => {
   if (!user) {
     return (
       <div className="flex items-center gap-2">
-        <Button asChild variant={'ghost'}>
+        <Button
+          size={'clear'}
+          className="h-8 px-3 py-2 text-xs md:text-base md:h-10 md:px-6 "
+          asChild
+          variant={'ghost'}
+        >
           <Link href="/login">Вход</Link>
         </Button>
-        <Button asChild>
+        <Button
+          size={'clear'}
+          className="h-8 px-3 py-2 text-xs md:text-base md:h-10 md:px-6 "
+          asChild
+        >
           <Link href="/create-account">Регистрация</Link>
         </Button>
       </div>
