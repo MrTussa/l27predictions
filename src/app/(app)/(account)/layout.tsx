@@ -13,7 +13,7 @@ export default async function AccountLayout({ children }: { children: ReactNode 
   }
 
   return (
-    <div className="container mt-6">
+    <div className="container px-4 md:px-16 py-6">
       <div className="max-w-6xl mx-auto">
         <RenderParams />
 

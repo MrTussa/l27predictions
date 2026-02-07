@@ -3,7 +3,7 @@ import { Skeleton } from '@/components/ui/skeleton'
 
 export default function EventsLoading() {
   return (
-    <div className="container mx-auto py-8 px-4">
+    <div className="container mx-auto px-4 md:px-16 py-6">
       {/* Заголовок */}
       <div className="mb-8">
         <Skeleton variant="title" className="w-48 h-10 mb-2" />

@@ -8,7 +8,7 @@ export default async function LeaderboardPage() {
   const { leaderboardData, usersProgress, completedRaces } = await getLeaderboardData()
 
   return (
-    <div className="container py-8">
+    <div className="container px-4 md:px-16 py-6">
       <div className="max-w-7xl mx-auto">
         {leaderboardData.length === 0 ? (
           <div className="text-center py-8 border bg-muted/20">

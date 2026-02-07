@@ -3,7 +3,7 @@ import { Skeleton, SkeletonText } from '@/components/ui/skeleton'
 
 export default function Loading() {
   return (
-    <div className="p-16 min-h-[calc(100vh-100px)]">
+    <div className="px-4 md:px-16 py-6 min-h-[calc(100vh-100px)]">
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
         <div className="lg:col-span-1">
           <Card variant="gray" corners="cut-corner" className="h-full min-h-80 ">

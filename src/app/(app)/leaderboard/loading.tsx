@@ -3,7 +3,7 @@ import { Skeleton } from '@/components/ui/skeleton'
 
 export default function LeaderboardLoading() {
   return (
-    <div className="container py-8">
+    <div className="container px-4 md:px-16 py-6">
       <div className="max-w-7xl mx-auto space-y-8">
         {/* График (PointsEvolutionChart) */}
         <Card variant="default" corners="cut-corner">

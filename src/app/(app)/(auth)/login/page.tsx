@@ -18,7 +18,7 @@ export default async function Login() {
   }
 
   return (
-    <div className="container py-8 max-w-2xl mx-auto">
+    <div className="container px-4 md:px-16 py-6 max-w-2xl mx-auto">
       <h1 className="text-3xl font-bold mb-2">Вход</h1>
       <p className="text-muted-foreground mb-8">Войдите в свой аккаунт для участия в чемпионате</p>
       <RenderParams />

@@ -2,7 +2,7 @@ import { Skeleton } from '@/components/ui/skeleton'
 
 export default function AuthLoading() {
   return (
-    <div className="container py-8 max-w-2xl mx-auto">
+    <div className="container px-4 md:px-16 py-6 max-w-2xl mx-auto">
       {/* Заголовок */}
       <Skeleton variant="title" className="w-32 h-9 mb-2" />
       <Skeleton className="w-96 h-4 mb-8" />

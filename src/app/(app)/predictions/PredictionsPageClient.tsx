@@ -44,7 +44,7 @@ export function PredictionsPageClient({ races, userPredictions }: PredictionsPag
 
   return (
     <div className="min-h-screen">
-      <div className="px-8 pt-8 ">
+      <div className="px-4 md:px-16 py-6">
         <div className="max-w-[1800px] mx-auto">
           <div className="grid grid-cols-1 xl:grid-cols-[1fr_400px] gap-8">
             <div className="p-1">

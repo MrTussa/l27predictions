@@ -12,7 +12,7 @@ export default async function EventsPage() {
   const userResponses = user ? await getUserEventResponses(user.id) : []
 
   return (
-    <div className="container mx-auto py-8 px-4">
+    <div className="container mx-auto px-4 md:px-16 py-6">
       <div className="mb-8">
         <h1 className="text-4xl font-bold uppercase tracking-tight mb-2">События</h1>
         <p className="text-muted-foreground">

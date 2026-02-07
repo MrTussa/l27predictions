@@ -19,7 +19,7 @@ export default async function HomePage() {
   } = await getHomePageData(currentUser?.id)
 
   return (
-    <div className="p-16 min-h-[calc(100vh-100px)]">
+    <div className="px-4 md:px-16 py-6 min-h-[calc(100vh-100px)]">
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
         {/* Пользователь */}
         <section className="lg:-span-1">
