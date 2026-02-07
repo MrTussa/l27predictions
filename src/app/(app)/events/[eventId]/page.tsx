@@ -1,8 +1,8 @@
-import { EventForm } from '@/components/EventPage/EventForm'
-import { EventHeader } from '@/components/EventPage/EventHeader'
 import { getServerSideUser } from '@/utilities/getServerSideUser'
 import { getDrivers, getEventById, getTeams, getUserEventResponse } from '@/utilities/queries'
 import { redirect } from 'next/navigation'
+import { EventForm } from './_components/EventForm'
+import { EventHeader } from './_components/EventHeader'
 
 export const dynamic = 'force-dynamic'
 

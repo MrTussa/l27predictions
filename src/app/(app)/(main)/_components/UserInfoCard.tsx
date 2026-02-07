@@ -1,8 +1,8 @@
+import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 import type { SeasonStat, User } from '@/payload-types'
 import { IconAlertCircle, IconFlame, IconTrophy } from '@tabler/icons-react'
 import Link from 'next/link'
-import { Button } from '../ui/button'
 
 interface UserInfoCardProps {
   user: User | null

@@ -1,5 +1,3 @@
-import { PredictionForm } from '@/components/PredictionForm'
-import { AboutRace } from '@/components/PredictionPage/AboutRace'
 import type { User } from '@/payload-types'
 import { getServerSideUser } from '@/utilities/getServerSideUser'
 import {
@@ -11,6 +9,8 @@ import {
 import { canMakePrediction, getRaceStatus } from '@/utilities/raceStatus'
 import type { Metadata } from 'next'
 import { notFound, redirect } from 'next/navigation'
+import { AboutRace } from './_components/AboutRace'
+import { PredictionForm } from './_components/PredictionForm'
 
 type Props = {
   params: Promise<{

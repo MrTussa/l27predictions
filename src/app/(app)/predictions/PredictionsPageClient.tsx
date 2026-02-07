@@ -1,13 +1,13 @@
 'use client'
 
 import { PodiumDriver } from '@/components/DriverCard'
-import { RaceCarousel } from '@/components/RaceCarousel'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 import type { Prediction, Race, User } from '@/payload-types'
 import { canMakePrediction } from '@/utilities/raceStatus'
 import Link from 'next/link'
 import { useMemo, useState } from 'react'
+import { RaceCarousel } from './_components/RaceCarousel'
 
 interface PredictionsPageClientProps {
   races: Race[]
@@ -20,7 +20,7 @@ export function PredictionsPageClient({ races, userPredictions }: PredictionsPag
   const defaultRace =
     races.find((race) => {
       const raceDate = new Date(race.raceDate)
-      return raceDate < now && race.results && race.results.length > 0
+      return raceDate > now && race.results && race.results.length > 0
     }) || races[0]
 
   const [selectedRace, setSelectedRace] = useState<Race>(defaultRace)

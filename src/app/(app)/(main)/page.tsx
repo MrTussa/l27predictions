@@ -1,8 +1,8 @@
-import { CurrentRaceCard } from '@/components/HomePage/CurrentRaceCard'
-import { PreviousRaceCard } from '@/components/HomePage/PreviousRaceCard'
-import { UserInfoCard } from '@/components/HomePage/UserInfoCard'
 import { getServerSideUser } from '@/utilities/getServerSideUser'
 import type { Metadata } from 'next'
+import { CurrentRaceCard } from './_components/CurrentRaceCard'
+import { PreviousRaceCard } from './_components/PreviousRaceCard'
+import { UserInfoCard } from './_components/UserInfoCard'
 import { getHomePageData } from './_lib/getHomePageData'
 
 export default async function HomePage() {

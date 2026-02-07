@@ -1,6 +1,6 @@
-import { EventCard } from '@/components/EventPage/EventCard'
 import { getServerSideUser } from '@/utilities/getServerSideUser'
 import { getEvents, getUserEventResponses } from '@/utilities/queries'
+import { EventCard } from './_components/EventCard'
 
 export const dynamic = 'force-dynamic'
 

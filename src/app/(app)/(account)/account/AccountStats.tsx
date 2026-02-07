@@ -1,7 +1,7 @@
 import { Card } from '@/components/ui/card'
-import { SeasonPredictionBlock } from '@/components/SeasonPredictionBlock'
 import { getServerSideUser } from '@/utilities/getServerSideUser'
 import { IconChartLine, IconFlame, IconTarget, IconTrophy } from '@tabler/icons-react'
+import { SeasonPredictionBlock } from './_components/SeasonPredictionBlock'
 import { getAccountData } from './_lib/getAccountData'
 
 export async function AccountStats() {
@@ -14,7 +14,8 @@ export async function AccountStats() {
 
   const { userStats, userRank, userPredictions } = await getAccountData(user.id)
 
-  const totalPointsWithSeason = userStats?.totalPointsWithSeasonPrediction || userStats?.totalPoints || 0
+  const totalPointsWithSeason =
+    userStats?.totalPointsWithSeasonPrediction || userStats?.totalPoints || 0
   const seasonPoints = userStats?.seasonPredictionPoints || 0
 
   const stats = [

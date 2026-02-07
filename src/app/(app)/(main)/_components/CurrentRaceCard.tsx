@@ -1,10 +1,10 @@
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
+import RaceTrackVisualization from '@/components/ui/racetrack'
 import type { Race } from '@/payload-types'
 import { IconClock } from '@tabler/icons-react'
 import Image from 'next/image'
 import Link from 'next/link'
-import RaceTrackVisualization from '../ui/racetrack'
 
 interface CurrentRaceCardProps {
   race: Race
