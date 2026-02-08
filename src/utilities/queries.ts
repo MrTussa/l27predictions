@@ -68,6 +68,7 @@ export async function getUserPredictions(
       user: { equals: userId },
     },
     depth,
+    select: { user: false },
     limit,
   })
 
@@ -199,13 +200,14 @@ export async function getDrivers(options?: {
   return docs
 }
 
-export async function getTeams(options?: { activeOnly?: boolean }) {
-  const { activeOnly = true } = options || {}
+export async function getTeams(options?: { activeOnly?: boolean; depth?: number }) {
+  const { activeOnly = true, depth = 0 } = options || {}
 
   const { docs } = await payload.find({
     collection: 'teams',
     where: activeOnly ? { isActive: { equals: true } } : undefined,
     sort: 'name',
+    depth: depth,
     limit: 100,
   })
 

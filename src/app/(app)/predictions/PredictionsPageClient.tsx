@@ -1,9 +1,10 @@
 'use client'
 
 import { PodiumDriver } from '@/components/DriverCard/PodiumDriver'
+import { PredictionCard } from '@/components/DriverCard/PredictionCard'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
-import type { Prediction, Race, User } from '@/payload-types'
+import type { Prediction, Race, Team } from '@/payload-types'
 import { canMakePrediction } from '@/utilities/raceStatus'
 import Link from 'next/link'
 import { useMemo, useState } from 'react'
@@ -11,11 +12,15 @@ import { RaceCarousel } from './_components/RaceCarousel'
 
 interface PredictionsPageClientProps {
   races: Race[]
-  user: User
+  teams: Team[]
   userPredictions: Prediction[]
 }
 
-export function PredictionsPageClient({ races, userPredictions }: PredictionsPageClientProps) {
+export function PredictionsPageClient({
+  races,
+  userPredictions,
+  teams,
+}: PredictionsPageClientProps) {
   const now = new Date()
   const defaultRace =
     races.find((race) => {
@@ -39,6 +44,7 @@ export function PredictionsPageClient({ races, userPredictions }: PredictionsPag
       .map((item) => ({
         position: item.position,
         name: typeof item.driver === 'object' ? item.driver.name : 'Unknown',
+        team: typeof item.driver === 'object' ? item.driver.team : 'Unknown',
       }))
   }, [userPrediction])
 
@@ -121,17 +127,27 @@ export function PredictionsPageClient({ races, userPredictions }: PredictionsPag
                         Мой прогноз
                       </div>
                       <div className="space-y-2">
-                        {userPredictedDrivers.map((driver) => (
-                          <div
-                            key={driver.position}
-                            className="flex items-center gap-3 bg-background/50 p-3 border border-accent/20"
-                          >
-                            <div className="w-8 h-8 flex items-center justify-center bg-accent text-background font-bold rounded-full shrink-0">
-                              {driver.position}
+                        {userPredictedDrivers.map((driver) => {
+                          const team = teams.find((t) => t.id === driver.team)
+                          return (
+                            <div key={driver.position}>
+                              {team ? (
+                                <PredictionCard
+                                  name={driver.name}
+                                  position={driver.position}
+                                  team={team}
+                                  variant={'colored'}
+                                />
+                              ) : (
+                                <PredictionCard
+                                  name={driver.name}
+                                  position={driver.position}
+                                  variant={'default'}
+                                />
+                              )}
                             </div>
-                            <div className="text-sm font-medium truncate">{driver.name}</div>
-                          </div>
-                        ))}
+                          )
+                        })}
                       </div>
                     </div>
                   </div>

@@ -1,10 +1,12 @@
+import { PredictionCard } from '@/components/DriverCard/PredictionCard'
 import { Card } from '@/components/ui/card'
-import type { Race, User } from '@/payload-types'
-import { IconCalendar, IconFlag, IconTrophy } from '@tabler/icons-react'
+import type { Race, Team, User } from '@/payload-types'
+import { IconFlag, IconTrophy } from '@tabler/icons-react'
 
 interface TopDriver {
   position: number
   name: string
+  team: Team
 }
 
 interface TopPredictor {
@@ -21,7 +23,6 @@ interface PreviousRaceCardProps {
 
 export function PreviousRaceCard({ race, topDrivers, topPredictors }: PreviousRaceCardProps) {
   const raceDate = new Date(race.raceDate)
-
   return (
     <Card variant="elevated" corners="cut-corner" className="h-full">
       <div className="space-y-6 px-6">
@@ -31,13 +32,19 @@ export function PreviousRaceCard({ race, topDrivers, topPredictors }: PreviousRa
         </div>
 
         {/* Название гонки */}
-        <div className="space-y-2">
+        <div className="flex items-center justify-between">
           <div className="flex items-start gap-3">
             <IconFlag className="w-5 h-5 text-accent mt-1 shrink-0" />
             <div>
               <h3 className="text-xl font-bold">{race.name}</h3>
-              <p className="text-xs text-muted-foreground mt-1">Раунд {race.round}</p>
+              <p className="text-xs text-muted-foreground">Раунд {race.round}</p>
             </div>
+          </div>
+          <div className="flex flex-col items-baseline text-sm text-right text-muted-foreground">
+            <span>{raceDate.toLocaleDateString('ru-RU', { day: 'numeric', month: 'long' })}</span>
+            <span className="w-full">
+              {raceDate.toLocaleDateString('ru-RU', { year: 'numeric' })}
+            </span>
           </div>
         </div>
 
@@ -50,42 +57,18 @@ export function PreviousRaceCard({ race, topDrivers, topPredictors }: PreviousRa
 
         {/* Топ 3 гонщика */}
         <div className="space-y-3">
-          <div className="text-sm text-muted-foreground uppercase tracking-wider flex items-center gap-2">
-            <IconTrophy className="w-4 h-4" />
-            Топ 3 водителя
-          </div>
           <div className="space-y-2">
-            {topDrivers.map((driver) => (
-              <div key={driver.position} className="flex items-center gap-3 text-sm">
-                <div
-                  className={`w-6 h-6 rounded-full flex items-center justify-center font-bold text-xs ${
-                    driver.position === 1
-                      ? 'bg-yellow-500 text-black'
-                      : driver.position === 2
-                        ? 'bg-gray-400 text-black'
-                        : 'bg-orange-700 text-white'
-                  }`}
-                >
-                  {driver.position}
-                </div>
-                <span className="font-medium">{driver.name}</span>
+            {topDrivers.map(({ name, position, team }) => (
+              <div key={position}>
+                <PredictionCard
+                  name={name}
+                  position={position}
+                  team={team}
+                  variant={'colored'}
+                  size={'sm'}
+                />
               </div>
             ))}
-          </div>
-        </div>
-
-        {/* Дата завершения */}
-        <div className="space-y-1">
-          <div className="text-sm text-muted-foreground uppercase tracking-wider flex items-center gap-2">
-            <IconCalendar className="w-4 h-4" />
-            Дата завершения
-          </div>
-          <div className="text-sm font-bold">
-            {raceDate.toLocaleDateString('ru-RU', {
-              day: 'numeric',
-              month: 'long',
-              year: 'numeric',
-            })}
           </div>
         </div>
 
@@ -95,32 +78,43 @@ export function PreviousRaceCard({ race, topDrivers, topPredictors }: PreviousRa
             <IconTrophy className="w-4 h-4 text-accent" />
             Топ 3 голосовавших
           </div>
-          <div className="space-y-2">
+          <div className="space-y-3">
             {topPredictors.map((predictor) => {
               const user = predictor.user
+              const barColor = user.chartColor || '#FFDF2C'
+              const barWidth = Math.round((predictor.points / 15) * 100)
+
               return (
-                <div key={predictor.position} className="flex items-center justify-between text-sm">
-                  <div className="flex items-center gap-2">
-                    <div
-                      className={`w-6 h-6 rounded-full flex items-center justify-center font-bold text-xs ${
-                        predictor.position === 1
-                          ? 'bg-yellow-500 text-black'
-                          : predictor.position === 2
-                            ? 'bg-gray-400 text-black'
-                            : 'bg-orange-700 text-white'
-                      }`}
-                    >
-                      {predictor.position}
-                    </div>
+                <div key={predictor.position} className="space-y-1.5">
+                  <div className="flex items-center justify-between text-sm">
                     <div className="flex items-center gap-2">
                       <div
-                        className="w-2 h-2 rounded-full"
-                        style={{ backgroundColor: user.chartColor || '#FFDF2C' }}
-                      />
-                      <span className="font-medium">{user.nickname || user.email}</span>
+                        className={`w-6 h-6 rounded-full flex items-center justify-center font-bold text-xs ${
+                          predictor.position === 1
+                            ? 'bg-yellow-500 text-black'
+                            : predictor.position === 2
+                              ? 'bg-gray-400 text-black'
+                              : 'bg-orange-700 text-white'
+                        }`}
+                      >
+                        {predictor.position}
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <div
+                          className="w-2 h-2 rounded-full"
+                          style={{ backgroundColor: barColor }}
+                        />
+                        <span className="font-medium">{user.nickname || user.email}</span>
+                      </div>
                     </div>
+                    <span className="text-accent font-bold">{predictor.points} очков</span>
                   </div>
-                  <span className="text-accent font-bold">{predictor.points} очков</span>
+                  <div className="h-1.5 w-full rounded-full bg-muted/30 overflow-hidden">
+                    <div
+                      className="h-full rounded-full transition-all duration-700 ease-out"
+                      style={{ width: `${barWidth}%`, backgroundColor: barColor }}
+                    />
+                  </div>
                 </div>
               )
             })}

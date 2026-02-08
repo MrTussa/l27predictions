@@ -1,8 +1,9 @@
-import type { Race, SeasonStat, User } from '@/payload-types'
+import type { Race, SeasonStat, Team, User } from '@/payload-types'
 import {
   getAllPredictions,
   getAllSeasonStats,
   getRaces,
+  getTeams,
   getUserRank,
   getUserSeasonStats,
 } from '@/utilities/queries'
@@ -12,7 +13,7 @@ export type HomePageData = {
   openRace: Race | null
   previousRace: Race | null
   previousRaceData: {
-    topDrivers: { position: number; name: string }[]
+    topDrivers: { position: number; name: string; team: Team }[]
     topPredictors: { position: number; user: User; points: number }[]
   } | null
   votedCount: number
@@ -22,7 +23,11 @@ export type HomePageData = {
 }
 
 export async function getHomePageData(userId?: string): Promise<HomePageData> {
-  const [races, allPredictions] = await Promise.all([getRaces(), getAllPredictions()])
+  const [races, allPredictions, teams] = await Promise.all([
+    getRaces(),
+    getAllPredictions(),
+    getTeams({ activeOnly: false, depth: 1 }),
+  ])
 
   const openRace = races.find((race) => canMakePrediction(race)) || null
   const completedRaces = races.filter((race) => isRaceCompleted(race))
@@ -39,10 +44,14 @@ export async function getHomePageData(userId?: string): Promise<HomePageData> {
   let previousRaceData: HomePageData['previousRaceData'] = null
   if (previousRace) {
     const topDrivers =
-      previousRace.results?.slice(0, 3).map((result, index) => ({
-        position: index + 1,
-        name: typeof result.driver === 'object' ? result.driver.name : 'Unknown',
-      })) || []
+      previousRace.results?.slice(0, 3).map((result, index) => {
+        const driver = typeof result.driver === 'object' ? result.driver : null
+        return {
+          position: index + 1,
+          name: driver?.name || 'Unknown',
+          team: (driver ? teams.find((t) => t.id === driver.team) : undefined) as Team,
+        }
+      }) || []
 
     const racePredictions = allPredictions.filter((pred) => {
       const race = typeof pred.race === 'object' ? pred.race : null

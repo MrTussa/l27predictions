@@ -35,7 +35,7 @@ export function CurrentRaceCard({ race, votedCount }: CurrentRaceCardProps) {
         backgroundColor="#141414"
         svgPath={race.trackSVGPath ? race.trackSVGPath : undefined}
       />
-      <div className="space-y-6 px-6 z-2 flex flex-col justify-between h-full mix-blend-lighten">
+      <div className="space-y-6 px-6 z-2 flex flex-col justify-between h-full mix-blend-lighten min-h-[350px]">
         <div className="border-b border-accent/30 pb-4 flex justify-between">
           <div>
             <h2 className="text-2xl font-bold uppercase tracking-wide text-accent">{race.name}</h2>
