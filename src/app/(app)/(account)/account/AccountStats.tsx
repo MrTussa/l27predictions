@@ -1,6 +1,7 @@
 import { Card } from '@/components/ui/card'
 import { getServerSideUser } from '@/utilities/getServerSideUser'
 import { IconChartLine, IconFlame, IconTarget, IconTrophy } from '@tabler/icons-react'
+import { PersonalPointsChart } from './_components/PersonalPointsChart'
 import { SeasonPredictionBlock } from './_components/SeasonPredictionBlock'
 import { getAccountData } from './_lib/getAccountData'
 
@@ -17,6 +18,20 @@ export async function AccountStats() {
   const totalPointsWithSeason =
     userStats?.totalPointsWithSeasonPrediction || userStats?.totalPoints || 0
   const seasonPoints = userStats?.seasonPredictionPoints || 0
+  const chartColor = user.chartColor || '#FFDF2C'
+
+  const chartData =
+    userStats?.raceHistory
+      ?.map((entry) => {
+        const race = typeof entry.race === 'object' ? entry.race : null
+        return {
+          raceName: race?.name || `Раунд ${race?.round || '?'}`,
+          round: race?.round || 0,
+          points: entry.points,
+          cumulativePoints: entry.cumulativePoints,
+        }
+      })
+      .sort((a, b) => a.round - b.round) || []
 
   const stats = [
     {
@@ -56,7 +71,6 @@ export async function AccountStats() {
         </div>
       </div>
 
-      {/* Статистика */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {stats.map((stat) => (
           <Card key={stat.label} variant="default" corners="cut-corner" className="p-0.5">
@@ -78,12 +92,19 @@ export async function AccountStats() {
         ))}
       </div>
 
-      {/* Сезонный прогноз */}
       <SeasonPredictionBlock user={user} season={currentYear} />
 
-      {/* История прогнозов */}
+      {chartData.length >= 2 && (
+        <Card variant="default" corners="cut-corner" className="p-0.5">
+          <div className="p-2">
+            <h3 className="text-xl font-bold uppercase tracking-tight mb-4 px-4">Эволюция очков</h3>
+            <PersonalPointsChart data={chartData} chartColor={chartColor} />
+          </div>
+        </Card>
+      )}
+
       <Card variant="default" corners="sharp" className="p-0.5">
-        <div className="p-2">
+        <div className="p-4">
           <h3 className="text-xl font-bold uppercase tracking-tight mb-4">История прогнозов</h3>
           {userPredictions.length > 0 ? (
             <div className="space-y-3">
