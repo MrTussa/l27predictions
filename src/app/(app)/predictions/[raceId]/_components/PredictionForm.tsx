@@ -4,7 +4,8 @@ import { Button } from '@/components/ui/button'
 import { Driver, Prediction, Race, User } from '@/payload-types'
 import { useState } from 'react'
 
-import { DriverCardSelectable, PodiumSlot } from '@/components/DriverCard'
+import { DriverCardSelectable } from '@/components/DriverCard/DriverCardSelectable'
+import { PodiumSlot } from '@/components/DriverCard/PodiumSlot'
 import type { CollisionDetection } from '@dnd-kit/core'
 import {
   closestCenter,

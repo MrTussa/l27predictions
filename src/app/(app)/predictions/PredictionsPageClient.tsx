@@ -1,6 +1,6 @@
 'use client'
 
-import { PodiumDriver } from '@/components/DriverCard'
+import { PodiumDriver } from '@/components/DriverCard/PodiumDriver'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 import type { Prediction, Race, User } from '@/payload-types'
