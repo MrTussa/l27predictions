@@ -119,13 +119,14 @@ export async function getUserStats({ user }: { user: User }) {
   return userStats.docs || []
 }
 
-export async function getUserSeasonStats(userId: string, year?: number) {
+export async function getUserSeasonStats(userId: string, year?: number, depth?: number) {
   const { docs } = await payload.find({
     collection: 'season-stats',
     where: {
       and: [{ user: { equals: userId } }, { season: { equals: year ?? currentYear } }],
     },
     limit: 1,
+    depth: depth ?? 1,
   })
 
   return docs[0] || null

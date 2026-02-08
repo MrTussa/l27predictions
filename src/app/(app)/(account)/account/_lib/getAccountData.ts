@@ -11,7 +11,7 @@ export async function getAccountData(userId: string): Promise<AccountStatsData> 
   const currentYear = new Date().getFullYear()
 
   const [userStats, rankData, userPredictions] = await Promise.all([
-    getUserSeasonStats(userId, currentYear),
+    getUserSeasonStats(userId, currentYear, 2),
     getUserRank(userId, currentYear),
     getUserPredictions(userId, { depth: 2 }),
   ])
