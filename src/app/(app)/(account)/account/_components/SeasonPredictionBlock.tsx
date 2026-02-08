@@ -1,7 +1,6 @@
 import { Card } from '@/components/ui/card'
 import type { Driver, EventResponse, Event as F1Event, Team, User } from '@/payload-types'
 import configPromise from '@payload-config'
-import { IconBuildingFactory2 } from '@tabler/icons-react'
 import Image from 'next/image'
 import { getPayload } from 'payload'
 
@@ -17,6 +16,8 @@ export async function SeasonPredictionBlock({ user, season }: SeasonPredictionBl
     where: {
       and: [{ eventType: { equals: 'season-prediction' } }, { season: { equals: season } }],
     },
+    depth: 1,
+    pagination: false,
     limit: 1,
   })
 
@@ -96,13 +97,18 @@ export async function SeasonPredictionBlock({ user, season }: SeasonPredictionBl
             {driverAnswers.map((answer, index) => {
               const driver = answer.driver
               const photo = driver && typeof driver.photo === 'object' ? driver.photo : null
+              const team = driver && typeof driver.team === 'object' ? driver.team : null
+              const teamColor = team?.teamColor ?? '#FFDF2C'
               return (
                 <div
                   key={index}
                   className="flex items-center justify-between p-3 rounded-md bg-muted/20"
+                  style={{
+                    backgroundColor: `color-mix(in srgb, #000 100%, ${teamColor} 50%)`,
+                  }}
                 >
                   <div className="flex items-center gap-3">
-                    <div className="flex items-center justify-center w-8 h-8 rounded-full bg-accent text-primary font-bold">
+                    <div className="flex items-center justify-center w-8 h-8 rounded-full bg-accent text-primary-foreground font-bold">
                       {index + 1}
                     </div>
                     {photo?.url && (
@@ -111,7 +117,7 @@ export async function SeasonPredictionBlock({ user, season }: SeasonPredictionBl
                           src={photo.url}
                           alt={driver?.name || 'Driver'}
                           fill
-                          className="object-cover"
+                          className="object-cover object-top"
                         />
                       </div>
                     )}
@@ -134,15 +140,18 @@ export async function SeasonPredictionBlock({ user, season }: SeasonPredictionBl
           <div className="space-y-3">
             {teamAnswers.map((answer, index) => {
               const team = answer.team
+              const logo = team && typeof team.logo === 'object' ? team.logo : null
               return (
                 <div
                   key={index}
-                  className="flex items-center justify-between p-3 rounded-md bg-muted/20"
+                  className="relative flex items-center justify-between p-3 rounded-md bg-muted/20"
                 >
-                  <div className="flex items-center gap-3">
-                    <div className="flex items-center justify-center w-8 h-8 rounded-full bg-primary text-primary-foreground">
-                      <IconBuildingFactory2 className="w-5 h-5" />
+                  {logo?.url && (
+                    <div className="absolute w-full h-4/5">
+                      <Image src={logo.url} alt={logo.alt} fill className="object-fill " />
                     </div>
+                  )}
+                  <div className="flex items-center gap-3">
                     <div>
                       <p className="font-medium">{team?.name || 'Неизвестно'}</p>
                       <p className="text-xs text-muted-foreground">{answer.question}</p>
