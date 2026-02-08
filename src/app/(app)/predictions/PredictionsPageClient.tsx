@@ -13,7 +13,7 @@ import { RaceCarousel } from './_components/RaceCarousel'
 interface PredictionsPageClientProps {
   races: Race[]
   teams: Team[]
-  userPredictions: Prediction[]
+  userPredictions: Omit<Prediction, 'user'>[]
 }
 
 export function PredictionsPageClient({

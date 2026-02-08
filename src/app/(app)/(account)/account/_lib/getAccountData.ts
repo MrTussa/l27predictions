@@ -4,7 +4,7 @@ import { getUserPredictions, getUserRank, getUserSeasonStats } from '@/utilities
 export type AccountStatsData = {
   userStats: SeasonStat | null
   userRank: number | null
-  userPredictions: Prediction[]
+  userPredictions: Omit<Prediction, 'user'>[]
 }
 
 export async function getAccountData(userId: string): Promise<AccountStatsData> {
