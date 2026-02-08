@@ -3,6 +3,7 @@ import { Card } from '@/components/ui/card'
 import type { SeasonStat, User } from '@/payload-types'
 import { IconAlertCircle, IconFlame, IconTrophy } from '@tabler/icons-react'
 import Link from 'next/link'
+import { UserPointsSparkline } from './UserPointsSparkline'
 
 interface UserInfoCardProps {
   user: User | null
@@ -39,6 +40,14 @@ export function UserInfoCard({ user, seasonStats, userRank, totalUsers }: UserIn
   const currentStreak = seasonStats?.currentStreak || 0
   const bestStreak = seasonStats?.bestStreak || 0
   const position = userRank || 0
+
+  const sparklineData =
+    seasonStats?.raceHistory
+      ?.map((entry) => {
+        const race = typeof entry.race === 'object' ? entry.race : null
+        return { round: race?.round || 0, points: entry.cumulativePoints }
+      })
+      .sort((a, b) => a.round - b.round) || []
   return (
     <Card variant="gray" corners="cut-corner" className="h-full">
       <div className="space-y-6 px-6">
@@ -91,6 +100,16 @@ export function UserInfoCard({ user, seasonStats, userRank, totalUsers }: UserIn
             <span className="text-sm text-muted-foreground">гонок</span>
           </div>
         </div>
+
+        {/* Спарклайн тренда очков */}
+        {sparklineData.length >= 2 && (
+          <div className="space-y-1">
+            <div className="text-sm text-muted-foreground uppercase tracking-wider">
+              Тренд очков
+            </div>
+            <UserPointsSparkline data={sparklineData} color={chartColor} />
+          </div>
+        )}
       </div>
     </Card>
   )
