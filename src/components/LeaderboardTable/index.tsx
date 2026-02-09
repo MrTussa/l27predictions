@@ -11,6 +11,7 @@ import {
   TableRow,
 } from '@/components/ui/table'
 import { ArrowUpDown, Award, Medal, Trophy } from 'lucide-react'
+import Link from 'next/link'
 import { useState } from 'react'
 
 type LeaderboardEntry = {
@@ -168,13 +169,16 @@ export const LeaderboardTable: React.FC<Props> = ({ data: initialData }) => {
                   </div>
                 </TableCell>
                 <TableCell className="font-medium">
-                  <div className="flex items-center gap-3">
+                  <Link
+                    href={`/user/${entry.id}`}
+                    className="flex items-center gap-3 hover:text-accent transition-colors"
+                  >
                     <div
                       className="w-3 h-3 rounded-full"
                       style={{ backgroundColor: entry.chartColor }}
                     />
                     {entry.nickname}
-                  </div>
+                  </Link>
                 </TableCell>
                 <TableCell className="text-right font-bold">{entry.totalPoints}</TableCell>
                 <TableCell className="text-right text-muted-foreground">

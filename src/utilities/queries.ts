@@ -1,4 +1,4 @@
-import type { User } from '@/payload-types'
+import type { Prediction, SeasonStat, User } from '@/payload-types'
 import configPromise from '@payload-config'
 import { getPayload } from 'payload'
 
@@ -258,4 +258,58 @@ export async function getUserEventResponse(userId: string, eventId: string) {
   })
 
   return docs[0] || null
+}
+
+// USERS
+
+export type ProfileData = {
+  userStats: SeasonStat | null
+  userRank: number | null
+  userPredictions: Omit<Prediction, 'user'>[]
+}
+
+export async function getProfileData(userId: string): Promise<ProfileData> {
+  const currentYear = new Date().getFullYear()
+
+  const [userStats, rankData, userPredictions] = await Promise.all([
+    getUserSeasonStats(userId, currentYear, 2),
+    getUserRank(userId, currentYear),
+    getUserPredictions(userId, { depth: 2 }),
+  ])
+
+  return {
+    userStats,
+    userRank: rankData.rank,
+    userPredictions,
+  }
+}
+
+export type PublicUser = Pick<User, 'id' | 'nickname' | 'chartColor' | 'telegramUsername'>
+
+export async function getUserPublicProfile(userId: string): Promise<PublicUser | null> {
+  const payload = await getPayload({ config: configPromise })
+
+  try {
+    const user = await payload.findByID({
+      collection: 'users',
+      id: userId,
+      depth: 0,
+      select: {
+        nickname: true,
+        chartColor: true,
+        telegramUsername: true,
+      },
+    })
+
+    if (!user) return null
+
+    return {
+      id: user.id,
+      nickname: user.nickname,
+      chartColor: user.chartColor,
+      telegramUsername: user.telegramUsername ?? null,
+    }
+  } catch {
+    return null
+  }
 }

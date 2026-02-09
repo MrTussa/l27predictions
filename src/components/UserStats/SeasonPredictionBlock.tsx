@@ -1,15 +1,15 @@
 import { Card } from '@/components/ui/card'
-import type { Driver, EventResponse, Event as F1Event, Team, User } from '@/payload-types'
+import type { Driver, EventResponse, Event as F1Event, Team } from '@/payload-types'
 import configPromise from '@payload-config'
 import Image from 'next/image'
 import { getPayload } from 'payload'
 
 interface SeasonPredictionBlockProps {
-  user: User
+  userId: string
   season: number
 }
 
-export async function SeasonPredictionBlock({ user, season }: SeasonPredictionBlockProps) {
+export async function SeasonPredictionBlock({ userId, season }: SeasonPredictionBlockProps) {
   const payload = await getPayload({ config: configPromise })
   const { docs: seasonEvents } = await payload.find({
     collection: 'events',
@@ -30,7 +30,7 @@ export async function SeasonPredictionBlock({ user, season }: SeasonPredictionBl
   const { docs: responses } = await payload.find({
     collection: 'event-responses',
     where: {
-      and: [{ user: { equals: user.id } }, { event: { equals: seasonEvent.id } }],
+      and: [{ user: { equals: userId } }, { event: { equals: seasonEvent.id } }],
     },
     limit: 1,
     depth: 2,
