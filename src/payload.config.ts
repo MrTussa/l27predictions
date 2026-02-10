@@ -9,6 +9,7 @@ import { fileURLToPath } from 'url'
 import { submitEventResponse } from '@/api/events/submitEventResponse'
 import { createPrediction } from '@/api/predictions/createPrediction'
 import { updatePrediction } from '@/api/predictions/updatePrediction'
+import { BroadcastSettings } from '@/globals/BroadcastSettings'
 import { Drivers } from '@/collections/Drivers'
 import { EventResponses } from '@/collections/EventResponses'
 import { F1Events } from '@/collections/Events'
@@ -39,6 +40,7 @@ export default buildConfig({
     EventResponses,
     Media,
   ],
+  globals: [BroadcastSettings],
   defaultDepth: 0,
   maxDepth: 3,
   db: mongooseAdapter({

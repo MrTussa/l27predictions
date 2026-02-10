@@ -100,8 +100,12 @@ export interface Config {
   db: {
     defaultIDType: string;
   };
-  globals: {};
-  globalsSelect: {};
+  globals: {
+    'broadcast-settings': BroadcastSetting;
+  };
+  globalsSelect: {
+    'broadcast-settings': BroadcastSettingsSelect<false> | BroadcastSettingsSelect<true>;
+  };
   locale: null;
   user: User & {
     collection: 'users';
@@ -836,6 +840,36 @@ export interface PayloadMigrationsSelect<T extends boolean = true> {
   batch?: T;
   updatedAt?: T;
   createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "broadcast-settings".
+ */
+export interface BroadcastSetting {
+  id: string;
+  isLive?: boolean | null;
+  /**
+   * Имя Twitch канала, например: limonov_f1
+   */
+  twitchChannel?: string | null;
+  /**
+   * Имя VK канала, например: f1_live
+   */
+  vkChannel?: string | null;
+  updatedAt?: string | null;
+  createdAt?: string | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "broadcast-settings_select".
+ */
+export interface BroadcastSettingsSelect<T extends boolean = true> {
+  isLive?: T;
+  twitchChannel?: T;
+  vkChannel?: T;
+  updatedAt?: T;
+  createdAt?: T;
+  globalType?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema

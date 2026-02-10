@@ -14,6 +14,7 @@ const NAV_ITEMS = [
   { label: 'Прогнозы', href: '/predictions' },
   { label: 'События', href: '/events' },
   { label: 'Таблица лидеров', href: '/leaderboard' },
+  { label: 'Трансляция', href: '/broadcast' },
 ]
 
 export function Header() {
