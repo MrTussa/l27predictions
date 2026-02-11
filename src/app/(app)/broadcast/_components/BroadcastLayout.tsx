@@ -64,40 +64,32 @@ export function BroadcastLayout({ settings, isAdmin }: BroadcastLayoutProps) {
 
       {isLive && parentDomain && (
         <div className="grid grid-cols-1 xl:grid-cols-[1fr_340px] gap-0" style={theatreStyle}>
-          <div className="relative">
-            {/* VK */}
-            <div className="w-full h-full flex justify-center items-center bg-black ">
-              <div
-                ref={mainPlayerRef}
-                className="relative w-full overflow-hidden"
-                style={{ aspectRatio: '16/9' }}
+          <div className="w-full h-full flex justify-center items-center bg-black">
+            <div ref={mainPlayerRef} className="relative w-full" style={{ aspectRatio: '16/9' }}>
+              <button
+                onClick={() => setTheatre((prevState) => !prevState)}
+                className="absolute top-0 left-0 w-fit z-20 flex items-center justify-center px-2 py-1.5 cursor-pointer"
               >
-                <button
-                  onClick={() => setTheatre((prevState) => !prevState)}
-                  className="absolute top-0 left-0 w-fit z-20 flex items-center justify-center px-2 py-1.5 cursor-pointer"
-                >
-                  {theatre ? <IconArrowsMinimize /> : <IconArrowsMaximize />}
-                </button>
-                <iframe
-                  src={`https://live.vkvideo.ru/app/embed/${settings.vkChannel}`}
-                  title="VK Stream"
-                  className="absolute inset-0 w-full h-full border-0"
-                  allowFullScreen
-                  allow="autoplay; encrypted-media"
-                />
-              </div>
-            </div>
-
-            {/* Twitch */}
-            <PipOverlay containerRef={mainPlayerRef}>
+                {theatre ? <IconArrowsMinimize /> : <IconArrowsMaximize />}
+              </button>
               <iframe
-                src={`https://player.twitch.tv/?channel=${settings.twitchChannel}&parent=${parentDomain}`}
-                title="Twitch Stream"
-                className="w-full h-full border-0"
+                src={`https://live.vkvideo.ru/app/embed/${settings.vkChannel}`}
+                title="VK Stream"
+                className="absolute inset-0 w-full h-full border-0"
                 allowFullScreen
                 allow="autoplay; encrypted-media"
               />
-            </PipOverlay>
+
+              <PipOverlay containerRef={mainPlayerRef}>
+                <iframe
+                  src={`https://player.twitch.tv/?channel=${settings.twitchChannel}&parent=${parentDomain}`}
+                  title="Twitch Stream"
+                  className="w-full h-full border-0"
+                  allowFullScreen
+                  allow="autoplay; encrypted-media"
+                />
+              </PipOverlay>
+            </div>
           </div>
 
           {/* Twitch Chat */}
