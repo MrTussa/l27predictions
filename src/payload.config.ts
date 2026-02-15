@@ -1,5 +1,5 @@
 import { mongooseAdapter } from '@payloadcms/db-mongodb'
-import { vercelBlobStorage } from '@payloadcms/storage-vercel-blob'
+import { s3Storage } from '@payloadcms/storage-s3'
 
 import { lexicalEditor } from '@payloadcms/richtext-lexical'
 import path from 'path'
@@ -9,7 +9,6 @@ import { fileURLToPath } from 'url'
 import { submitEventResponse } from '@/api/events/submitEventResponse'
 import { createPrediction } from '@/api/predictions/createPrediction'
 import { updatePrediction } from '@/api/predictions/updatePrediction'
-import { BroadcastSettings } from '@/globals/BroadcastSettings'
 import { Drivers } from '@/collections/Drivers'
 import { EventResponses } from '@/collections/EventResponses'
 import { F1Events } from '@/collections/Events'
@@ -19,6 +18,7 @@ import { Races } from '@/collections/Races'
 import { SeasonStats } from '@/collections/SeasonStats'
 import { Teams } from '@/collections/Teams'
 import { Users } from '@/collections/Users'
+import { BroadcastSettings } from '@/globals/BroadcastSettings'
 import { plugins } from './plugins'
 
 const filename = fileURLToPath(import.meta.url)
@@ -67,11 +67,20 @@ export default buildConfig({
   ],
   plugins: [
     ...plugins,
-    vercelBlobStorage({
+    s3Storage({
       collections: {
         media: true,
       },
-      token: process.env.BLOB_READ_WRITE_TOKEN || '',
+      bucket: process.env.S3_BUCKET!,
+      config: {
+        credentials: {
+          accessKeyId: process.env.S3_ACCESS_KEY_ID!,
+          secretAccessKey: process.env.S3_SECRET_ACCESS_KEY!,
+        },
+        region: process.env.S3_REGION!,
+        endpoint: process.env.S3_ENDPOINT,
+        forcePathStyle: true,
+      },
     }),
   ],
   secret: process.env.PAYLOAD_SECRET || '',
