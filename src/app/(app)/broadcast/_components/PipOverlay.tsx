@@ -6,7 +6,7 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 import { cn } from '@/utilities/cn'
 
 const MIN_WIDTH = 240
-const MAX_WIDTH = 640
+const MAX_WIDTH = 1024
 const ASPECT_RATIO = 16 / 9
 const STORAGE_KEY = 'broadcast-pip-state'
 
