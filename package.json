@@ -26,6 +26,7 @@
     "@dnd-kit/utilities": "^3.2.2",
     "@payloadcms/admin-bar": "3.64.0",
     "@payloadcms/db-mongodb": "3.64.0",
+    "@payloadcms/email-nodemailer": "3.64.0",
     "@payloadcms/next": "3.64.0",
     "@payloadcms/plugin-seo": "3.64.0",
     "@payloadcms/richtext-lexical": "3.64.0",
