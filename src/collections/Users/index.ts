@@ -2,10 +2,11 @@ import type { CollectionConfig } from 'payload'
 
 import { adminOnly } from '@/access/adminOnly'
 import { adminOnlyFieldAccess } from '@/access/adminOnlyFieldAccess'
-import { publicAccess } from '@/access/publicAccess'
 import { adminOrSelf } from '@/access/adminOrSelf'
+import { publicAccess } from '@/access/publicAccess'
 import { checkRole } from '@/access/utilities'
 
+import { resetPasswordEmail } from '@/utilities/email-templates'
 import { ensureFirstUserIsAdmin } from './hooks/ensureFirstUserIsAdmin'
 
 export const Users: CollectionConfig = {
@@ -23,7 +24,16 @@ export const Users: CollectionConfig = {
     useAsTitle: 'nickname',
   },
   auth: {
+    maxLoginAttempts: 5,
+    lockTime: 7200 * 1000,
     tokenExpiration: 1209600,
+    forgotPassword: {
+      generateEmailHTML: (args) => {
+        if (!args?.token || !args?.user) return ''
+        return resetPasswordEmail({ token: args.token, user: args.user })
+      },
+      generateEmailSubject: () => 'Восстановление пароля — L27 Predictions',
+    },
   },
   fields: [
     {
@@ -52,7 +62,12 @@ export const Users: CollectionConfig = {
         description: 'Например: @username (опционально)',
       },
       validate: (val: string | null | undefined) => {
-        if (val && typeof val === 'string' && val.length > 0 && !/^@?[a-zA-Z0-9_]{5,32}$/.test(val)) {
+        if (
+          val &&
+          typeof val === 'string' &&
+          val.length > 0 &&
+          !/^@?[a-zA-Z0-9_]{5,32}$/.test(val)
+        ) {
           return 'Неверный формат Telegram username'
         }
         return true
