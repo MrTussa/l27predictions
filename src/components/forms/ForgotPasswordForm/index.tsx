@@ -16,6 +16,7 @@ type FormData = {
 export const ForgotPasswordForm: React.FC = () => {
   const [error, setError] = useState('')
   const [success, setSuccess] = useState(false)
+  const [loading, setLoading] = useState(false)
 
   const {
     formState: { errors },
@@ -24,6 +25,8 @@ export const ForgotPasswordForm: React.FC = () => {
   } = useForm<FormData>()
 
   const onSubmit = useCallback(async (data: FormData) => {
+    setLoading(true)
+
     const response = await fetch('/api/users/forgot-password', {
       body: JSON.stringify(data),
       headers: {
@@ -33,11 +36,13 @@ export const ForgotPasswordForm: React.FC = () => {
     })
 
     if (response.ok) {
+      setLoading(false)
       setSuccess(true)
       setError('')
     } else {
+      setLoading(false)
       setError(
-        'There was a problem while attempting to send you a password reset email. Please try again.',
+        'Произошла ошибка при отправке запроса на сброс пароля. Пожалуйста, повторите попытку.',
       )
     }
   }, [])
@@ -65,8 +70,8 @@ export const ForgotPasswordForm: React.FC = () => {
               {errors.email && <FormError message={errors.email.message} />}
             </FormItem>
 
-            <Button type="submit" variant="default">
-              Подтвердить
+            <Button type="submit" variant={loading ? 'loading' : 'default'}>
+              {loading ? 'Отправка' : 'Подтвердить'}
             </Button>
           </form>
         </React.Fragment>

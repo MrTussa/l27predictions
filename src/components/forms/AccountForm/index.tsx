@@ -80,7 +80,7 @@ export const AccountForm: React.FC = () => {
     if (user === null) {
       router.push(
         `/login?error=${encodeURIComponent(
-          'You must be logged in to view this page.',
+          'Вы должны авторизоватся перед просмотром страницы.',
         )}&redirect=${encodeURIComponent('/account')}`,
       )
     }
