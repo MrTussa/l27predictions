@@ -5,7 +5,7 @@ import { mergeOpenGraph } from '@/utilities/mergeOpenGraph'
 
 export default async function ResetPasswordPage() {
   return (
-    <div className="container px-4 md:px-16 py-6">
+    <div className="container px-4 md:px-16 py-6 max-w-2xl mx-auto">
       <ResetPasswordForm />
     </div>
   )
