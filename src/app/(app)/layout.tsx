@@ -1,3 +1,4 @@
+import Clarity from '@microsoft/clarity'
 import type { ReactNode } from 'react'
 
 import { AdminBar } from '@/components/AdminBar'
@@ -7,6 +8,8 @@ import { Providers } from '@/providers'
 import { GeistMono } from 'geist/font/mono'
 import { GeistSans } from 'geist/font/sans'
 import './globals.css'
+
+Clarity.init(process.env.CLARITY_ID!)
 
 /* const { SITE_NAME, TWITTER_CREATOR, TWITTER_SITE } = process.env
 const baseUrl = process.env.NEXT_PUBLIC_VERCEL_URL
