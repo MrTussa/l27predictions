@@ -69,7 +69,7 @@ function Footer() {
                   @mrtusa
                 </a>
                 <div className="relative w-24 h-12 rounded-xl overflow-hidden">
-                  <Image src="/bongocat.gif" alt="" fill className="object-cover" />
+                  <Image unoptimized src="/bongocat.gif" alt="" fill className="object-cover" />
                 </div>
               </div>
             </div>
