@@ -1,5 +1,5 @@
 import type { Race, SeasonStat } from '@/payload-types'
-import type { Payload } from 'payload'
+import type { Payload, Where } from 'payload'
 import { calculatePoints } from './calculatePoints'
 import { normalizeID } from './normalizeID'
 
@@ -44,7 +44,7 @@ export async function recalculateSeasonStats(
 
   const raceIds = racesToUse.map((race) => race.id)
 
-  const whereCondition: any = {
+  const whereCondition: Where = {
     race: {
       in: raceIds,
     },

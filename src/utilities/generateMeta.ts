@@ -2,7 +2,13 @@ import type { Metadata } from 'next'
 
 import { mergeOpenGraph } from './mergeOpenGraph'
 
-export const generateMeta = async (args: { doc: any }): Promise<Metadata> => {
+export const generateMeta = async (args: {
+  doc: {
+    meta?: { title?: string; description?: string; image?: { url: string } | null }
+    title?: string
+    slug?: string | string[]
+  }
+}): Promise<Metadata> => {
   const { doc } = args || {}
 
   const ogImage =

@@ -30,7 +30,15 @@ export function PersonalPointsChart({ data, chartColor }: PersonalPointsChartPro
     )
   }
 
-  const CustomTooltip = ({ active, payload, label }: any) => {
+  const CustomTooltip = ({
+    active,
+    payload,
+    label,
+  }: {
+    active?: boolean
+    payload?: Array<{ value: number }>
+    label?: string
+  }) => {
     if (!active || !payload || !payload.length) return null
 
     const entry = data.find((d) => d.raceName === label)

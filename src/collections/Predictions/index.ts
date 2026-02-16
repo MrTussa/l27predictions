@@ -124,7 +124,7 @@ export const Predictions: CollectionConfig = {
 
         // Валидация: проверяем уникальность позиций в прогнозе
         if (data?.predictions && data.predictions.length > 0) {
-          const positions = data.predictions.map((p: any) => p.position)
+          const positions = data.predictions.map((p: { position: number }) => p.position)
           const uniquePositions = new Set(positions)
 
           if (positions.length !== uniquePositions.size) {
@@ -138,7 +138,7 @@ export const Predictions: CollectionConfig = {
           }
 
           // Проверяем уникальность пилотов
-          const drivers = normalizeIDs(data.predictions.map((p: any) => p.driver))
+          const drivers = normalizeIDs(data.predictions.map((p: { driver: string | object }) => p.driver))
           const uniqueDrivers = new Set(drivers)
 
           if (drivers.length !== uniqueDrivers.size) {

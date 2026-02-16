@@ -16,7 +16,7 @@ interface UserProgressData {
 interface ChartDataPoint {
   raceName: string
   round: number
-  [key: string]: any // nickname: points
+  [nickname: string]: string | number
 }
 
 interface PointsEvolutionChartProps {
@@ -59,7 +59,15 @@ export function PointsEvolutionChart({ races, usersProgress }: PointsEvolutionCh
     })
   }
 
-  const CustomTooltip = ({ active, payload, label }: any) => {
+  const CustomTooltip = ({
+    active,
+    payload,
+    label,
+  }: {
+    active?: boolean
+    payload?: Array<{ name: string; value: number; color: string }>
+    label?: string
+  }) => {
     if (!active || !payload || !payload.length) return null
 
     const raceIndex = sortedRaces.findIndex((race) => race.name === label)
@@ -69,8 +77,8 @@ export function PointsEvolutionChart({ races, usersProgress }: PointsEvolutionCh
         <p className="font-bold text-accent mb-2">{label}</p>
         <div className="space-y-1">
           {payload
-            .sort((a: any, b: any) => b.value - a.value)
-            .map((entry: any, index: number) => {
+            .sort((a, b) => b.value - a.value)
+            .map((entry, index) => {
               const user = usersProgress.find((u) => u.nickname === entry.name)
               const pointsInRace = user?.pointsByRace[raceIndex] || 0
 

@@ -72,7 +72,8 @@ export const updatePrediction = async (req: PayloadRequest) => {
       message: 'Прогноз успешно обновлен',
       prediction: updatedPrediction,
     })
-  } catch (error: any) {
-    return Response.json({ message: error.message || 'Внутренняя ошибка сервера' }, { status: 500 })
+  } catch (error: unknown) {
+    const message = error instanceof Error ? error.message : 'Внутренняя ошибка сервера'
+    return Response.json({ message }, { status: 500 })
   }
 }

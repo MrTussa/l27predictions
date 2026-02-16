@@ -29,8 +29,9 @@ export async function POST(req: Request) {
       success: true,
       message: `Stats recalculated for season ${targetSeason}`,
     })
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Error recalculating stats:', error)
-    return Response.json({ error: error.message }, { status: 500 })
+    const message = error instanceof Error ? error.message : 'Unknown error'
+    return Response.json({ error: message }, { status: 500 })
   }
 }

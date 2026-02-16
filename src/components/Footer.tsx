@@ -16,7 +16,7 @@ function Footer() {
       <div className="container mx-auto px-4 py-10 lg:py-14">
         {/* Logo */}
         <div className="flex items-center gap-3 mb-8">
-          <LogoIcon className="w-8 h-auto" />
+          <LogoIcon />
           <span className="text-md md:text-2xl font-bold uppercase tracking-widest bg-linear-to-r from-accent to-primary bg-clip-text text-transparent">
             L27 Predictions
           </span>

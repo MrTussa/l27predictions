@@ -167,8 +167,9 @@ export const EventForm: React.FC<Props> = ({ event, drivers = [], teams = [] }) 
       toast.success('Ответ успешно отправлен!')
       router.push('/events')
       router.refresh()
-    } catch (error: any) {
-      toast.error(error.message || 'Произошла ошибка при отправке')
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : 'Произошла ошибка при отправке'
+      toast.error(message)
     } finally {
       setIsSubmitting(false)
     }

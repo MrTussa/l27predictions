@@ -31,7 +31,7 @@ export function Header() {
         <div className="flex w-full items-center justify-between">
           <div className="flex w-full gap-6 items-center">
             <Link className="flex w-full items-center justify-center pt-4 pb-4 md:w-auto" href="/">
-              <LogoIcon className="w-6 h-auto" />
+              <LogoIcon />
             </Link>
             <ul className=" hidden gap-4 text-sm md:flex md:items-center">
               {NAV_ITEMS.map((item) => (

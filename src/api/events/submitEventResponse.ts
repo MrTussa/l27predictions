@@ -92,7 +92,7 @@ export const submitEventResponse = async (req: PayloadRequest) => {
         if (
           !answer.selectedOptions ||
           answer.selectedOptions.length === 0 ||
-          !answer.selectedOptions.every((opt: any) => typeof opt.optionIndex === 'number')
+          !answer.selectedOptions.every((opt: { optionIndex: number }) => typeof opt.optionIndex === 'number')
         ) {
           return Response.json(
             {
@@ -136,8 +136,9 @@ export const submitEventResponse = async (req: PayloadRequest) => {
       },
       { status: 201 },
     )
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Error submitting event response:', error)
-    return Response.json({ message: error.message || 'Внутренняя ошибка сервера' }, { status: 500 })
+    const message = error instanceof Error ? error.message : 'Внутренняя ошибка сервера'
+    return Response.json({ message }, { status: 500 })
   }
 }

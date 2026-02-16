@@ -3,13 +3,13 @@
 import { Canvas, extend, useFrame, useThree } from '@react-three/fiber'
 import { useEffect, useMemo, useRef } from 'react'
 import * as THREE from 'three'
-// @ts-ignore
+// @ts-expect-error ts can't find components in /examples
 import { SVGLoader } from 'three/examples/jsm/loaders/SVGLoader'
-// @ts-ignore
+// @ts-expect-error ts can't find components in /examples
 import { EffectComposer } from 'three/examples/jsm/postprocessing/EffectComposer'
-// @ts-ignore
+// @ts-expect-error ts can't find components in /examples
 import { RenderPass } from 'three/examples/jsm/postprocessing/RenderPass'
-// @ts-ignore
+// @ts-expect-error ts can't find components in /examples
 import { UnrealBloomPass } from 'three/examples/jsm/postprocessing/UnrealBloomPass'
 
 extend({ EffectComposer, RenderPass, UnrealBloomPass })
@@ -153,7 +153,7 @@ function Effects({ bloomStrength }: EffectsProps) {
       effectComposer.dispose()
       renderTarget.dispose()
     }
-  }, [gl, camera, scene, size])
+  }, [gl, camera, scene, size, bloomStrength])
 
   useFrame(() => {
     if (composer.current) {

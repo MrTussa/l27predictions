@@ -168,7 +168,7 @@ export const Races: CollectionConfig = {
 
         // Валидация результатов: проверяем уникальность позиций
         if (data?.results && data.results.length > 0) {
-          const positions = data.results.map((r: any) => r.position)
+          const positions = data.results.map((r: { position: number }) => r.position)
           const uniquePositions = new Set(positions)
 
           if (positions.length !== uniquePositions.size) {
