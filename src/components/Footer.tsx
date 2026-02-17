@@ -17,7 +17,7 @@ function Footer() {
         {/* Logo */}
         <div className="flex items-center gap-3 mb-8">
           <LogoIcon />
-          <span className="text-md md:text-2xl font-bold uppercase tracking-widest bg-linear-to-r from-accent to-primary bg-clip-text text-transparent">
+          <span className="text-md md:text-2xl font-bold uppercase tracking-widest text-accent ">
             L27 Predictions
           </span>
         </div>
