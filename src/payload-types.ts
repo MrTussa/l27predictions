@@ -256,16 +256,16 @@ export interface Race {
    */
   name: string;
   /**
-   * Год сезона (например, 2025)
+   * Год сезона (например, 2026)
    */
   season: number;
   round: number;
   /**
-   * Рекомендуемый размер: 300x200px
+   * Рекомендуемый размер: 500x500px
    */
   countryFlag: string | Media;
   /**
-   * Только содержимое атрибута d="..." из <path> элемента SVG трассы
+   * Строгое форматирование к размерам, обязательно  viewBox="144 144 512 512" width="800px" height="800px"
    */
   trackSVGPath?: string | null;
   predictionOpenDate: string;

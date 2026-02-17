@@ -34,7 +34,7 @@ export const Races: CollectionConfig = {
       defaultValue: () => new Date().getFullYear(),
       label: 'Сезон',
       admin: {
-        description: 'Год сезона (например, 2025)',
+        description: 'Год сезона (например, 2026)',
       },
     },
     {
@@ -52,7 +52,7 @@ export const Races: CollectionConfig = {
       required: true,
       label: 'Флаг страны',
       admin: {
-        description: 'Рекомендуемый размер: 300x200px',
+        description: 'Рекомендуемый размер: 500x500px',
       },
     },
     {
@@ -61,8 +61,10 @@ export const Races: CollectionConfig = {
       required: false,
       label: 'SVG Path трассы',
       admin: {
-        description: 'Только содержимое атрибута d="..." из <path> элемента SVG трассы',
-        placeholder: 'M150 0 L75 200 L225 200 Z',
+        description:
+          'Строгое форматирование к размерам, обязательно  viewBox="144 144 512 512" width="800px" height="800px"',
+        placeholder:
+          '<svg xmlns="http://www.w3.org/2000/svg" fill="#000000" width="800px" height="800px" version="1.1" viewBox="144 144 512 512">',
       },
     },
     {

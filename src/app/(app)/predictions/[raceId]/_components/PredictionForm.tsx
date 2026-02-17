@@ -212,7 +212,7 @@ export const PredictionForm: React.FC<Props> = ({
             strategy={rectSortingStrategy}
           >
             {/* Подиум слоты */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:flex lg:items-end lg:justify-center gap-4 lg:gap-6 mb-8">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:flex lg:items-end lg:justify-center gap-4 lg:gap-6">
               <div className="sm:col-span-2 lg:order-2 lg:flex-1 flex justify-center">
                 <div className="w-full max-w-[280px]">
                   <PodiumSlot
@@ -248,12 +248,25 @@ export const PredictionForm: React.FC<Props> = ({
             </div>
           </SortableContext>
 
+          {isPredictionOpen && (
+            <Button
+              onClick={handleSubmit}
+              disabled={filledSlotsCount !== 3 || isSubmitting}
+              className="w-full my-6"
+              size="lg"
+              variant={filledSlotsCount === 3 ? 'default' : 'ghost'}
+            >
+              {isSubmitting
+                ? 'Сохранение...'
+                : existingPrediction
+                  ? 'Обновить прогноз'
+                  : 'Сохранить прогноз'}
+            </Button>
+          )}
+
           <SortableContext items={availableDrivers.map((d) => d.id)} strategy={rectSortingStrategy}>
             {/* Список пилотов */}
             <div>
-              <h2 className="text-2xl font-bold mb-6">
-                Доступные пилоты ({availableDrivers.length})
-              </h2>
               <div className="max-h-[800px] overflow-y-auto pr-2">
                 {availableDrivers.length === 0 ? (
                   <div className="text-center text-muted-foreground py-12 border rounded-lg">
@@ -285,21 +298,6 @@ export const PredictionForm: React.FC<Props> = ({
         </DndContext>
 
         {/* Кнопка сохранения */}
-        {isPredictionOpen && (
-          <Button
-            onClick={handleSubmit}
-            disabled={filledSlotsCount !== 3 || isSubmitting}
-            className="w-full mt-6"
-            size="lg"
-            variant={filledSlotsCount === 3 ? 'default' : 'ghost'}
-          >
-            {isSubmitting
-              ? 'Сохранение...'
-              : existingPrediction
-                ? 'Обновить прогноз'
-                : 'Сохранить прогноз'}
-          </Button>
-        )}
       </div>
     </div>
   )
