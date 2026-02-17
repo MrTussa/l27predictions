@@ -1,5 +1,6 @@
 import type { User } from '@/payload-types'
 import { getServerSideUser } from '@/utilities/getServerSideUser'
+import { getTimezone } from '@/utilities/getTimezone'
 import {
   getDrivers,
   getPredictionsForRace,
@@ -20,7 +21,7 @@ type Props = {
 
 export default async function PredictionPage({ params }: Props) {
   const { raceId } = await params
-  const { user } = await getServerSideUser()
+  const [{ user }, timeZone] = await Promise.all([getServerSideUser(), getTimezone()])
 
   if (!user) {
     redirect(`/login?redirect=${encodeURIComponent(`/predictions/${raceId}`)}`)
@@ -69,6 +70,7 @@ export default async function PredictionPage({ params }: Props) {
             isPredictionClosed={isPredictionClosed}
             hasUserPrediction={!!existingPrediction}
             recentPredictors={recentPredictors}
+            timeZone={timeZone}
           />
         </div>
       </div>

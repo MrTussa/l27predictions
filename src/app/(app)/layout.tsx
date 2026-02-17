@@ -4,6 +4,7 @@ import { AdminBar } from '@/components/AdminBar'
 import Footer from '@/components/Footer'
 import { Header } from '@/components/Header'
 import { ClarityAnalytics } from '@/components/metrics/ClarityAnalytics'
+import { TimezoneDetector } from '@/components/TimezoneDetector'
 import { Providers } from '@/providers'
 import { GeistMono } from 'geist/font/mono'
 import { GeistSans } from 'geist/font/sans'
@@ -50,6 +51,7 @@ export default async function RootLayout({ children }: { children: ReactNode }) 
       </head>
       <body>
         <ClarityAnalytics projectId={process.env.CLARITY_ID!} />
+        <TimezoneDetector />
         <Providers>
           <AdminBar />
 

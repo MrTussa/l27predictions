@@ -1,5 +1,6 @@
 import { Card } from '@/components/ui/card'
 import type { Race, User } from '@/payload-types'
+import { formatDate } from '@/utilities/formatDate'
 import { IconCalendar, IconCheck, IconClock, IconFlag, IconUser, IconX } from '@tabler/icons-react'
 import Link from 'next/link'
 
@@ -9,6 +10,7 @@ interface AboutRaceProps {
   isPredictionClosed: boolean
   hasUserPrediction: boolean
   recentPredictors: User[]
+  timeZone: string
 }
 
 export function AboutRace({
@@ -17,9 +19,8 @@ export function AboutRace({
   isPredictionClosed,
   hasUserPrediction,
   recentPredictors,
+  timeZone,
 }: AboutRaceProps) {
-  const raceDate = new Date(race.raceDate)
-  const closeDate = new Date(race.predictionCloseDate)
 
   // Определяем статус
   let status: { text: string; icon: React.ReactElement; color: string } | null = null
@@ -71,17 +72,10 @@ export function AboutRace({
             Начало гонки
           </div>
           <div className="text-base font-bold">
-            {raceDate.toLocaleDateString('ru-RU', {
-              day: 'numeric',
-              month: 'long',
-              year: 'numeric',
-            })}
+            {formatDate(race.raceDate, timeZone, 'dateYear')}
           </div>
           <div className="text-sm text-muted-foreground">
-            {raceDate.toLocaleTimeString('ru-RU', {
-              hour: '2-digit',
-              minute: '2-digit',
-            })}
+            {formatDate(race.raceDate, timeZone, 'time')}
           </div>
         </div>
 
@@ -92,16 +86,10 @@ export function AboutRace({
             Прогнозы до
           </div>
           <div className="text-base font-bold">
-            {closeDate.toLocaleDateString('ru-RU', {
-              day: 'numeric',
-              month: 'long',
-            })}
+            {formatDate(race.predictionCloseDate, timeZone, 'date')}
           </div>
           <div className="text-sm text-muted-foreground">
-            {closeDate.toLocaleTimeString('ru-RU', {
-              hour: '2-digit',
-              minute: '2-digit',
-            })}
+            {formatDate(race.predictionCloseDate, timeZone, 'time')}
           </div>
         </div>
 

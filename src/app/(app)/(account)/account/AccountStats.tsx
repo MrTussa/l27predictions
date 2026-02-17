@@ -1,9 +1,10 @@
 import { UserStats } from '@/components/UserStats'
 import { getServerSideUser } from '@/utilities/getServerSideUser'
+import { getTimezone } from '@/utilities/getTimezone'
 import { getProfileData } from '@/utilities/queries'
 
 export async function AccountStats() {
-  const { user } = await getServerSideUser()
+  const [{ user }, timeZone] = await Promise.all([getServerSideUser(), getTimezone()])
 
   if (!user) {
     return <div>Не авторизован</div>
@@ -21,6 +22,7 @@ export async function AccountStats() {
       }}
       data={data}
       isOwnProfile={true}
+      timeZone={timeZone}
     />
   )
 }

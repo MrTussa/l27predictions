@@ -1,5 +1,6 @@
 import { UserStats } from '@/components/UserStats'
 import { getServerSideUser } from '@/utilities/getServerSideUser'
+import { getTimezone } from '@/utilities/getTimezone'
 import { mergeOpenGraph } from '@/utilities/mergeOpenGraph'
 import { getProfileData, getUserPublicProfile } from '@/utilities/queries'
 import type { Metadata } from 'next'
@@ -14,10 +15,11 @@ type Props = {
 export default async function UserProfilePage({ params }: Props) {
   const { id } = await params
 
-  const [publicUser, profileData, currentAuth] = await Promise.all([
+  const [publicUser, profileData, currentAuth, timeZone] = await Promise.all([
     getUserPublicProfile(id),
     getProfileData(id),
     getServerSideUser(),
+    getTimezone(),
   ])
 
   if (!publicUser) {
@@ -30,7 +32,7 @@ export default async function UserProfilePage({ params }: Props) {
     <div className="container px-4 md:px-16 py-6">
       <div className="max-w-6xl mx-auto">
         <h1 className="text-4xl font-bold uppercase tracking-tight mb-6">{publicUser.nickname}</h1>
-        <UserStats user={publicUser} data={profileData} isOwnProfile={isOwnProfile} />
+        <UserStats user={publicUser} data={profileData} isOwnProfile={isOwnProfile} timeZone={timeZone} />
       </div>
     </div>
   )

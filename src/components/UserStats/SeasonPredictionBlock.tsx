@@ -1,5 +1,6 @@
 import { Card } from '@/components/ui/card'
 import type { Driver, EventResponse, Event as F1Event, Team } from '@/payload-types'
+import { formatDate } from '@/utilities/formatDate'
 import configPromise from '@payload-config'
 import Image from 'next/image'
 import { getPayload } from 'payload'
@@ -7,9 +8,10 @@ import { getPayload } from 'payload'
 interface SeasonPredictionBlockProps {
   userId: string
   season: number
+  timeZone: string
 }
 
-export async function SeasonPredictionBlock({ userId, season }: SeasonPredictionBlockProps) {
+export async function SeasonPredictionBlock({ userId, season, timeZone }: SeasonPredictionBlockProps) {
   const payload = await getPayload({ config: configPromise })
   const { docs: seasonEvents } = await payload.find({
     collection: 'events',
@@ -168,7 +170,7 @@ export async function SeasonPredictionBlock({ userId, season }: SeasonPrediction
 
         {response.submittedAt && (
           <p className="text-xs text-muted-foreground text-center">
-            Прогноз сделан: {new Date(response.submittedAt).toLocaleDateString('ru-RU')}
+            Прогноз сделан: {formatDate(response.submittedAt, timeZone, 'short')}
           </p>
         )}
       </div>

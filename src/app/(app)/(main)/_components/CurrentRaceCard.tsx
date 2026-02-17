@@ -2,6 +2,7 @@ import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 import RaceTrackVisualization from '@/components/ui/racetrack'
 import type { Race } from '@/payload-types'
+import { formatDate } from '@/utilities/formatDate'
 import { IconClock } from '@tabler/icons-react'
 import Image from 'next/image'
 import Link from 'next/link'
@@ -9,11 +10,12 @@ import Link from 'next/link'
 interface CurrentRaceCardProps {
   race: Race
   votedCount: number
+  timeZone: string
 }
 
-export function CurrentRaceCard({ race, votedCount }: CurrentRaceCardProps) {
+export function CurrentRaceCard({ race, votedCount, timeZone }: CurrentRaceCardProps) {
   const closeDate = new Date(race.predictionCloseDate)
-  const raceDate = new Date(race.raceDate)
+  const raceDate = formatDate(race.raceDate, timeZone, 'dateTime')
   const now = new Date()
 
   // Время до закрытия голосования
@@ -75,14 +77,7 @@ export function CurrentRaceCard({ race, votedCount }: CurrentRaceCardProps) {
 
               <div className="text-xs md:text-sm text-muted-foreground uppercase tracking-wider text-right">
                 <div>Начало гонки</div>
-                <div className="text-base md:text-lg font-bold">
-                  {raceDate.toLocaleDateString('ru-RU', {
-                    day: 'numeric',
-                    month: 'long',
-                    hour: '2-digit',
-                    minute: '2-digit',
-                  })}
-                </div>
+                <div className="text-base md:text-lg font-bold">{raceDate}</div>
               </div>
             </div>
           </div>

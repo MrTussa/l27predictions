@@ -1,6 +1,7 @@
 import { PredictionCard } from '@/components/DriverCard/PredictionCard'
 import { Card } from '@/components/ui/card'
 import type { Race, Team, User } from '@/payload-types'
+import { formatDate } from '@/utilities/formatDate'
 import { IconFlag, IconTrophy } from '@tabler/icons-react'
 
 interface TopDriver {
@@ -19,10 +20,10 @@ interface PreviousRaceCardProps {
   race: Race
   topDrivers: TopDriver[]
   topPredictors: TopPredictor[]
+  timeZone: string
 }
 
-export function PreviousRaceCard({ race, topDrivers, topPredictors }: PreviousRaceCardProps) {
-  const raceDate = new Date(race.raceDate)
+export function PreviousRaceCard({ race, topDrivers, topPredictors, timeZone }: PreviousRaceCardProps) {
   return (
     <Card variant="elevated" corners="cut-corner" className="h-full">
       <div className="space-y-6 px-6">
@@ -41,9 +42,9 @@ export function PreviousRaceCard({ race, topDrivers, topPredictors }: PreviousRa
             </div>
           </div>
           <div className="flex flex-col items-baseline text-sm text-right text-muted-foreground">
-            <span>{raceDate.toLocaleDateString('ru-RU', { day: 'numeric', month: 'long' })}</span>
+            <span>{formatDate(race.raceDate, timeZone, 'date')}</span>
             <span className="w-full">
-              {raceDate.toLocaleDateString('ru-RU', { year: 'numeric' })}
+              {new Intl.DateTimeFormat('ru-RU', { year: 'numeric', timeZone }).format(new Date(race.raceDate))}
             </span>
           </div>
         </div>

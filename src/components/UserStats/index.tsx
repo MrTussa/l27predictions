@@ -8,9 +8,10 @@ interface UserStatsProps {
   user: PublicUser
   data: ProfileData
   isOwnProfile: boolean
+  timeZone: string
 }
 
-export async function UserStats({ user, data, isOwnProfile }: UserStatsProps) {
+export async function UserStats({ user, data, isOwnProfile, timeZone }: UserStatsProps) {
   const currentYear = new Date().getFullYear()
   const { userStats, userRank, userPredictions } = data
 
@@ -95,7 +96,7 @@ export async function UserStats({ user, data, isOwnProfile }: UserStatsProps) {
         ))}
       </div>
 
-      <SeasonPredictionBlock userId={user.id} season={currentYear} />
+      <SeasonPredictionBlock userId={user.id} season={currentYear} timeZone={timeZone} />
 
       {chartData.length >= 2 && (
         <Card variant="default" corners="cut-corner" className="p-0.5">

@@ -1,4 +1,5 @@
 import { getServerSideUser } from '@/utilities/getServerSideUser'
+import { getTimezone } from '@/utilities/getTimezone'
 import type { Metadata } from 'next'
 import { CurrentRaceCard } from './_components/CurrentRaceCard'
 import { PreviousRaceCard } from './_components/PreviousRaceCard'
@@ -6,7 +7,7 @@ import { UserInfoCard } from './_components/UserInfoCard'
 import { getHomePageData } from './_lib/getHomePageData'
 
 export default async function HomePage() {
-  const { user: currentUser } = await getServerSideUser()
+  const [{ user: currentUser }, timeZone] = await Promise.all([getServerSideUser(), getTimezone()])
 
   const {
     openRace,
@@ -34,7 +35,7 @@ export default async function HomePage() {
         {/* Грядущая гонка */}
         {openRace && (
           <section className="glow-border lg:col-span-2">
-            <CurrentRaceCard race={openRace} votedCount={votedCount} />
+            <CurrentRaceCard race={openRace} votedCount={votedCount} timeZone={timeZone} />
           </section>
         )}
 
@@ -42,7 +43,7 @@ export default async function HomePage() {
 
         {previousRace && previousRaceData && (
           <section className="lg:col-span-1">
-            <PreviousRaceCard race={previousRace} {...previousRaceData} />
+            <PreviousRaceCard race={previousRace} {...previousRaceData} timeZone={timeZone} />
           </section>
         )}
       </div>
