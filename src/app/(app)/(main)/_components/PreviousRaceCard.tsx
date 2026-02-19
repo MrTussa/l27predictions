@@ -3,6 +3,7 @@ import { Card } from '@/components/ui/card'
 import type { Race, Team, User } from '@/payload-types'
 import { formatDate } from '@/utilities/formatDate'
 import { IconFlag, IconTrophy } from '@tabler/icons-react'
+import Link from 'next/link'
 
 interface TopDriver {
   position: number
@@ -23,7 +24,12 @@ interface PreviousRaceCardProps {
   timeZone: string
 }
 
-export function PreviousRaceCard({ race, topDrivers, topPredictors, timeZone }: PreviousRaceCardProps) {
+export function PreviousRaceCard({
+  race,
+  topDrivers,
+  topPredictors,
+  timeZone,
+}: PreviousRaceCardProps) {
   return (
     <Card variant="elevated" corners="cut-corner" className="h-full">
       <div className="space-y-6 px-6">
@@ -44,7 +50,9 @@ export function PreviousRaceCard({ race, topDrivers, topPredictors, timeZone }: 
           <div className="flex flex-col items-baseline text-sm text-right text-muted-foreground">
             <span>{formatDate(race.raceDate, timeZone, 'date')}</span>
             <span className="w-full">
-              {new Intl.DateTimeFormat('ru-RU', { year: 'numeric', timeZone }).format(new Date(race.raceDate))}
+              {new Intl.DateTimeFormat('ru-RU', { year: 'numeric', timeZone }).format(
+                new Date(race.raceDate),
+              )}
             </span>
           </div>
         </div>
@@ -105,7 +113,9 @@ export function PreviousRaceCard({ race, topDrivers, topPredictors, timeZone }: 
                           className="w-2 h-2 rounded-full"
                           style={{ backgroundColor: barColor }}
                         />
-                        <span className="font-medium">{user.nickname || user.email}</span>
+                        <Link href={`/user/${user.id}`} className="font-medium">
+                          {user.nickname || user.email}
+                        </Link>
                       </div>
                     </div>
                     <span className="text-accent font-bold">{predictor.points} очков</span>
