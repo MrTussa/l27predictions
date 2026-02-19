@@ -12,7 +12,7 @@ import {
 } from '@/components/ui/table'
 import { ArrowUpDown, Award, Medal, Trophy } from 'lucide-react'
 import Link from 'next/link'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 
 type LeaderboardEntry = {
   id: string
@@ -38,9 +38,18 @@ type SortKey =
   | 'currentStreak'
   | 'bestStreak'
 
+import { PayloadSDK } from '@payloadcms/sdk'
+
+const sdk = new PayloadSDK({
+  baseURL: process.env.NEXT_PUBLIC_SERVER_URL!,
+})
+
 export const LeaderboardTable: React.FC<Props> = ({ data: initialData }) => {
   const [sortKey, setSortKey] = useState<SortKey>('totalPoints')
   const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('desc')
+  const [leaderboardData, setLeaderboardData] = useState(initialData)
+  const [currentPage, setCurentPage] = useState(1)
+  const [totalPages, setTotalPages] = useState(1)
   const handleSort = (key: SortKey) => {
     if (sortKey === key) {
       setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc')
@@ -50,7 +59,51 @@ export const LeaderboardTable: React.FC<Props> = ({ data: initialData }) => {
     }
   }
 
-  const sortedData = [...initialData].sort((a, b) => {
+  function getPageNumbers(): (number | string)[] {
+    const pages: (number | string)[] = []
+    const maxVisible = 5
+
+    if (totalPages <= maxVisible) {
+      for (let i = 0; i < totalPages; i++) {
+        pages.push(1)
+      }
+    } else {
+      if (currentPage <= 3) {
+        pages.push(1, 2, 3, '...', currentPage)
+      } else if (currentPage >= totalPages - 2) {
+        pages.push(1, '...', totalPages - 2, totalPages - 1, totalPages)
+      } else {
+        pages.push(1, '...', currentPage - 1, currentPage, currentPage + 1, '...', totalPages)
+      }
+    }
+
+    return pages
+  }
+
+  const pages = getPageNumbers()
+
+  useEffect(() => {
+    async function getLeaderboardData() {
+      const data = await sdk.find({
+        collection: 'season-stats',
+        where: {
+          season: { equals: new Date().getFullYear() },
+        },
+        sort: '-totalPoints',
+        limit: 15,
+        depth: 1,
+        page: currentPage,
+      })
+      return data
+    }
+
+    getLeaderboardData().then((result) => {
+      setLeaderboardData(result.docs as unknown as LeaderboardEntry[])
+      setTotalPages(result.totalPages)
+    })
+  }, [currentPage])
+
+  const sortedData = [...leaderboardData].sort((a, b) => {
     const aValue = a[sortKey]
     const bValue = b[sortKey]
     return sortDirection === 'asc' ? aValue - bValue : bValue - aValue
@@ -205,6 +258,41 @@ export const LeaderboardTable: React.FC<Props> = ({ data: initialData }) => {
           })}
         </TableBody>
       </Table>
+
+      {totalPages > 1 && (
+        <div className="flex items-center justify-center flex-row gap-1 p-3">
+          <Button
+            variant={'ghost'}
+            disabled={currentPage === 1}
+            onClick={() => setCurentPage((p) => Math.max(1, p - 1))}
+          >
+            ←
+          </Button>
+          {pages.map((page, i) =>
+            page === '...' ? (
+              <span key={`ellipsis-${i}`} className="px-2 text-muted-foreground">
+                ...
+              </span>
+            ) : (
+              <Button
+                key={page}
+                variant={currentPage === page ? 'default' : 'ghost'}
+                disabled={currentPage === page}
+                onClick={() => setCurentPage(page as number)}
+              >
+                {page}
+              </Button>
+            ),
+          )}
+          <Button
+            variant={'ghost'}
+            disabled={currentPage === totalPages}
+            onClick={() => setCurentPage((p) => Math.max(1, p + 1))}
+          >
+            →
+          </Button>
+        </div>
+      )}
     </Card>
   )
 }

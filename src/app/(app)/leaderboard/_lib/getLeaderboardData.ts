@@ -32,7 +32,7 @@ export async function getLeaderboardData(year?: number): Promise<LeaderboardData
   const currentYear = year ?? new Date().getFullYear()
 
   const [seasonStats, allRaces] = await Promise.all([
-    getAllSeasonStats({ year: currentYear, sort: '-totalPoints', depth: 1 }),
+    getAllSeasonStats({ year: currentYear, sort: '-totalPoints', depth: 1, limit: 15 }),
     getRaces({ year: currentYear }),
   ])
 
