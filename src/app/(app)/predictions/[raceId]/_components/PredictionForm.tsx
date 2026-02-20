@@ -264,7 +264,7 @@ export const PredictionForm: React.FC<Props> = ({
             </Button>
           )}
 
-          <SortableContext items={availableDrivers.map((d) => d.id)} strategy={rectSortingStrategy}>
+          <SortableContext items={availableDrivers.map((d) => d.id)} strategy={() => null}>
             {/* Список пилотов */}
             <div>
               <div className="max-h-[800px] overflow-y-auto pr-2 custom-scrollbar">
