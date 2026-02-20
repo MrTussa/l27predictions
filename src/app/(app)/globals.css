@@ -50,47 +50,36 @@
   .text-outline-black {
     -webkit-text-stroke: 1px black;
     color: white;
-    /* Optional: set fill color */
+  }
+
+
+  .custom-scrollbar::-webkit-scrollbar {
+    width: 0.5rem;
+  }
+
+  @media (max-width: 40rem) {
+    .custom-scrollbar::-webkit-scrollbar {
+      width: 0.5rem;
+      height: 0.3rem;
+    }
+  }
+
+  .custom-scrollbar::-webkit-scrollbar-track {
+    background: #534A14;
+    border-radius: 100vh;
+  }
+
+  .custom-scrollbar::-webkit-scrollbar-thumb {
+    background: var(--accent);
+    border-radius: 100vh;
+  }
+
+  .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+    background: #ffee8e;
   }
 }
 
 :root {
-  --background: hsl(0 0% 100%);
-  --foreground: hsl(222.2 84% 4.9%);
-
-  --card: hsl(240 5% 96%);
-  --card-foreground: hsl(222.2 84% 4.9%);
-
-  --popover: hsl(0 0% 100%);
-  --popover-foreground: hsl(222.2 84% 4.9%);
-
-  --primary: hsl(222.2 47.4% 11.2%);
-  --primary-foreground: hsl(210 40% 98%);
-
-  --secondary: hsl(210 40% 96.1%);
-  --secondary-foreground: hsl(222.2 47.4% 11.2%);
-
-  --muted: hsl(210 40% 96.1%);
-  --muted-foreground: hsl(215.4 16.3% 46.9%);
-
-  --accent: hsl(210 40% 96.1%);
-  --accent-foreground: hsl(222.2 47.4% 11.2%);
-
-  --destructive: hsl(0 84.2% 60.2%);
-  --destructive-foreground: hsl(210 40% 98%);
-
-  --border: hsl(240 6% 90%);
-  --input: hsl(214.3 31.8% 91.4%);
-  --ring: hsl(222.2 84% 4.9%);
-
-  --radius: hsl(0.2rem);
-
-  --success: hsl(196 52% 74%);
-  --warning: hsl(34 89% 85%);
-  --error: hsl(10, 93%, 70%);
-}
-
-[data-theme='dark'] {
   --background: hsla(0, 0%, 4%);
   --foreground: hsl(210 40% 98%);
 

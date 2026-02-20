@@ -267,7 +267,7 @@ export const PredictionForm: React.FC<Props> = ({
           <SortableContext items={availableDrivers.map((d) => d.id)} strategy={rectSortingStrategy}>
             {/* Список пилотов */}
             <div>
-              <div className="max-h-[800px] overflow-y-auto pr-2">
+              <div className="max-h-[800px] overflow-y-auto pr-2 custom-scrollbar">
                 {availableDrivers.length === 0 ? (
                   <div className="text-center text-muted-foreground py-12 border rounded-lg">
                     <p>Все пилоты на подиуме</p>

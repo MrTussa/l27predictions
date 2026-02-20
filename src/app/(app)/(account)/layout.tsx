@@ -16,7 +16,7 @@ export default async function AccountLayout({ children }: { children: ReactNode 
   const telegram = user.telegramUsername?.replaceAll(/@/g, '')
 
   return (
-    <div className="container px-4 md:px-16 py-6">
+    <div className="container px-4 md:px-16 py-6 sm">
       <div className="max-w-6xl mx-auto">
         <RenderParams />
 
@@ -38,7 +38,7 @@ export default async function AccountLayout({ children }: { children: ReactNode 
 
         <div className="flex flex-col gap-6">
           <nav>
-            <AccountNav className="flex w-full flex-row justify-between" />
+            <AccountNav className="flex w-full flex-row justify-between overflow-y-auto custom-scrollbar" />
           </nav>
 
           <main>{children}</main>
