@@ -21,8 +21,6 @@ export function AboutRace({
   recentPredictors,
   timeZone,
 }: AboutRaceProps) {
-
-  // Определяем статус
   let status: { text: string; icon: React.ReactElement; color: string } | null = null
 
   if (isPredictionClosed) {
@@ -110,7 +108,7 @@ export function AboutRace({
           <div className="pt-4 border-t border-muted">
             <div className="text-sm text-muted-foreground uppercase tracking-wider mb-3 flex items-center gap-2">
               <IconUser className="w-4 h-4" />
-              Уже проголосовали ({recentPredictors.length})
+              Недавно проголосовали
             </div>
             <div className="space-y-2">
               {recentPredictors.map((user) => (

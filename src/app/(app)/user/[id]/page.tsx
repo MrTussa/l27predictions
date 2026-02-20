@@ -3,6 +3,7 @@ import { getServerSideUser } from '@/utilities/getServerSideUser'
 import { getTimezone } from '@/utilities/getTimezone'
 import { mergeOpenGraph } from '@/utilities/mergeOpenGraph'
 import { getProfileData, getUserPublicProfile } from '@/utilities/queries'
+import { IconBrandTelegram } from '@tabler/icons-react'
 import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
 
@@ -28,11 +29,32 @@ export default async function UserProfilePage({ params }: Props) {
 
   const isOwnProfile = currentAuth.user?.id === id
 
+  const telegram = publicUser.telegramUsername?.replaceAll(/@/g, '')
+
   return (
     <div className="container px-4 md:px-16 py-6">
-      <div className="max-w-6xl mx-auto">
-        <h1 className="text-4xl font-bold uppercase tracking-tight mb-6">{publicUser.nickname}</h1>
-        <UserStats user={publicUser} data={profileData} isOwnProfile={isOwnProfile} timeZone={timeZone} />
+      <div className="max-w-6xl mx-auto space-y-2">
+        <h1 className="text-4xl font-bold uppercase tracking-tight">{publicUser.nickname}</h1>
+
+        <div className="flex flex-col w-fit">
+          {telegram && (
+            <span className="flex items-center gap-2">
+              <IconBrandTelegram className="text-muted-foreground" />
+              <a className="text-xl text-muted-foreground" href={`https://t.me/${telegram}`}>
+                {publicUser.telegramUsername}
+              </a>
+            </span>
+          )}
+          {publicUser.name && (
+            <span className="text-xl text-muted-foreground">{publicUser.name}</span>
+          )}
+        </div>
+        <UserStats
+          user={publicUser}
+          data={profileData}
+          isOwnProfile={isOwnProfile}
+          timeZone={timeZone}
+        />
       </div>
     </div>
   )

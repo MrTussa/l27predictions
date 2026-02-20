@@ -284,7 +284,7 @@ export async function getProfileData(userId: string): Promise<ProfileData> {
   }
 }
 
-export type PublicUser = Pick<User, 'id' | 'nickname' | 'chartColor' | 'telegramUsername'>
+export type PublicUser = Pick<User, 'id' | 'nickname' | 'chartColor' | 'telegramUsername' | 'name'>
 
 export async function getUserPublicProfile(userId: string): Promise<PublicUser | null> {
   const payload = await getPayload({ config: configPromise })
@@ -298,6 +298,7 @@ export async function getUserPublicProfile(userId: string): Promise<PublicUser |
         nickname: true,
         chartColor: true,
         telegramUsername: true,
+        name: true,
       },
     })
 
@@ -308,6 +309,7 @@ export async function getUserPublicProfile(userId: string): Promise<PublicUser |
       nickname: user.nickname,
       chartColor: user.chartColor,
       telegramUsername: user.telegramUsername ?? null,
+      name: user.name ?? null,
     }
   } catch {
     return null

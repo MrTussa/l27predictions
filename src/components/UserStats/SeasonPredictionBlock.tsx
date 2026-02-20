@@ -11,7 +11,11 @@ interface SeasonPredictionBlockProps {
   timeZone: string
 }
 
-export async function SeasonPredictionBlock({ userId, season, timeZone }: SeasonPredictionBlockProps) {
+export async function SeasonPredictionBlock({
+  userId,
+  season,
+  timeZone,
+}: SeasonPredictionBlockProps) {
   const payload = await getPayload({ config: configPromise })
   const { docs: seasonEvents } = await payload.find({
     collection: 'events',
@@ -87,7 +91,7 @@ export async function SeasonPredictionBlock({ userId, season, timeZone }: Season
             <h3 className="text-xl font-bold uppercase tracking-tight mb-2">Сезонный прогноз</h3>
             <p className="text-sm text-muted-foreground">
               {isCompleted
-                ? `Набрано ${currentReward} из ${maxReward} очков`
+                ? `Набрано ${currentReward} из ${maxReward} коинов`
                 : 'Результаты появятся после завершения сезона'}
             </p>
           </div>
@@ -129,7 +133,7 @@ export async function SeasonPredictionBlock({ userId, season, timeZone }: Season
                     </div>
                   </div>
                   <div className="text-right">
-                    <p className="text-sm font-bold text-accent">{answer.points} очков</p>
+                    <p className="text-sm font-bold text-accent">{answer.points} коинов</p>
                   </div>
                 </div>
               )
@@ -160,7 +164,7 @@ export async function SeasonPredictionBlock({ userId, season, timeZone }: Season
                     </div>
                   </div>
                   <div className="text-right">
-                    <p className="text-sm font-bold text-accent">{answer.points} очков</p>
+                    <p className="text-sm font-bold text-accent">{answer.points} коинов</p>
                   </div>
                 </div>
               )
