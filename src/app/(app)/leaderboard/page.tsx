@@ -1,6 +1,7 @@
 import { LeaderboardTable } from '@/components/LeaderboardTable'
 import { PointsEvolutionChart } from '@/components/PointsEvolutionChart'
 import { Card } from '@/components/ui/card'
+import { mergeOpenGraph } from '@/utilities/mergeOpenGraph'
 import type { Metadata } from 'next'
 import { getLeaderboardData } from './_lib/getLeaderboardData'
 
@@ -39,6 +40,7 @@ export default async function LeaderboardPage() {
 export const metadata: Metadata = {
   title: 'Таблица лидеров',
   description: 'Таблица лидеров чемпионата по прогнозам Формулы 1',
+  openGraph: mergeOpenGraph({ title: 'Таблица лидеров', url: '/leaderboard' }),
 }
 
 // Disable caching for dynamic leaderboard data

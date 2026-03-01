@@ -1,4 +1,5 @@
 import configPromise from '@payload-config'
+import { mergeOpenGraph } from '@/utilities/mergeOpenGraph'
 import type { Metadata } from 'next'
 import { headers } from 'next/headers'
 import { userAgent } from 'next/server'
@@ -15,6 +16,7 @@ import { BroadcastLayout } from './_components/BroadcastLayout'
 export const metadata: Metadata = {
   title: 'Трансляция',
   description: 'Смотрите трансляцию Формулы 1 вместе с любимым стримером',
+  openGraph: mergeOpenGraph({ title: 'Трансляция', url: '/broadcast' }),
 }
 
 export const dynamic = 'force-dynamic'

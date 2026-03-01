@@ -1,6 +1,14 @@
 import { getServerSideUser } from '@/utilities/getServerSideUser'
 import { getEvents, getUserEventResponses } from '@/utilities/queries'
+import { mergeOpenGraph } from '@/utilities/mergeOpenGraph'
+import type { Metadata } from 'next'
 import { EventCard } from './_components/EventCard'
+
+export const metadata: Metadata = {
+  title: 'События',
+  description: 'Участвуйте в голосованиях, квизах и предсказаниях для получения наград',
+  openGraph: mergeOpenGraph({ title: 'События', url: '/events' }),
+}
 
 export const dynamic = 'force-dynamic'
 

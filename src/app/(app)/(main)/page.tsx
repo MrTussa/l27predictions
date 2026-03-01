@@ -1,5 +1,6 @@
 import { getServerSideUser } from '@/utilities/getServerSideUser'
 import { getTimezone } from '@/utilities/getTimezone'
+import { mergeOpenGraph } from '@/utilities/mergeOpenGraph'
 import type { Metadata } from 'next'
 import { CurrentRaceCard } from './_components/CurrentRaceCard'
 import { PreviousRaceCard } from './_components/PreviousRaceCard'
@@ -52,8 +53,9 @@ export default async function HomePage() {
 }
 
 export const metadata: Metadata = {
-  title: 'L27 F1 Predictions',
+  title: { absolute: 'L27 F1 Predictions — Чемпионат прогнозов Формулы 1' },
   description: 'Чемпионат по прогнозам Формулы 1 — делайте прогнозы и соревнуйтесь с друзьями',
+  openGraph: mergeOpenGraph({ url: '/' }),
 }
 
 export const dynamic = 'force-dynamic'

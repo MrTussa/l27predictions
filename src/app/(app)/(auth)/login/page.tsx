@@ -3,6 +3,7 @@ import type { Metadata } from 'next'
 import { RenderParams } from '@/components/RenderParams'
 
 import { LoginForm } from '@/components/forms/LoginForm'
+import { mergeOpenGraph } from '@/utilities/mergeOpenGraph'
 import configPromise from '@payload-config'
 import { headers as getHeaders } from 'next/headers'
 import { redirect } from 'next/navigation'
@@ -28,10 +29,7 @@ export default async function Login() {
 }
 
 export const metadata: Metadata = {
-  description: 'Войдите в свой аккаунт для участия в чемпионате по прогнозам Формулы 1',
-  openGraph: {
-    title: 'Вход - L27 F1 Predictions',
-    url: '/login',
-  },
   title: 'Вход',
+  description: 'Войдите в свой аккаунт для участия в чемпионате по прогнозам Формулы 1',
+  openGraph: mergeOpenGraph({ title: 'Вход', url: '/login' }),
 }

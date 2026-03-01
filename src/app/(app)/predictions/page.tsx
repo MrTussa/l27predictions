@@ -1,5 +1,6 @@
 import { getServerSideUser } from '@/utilities/getServerSideUser'
 import { getRaces, getTeams, getUserPredictions } from '@/utilities/queries'
+import { mergeOpenGraph } from '@/utilities/mergeOpenGraph'
 import type { Metadata } from 'next'
 import { redirect } from 'next/navigation'
 import { PredictionsPageClient } from './PredictionsPageClient'
@@ -23,6 +24,7 @@ export default async function PredictionsPage() {
 export const metadata: Metadata = {
   title: 'Прогнозы',
   description: 'Делайте прогнозы на гонки Формулы 1 и соревнуйтесь с другими участниками',
+  openGraph: mergeOpenGraph({ title: 'Прогнозы', url: '/predictions' }),
 }
 
 export const dynamic = 'force-dynamic'
