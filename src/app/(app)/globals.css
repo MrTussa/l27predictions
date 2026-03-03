@@ -55,6 +55,7 @@
 
   .custom-scrollbar::-webkit-scrollbar {
     width: 0.5rem;
+    height: 0.5rem;
   }
 
   @media (max-width: 40rem) {

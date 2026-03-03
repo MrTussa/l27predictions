@@ -25,7 +25,6 @@ interface PointsEvolutionChartProps {
 }
 
 export function PointsEvolutionChart({ races, usersProgress }: PointsEvolutionChartProps) {
-  // (по умолчанию все выбраны)
   const [selectedUsers, setSelectedUsers] = useState<Set<string>>(
     new Set(usersProgress.map((u) => u.userId)),
   )
@@ -73,8 +72,8 @@ export function PointsEvolutionChart({ races, usersProgress }: PointsEvolutionCh
     const raceIndex = sortedRaces.findIndex((race) => race.name === label)
 
     return (
-      <div className="bg-background/95 backdrop-blur-sm border-2 border-accent/20 rounded-lg p-4 shadow-xl ">
-        <p className="font-bold text-accent mb-2">{label}</p>
+      <div className="bg-background/95 backdrop-blur-sm border-2 border-accent/20 rounded-lg p-4 shadow-xl max-w-48">
+        <p className="font-bold text-accent mb-2 truncate">{label}</p>
         <div className="space-y-1">
           {payload
             .sort((a, b) => b.value - a.value)
@@ -89,7 +88,7 @@ export function PointsEvolutionChart({ races, usersProgress }: PointsEvolutionCh
                       className="w-2 h-2 rounded-full"
                       style={{ backgroundColor: entry.color }}
                     />
-                    <span className="text-sm font-medium">{entry.name}</span>
+                    <span className="text-sm font-medium truncate">{entry.name}</span>
                   </div>
                   <div className="ml-4 text-xs text-muted-foreground">
                     +{pointsInRace} в гонке • Всего: {entry.value}
@@ -113,7 +112,7 @@ export function PointsEvolutionChart({ races, usersProgress }: PointsEvolutionCh
   return (
     <div className="w-full flex flex-col md:flex-row gap-6 px-6">
       {/* Левая панель - список пользователей */}
-      <div className="w-64 shrink-0 space-y-2">
+      <div className="w-full md:w-64 shrink-0 space-y-2">
         <h3 className="text-sm font-bold uppercase tracking-wider text-muted-foreground mb-4">
           Игроки
         </h3>
@@ -152,8 +151,8 @@ export function PointsEvolutionChart({ races, usersProgress }: PointsEvolutionCh
       </div>
 
       {/* Правая панель - график */}
-      <div className="flex-1 min-w-0">
-        <ResponsiveContainer width="100%" height={500}>
+      <div className="flex-1 min-w-0 overflow-x-auto overflow-y-hidden custom-scrollbar">
+        <ResponsiveContainer minWidth={'600px'} width="100%" height={550}>
           <LineChart data={chartData} margin={{ top: 20, right: 30, left: 20, bottom: 20 }}>
             <XAxis
               dataKey="raceName"
