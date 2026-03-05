@@ -65,7 +65,7 @@ export function BroadcastLayout({ settings, isAdmin, isMobile }: BroadcastLayout
         top: '0%',
         zIndex: '9999',
         overflow: 'hidden',
-        display: isMobile && orientation === 'portrait' ? 'flex' : 'col',
+        display: isMobile && orientation === 'portrait' ? 'flex' : 'grid',
         flexDirection: isMobile && orientation === 'portrait' ? 'column' : 'row',
       } as React.CSSProperties)
     : {}
