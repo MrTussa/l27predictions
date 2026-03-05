@@ -86,6 +86,16 @@ export function PipOverlay({ children, containerRef }: PipOverlayProps) {
     [getContainerRect],
   )
 
+  useEffect(() => {
+    const el = containerRef.current
+    if (!el) return
+    const observer = new ResizeObserver(() => {
+      setState((prev) => clampState(prev.x, prev.y, prev.width))
+    })
+    observer.observe(el)
+    return () => observer.disconnect()
+  }, [containerRef, clampState])
+
   const handleDragStart = useCallback(
     (e: React.PointerEvent) => {
       e.preventDefault()
@@ -97,6 +107,8 @@ export function PipOverlay({ children, containerRef }: PipOverlayProps) {
       const s = stateRef.current
       const offsetX = e.clientX - cr.left - s.x
       const offsetY = e.clientY - cr.top - s.y
+
+      ;(e.currentTarget as HTMLElement).setPointerCapture(e.pointerId)
 
       const onMove = (ev: PointerEvent) => {
         const rect = getContainerRect()
@@ -126,6 +138,7 @@ export function PipOverlay({ children, containerRef }: PipOverlayProps) {
       e.stopPropagation()
 
       setInteracting(true)
+      ;(e.currentTarget as HTMLElement).setPointerCapture(e.pointerId)
       const startX = e.clientX
       const ss = { ...stateRef.current }
       const startHeight = ss.width / ASPECT_RATIO
@@ -191,29 +204,35 @@ export function PipOverlay({ children, containerRef }: PipOverlayProps) {
           top: state.y,
           width: state.width,
           height,
+          touchAction: 'none',
         }}
       >
         <div
-          className="absolute top-0 left-0 right-0 z-20 flex items-center justify-center px-2 py-1.5 bg-linear-to-b from-black/70 to-transparent opacity-0 group-hover:opacity-100 transition-opacity cursor-grab active:cursor-grabbing"
+          className="absolute top-0 left-0 right-0 z-20 flex items-center justify-center px-2 py-1.5 bg-linear-to-b from-black/70 to-transparent opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity cursor-grab active:cursor-grabbing"
+          style={{ touchAction: 'none' }}
           onPointerDown={handleDragStart}
         >
           <IconGripHorizontal size={16} className="text-white/80" />
         </div>
 
         <div
-          className="absolute -bottom-1.5 -right-1.5 w-4 h-4 cursor-nwse-resize z-40"
+          className="absolute -bottom-4 -right-4 w-8 h-8 cursor-nwse-resize z-40"
+          style={{ touchAction: 'none' }}
           onPointerDown={handleResizeStart('se')}
         />
         <div
-          className="absolute -bottom-1.5 -left-1.5 w-4 h-4 cursor-nesw-resize z-40"
+          className="absolute -bottom-4 -left-4 w-8 h-8 cursor-nesw-resize z-40"
+          style={{ touchAction: 'none' }}
           onPointerDown={handleResizeStart('sw')}
         />
         <div
-          className="absolute -top-1.5 -right-1.5 w-4 h-4 cursor-nesw-resize z-40"
+          className="absolute -top-4 -right-4 w-8 h-8 cursor-nesw-resize z-40"
+          style={{ touchAction: 'none' }}
           onPointerDown={handleResizeStart('ne')}
         />
         <div
-          className="absolute -top-1.5 -left-1.5 w-4 h-4 cursor-nwse-resize z-40"
+          className="absolute -top-4 -left-4 w-8 h-8 cursor-nwse-resize z-40"
+          style={{ touchAction: 'none' }}
           onPointerDown={handleResizeStart('nw')}
         />
 
