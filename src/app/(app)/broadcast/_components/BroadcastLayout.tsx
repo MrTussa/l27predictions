@@ -11,7 +11,10 @@ import {
   IconArrowBarRight,
   IconArrowsMaximize,
   IconArrowsMinimize,
+  IconMaximize,
+  IconMinimize,
 } from '@tabler/icons-react'
+import { useFullscreen } from '../_lib/useFullscreen'
 import useOrientation from '../_lib/useOrientation'
 import { AdminControls } from './AdminControls'
 import { OfflineState } from './OfflineState'
@@ -29,6 +32,7 @@ export function BroadcastLayout({ settings, isAdmin, isMobile }: BroadcastLayout
   const [chatToggle, setChatToggle] = useState<boolean>(false)
   const mainPlayerRef = useRef<HTMLDivElement>(null)
   const orientation = useOrientation()
+  const { containerRef: fullscreenRef, isFullscreen, toggle: toggleFullscreen } = useFullscreen()
   useEffect(() => {
     setParentDomain(window.location.hostname)
   }, [])
@@ -61,6 +65,7 @@ export function BroadcastLayout({ settings, isAdmin, isMobile }: BroadcastLayout
         top: '0%',
         zIndex: '9999',
         overflow: 'hidden',
+        display: isMobile && orientation === 'portrait' ? 'flex' : 'col',
         flexDirection: isMobile && orientation === 'portrait' ? 'column' : 'row',
       } as React.CSSProperties)
     : {}
@@ -82,7 +87,11 @@ export function BroadcastLayout({ settings, isAdmin, isMobile }: BroadcastLayout
       )}
 
       {isLive && parentDomain && (
-        <div className="flex flex-col md:flex-row gap-0" style={theatreStyle}>
+        <div
+          ref={fullscreenRef}
+          className="grid grid-cols-1 md:grid-cols-[minmax(0,1fr)_auto]"
+          style={theatreStyle}
+        >
           {isMobile && orientation === 'portrait' && (
             <>
               <div className="w-full h-auto flex justify-center items-center bg-black">
@@ -128,7 +137,7 @@ export function BroadcastLayout({ settings, isAdmin, isMobile }: BroadcastLayout
               <div
                 className={cn(
                   'relative flex justify-center items-center bg-black',
-                  theatre ? 'flex-1 h-full' : 'w-full h-auto',
+                  theatre ? 'flex-1 h-full' : 'h-auto',
                 )}
               >
                 {(!isMobile || orientation === 'portrait') && (
@@ -137,6 +146,15 @@ export function BroadcastLayout({ settings, isAdmin, isMobile }: BroadcastLayout
                     className="absolute top-0 left-0 w-fit z-20 flex items-center justify-center px-2 py-1.5 cursor-pointer"
                   >
                     {theatre ? <IconArrowsMinimize /> : <IconArrowsMaximize />}
+                  </button>
+                )}
+
+                {theatre && (
+                  <button
+                    onClick={toggleFullscreen}
+                    className={`absolute top-0 z-20 flex items-center justify-center px-2 py-1.5 cursor-pointer ${isMobile && orientation === 'landscape' ? 'left-0' : 'left-8'}`}
+                  >
+                    {isFullscreen ? <IconMinimize size={20} /> : <IconMaximize size={20} />}
                   </button>
                 )}
 
@@ -176,17 +194,15 @@ export function BroadcastLayout({ settings, isAdmin, isMobile }: BroadcastLayout
               </div>
 
               {/* Twitch Chat */}
-              <Card
-                variant="default"
-                corners="sharp"
-                className={`h-auto w-full md:w-[25vw] min-w-auto md:min-w-[350px] ${chatToggle && 'hidden'}`}
+              <div
+                className={`h-auto w-full md:w-[25vw] bg-secondary min-w-0 md:min-w-[350px] ${chatToggle && 'hidden'}`}
               >
                 <iframe
                   src={`https://www.twitch.tv/embed/${settings.twitchChannel}/chat?parent=${parentDomain}&darkpopout`}
                   title="Twitch Chat"
                   className="w-full h-full border-0"
                 />
-              </Card>
+              </div>
             </>
           )}
         </div>
