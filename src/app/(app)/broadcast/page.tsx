@@ -19,8 +19,11 @@ export const metadata: Metadata = {
 export const dynamic = 'force-dynamic'
 
 export default async function BroadcastPage() {
-  const { device } = userAgent({ headers: await headers() })
-  const isMobile = device.type === 'mobile' || device.type === 'tablet'
+  const headersList = await headers()
+  const { device } = userAgent({ headers: headersList })
+  const ua = headersList.get('user-agent') ?? ''
+  const isMobile =
+    device.type === 'mobile' || device.type === 'tablet' || /iPhone|iPad|iPod|Android/i.test(ua)
 
   const payload = await getPayload({ config: configPromise })
   const settings = await payload.findGlobal({ slug: 'broadcast-settings' })
