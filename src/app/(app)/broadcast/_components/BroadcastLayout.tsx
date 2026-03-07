@@ -20,6 +20,12 @@ import { AdminControls } from './AdminControls'
 import { OfflineState } from './OfflineState'
 import { PipOverlay } from './PipOverlay'
 
+function getVkEmbedUrl(url: string): string {
+  const match = url.match(/video(-?\d+)_(\d+)/)
+  if (!match) return url
+  return `https://vk.com/video_ext.php?oid=${match[1]}&id=${match[2]}&autoplay=1`
+}
+
 interface BroadcastLayoutProps {
   settings: BroadcastSetting
   isAdmin: boolean
@@ -107,10 +113,11 @@ export function BroadcastLayout({ settings, isAdmin, isMobile }: BroadcastLayout
                     {theatre ? <IconArrowsMinimize /> : <IconArrowsMaximize />}
                   </button>
                   <iframe
-                    src={`https://live.vkvideo.ru/app/embed/${settings.vkChannel}`}
+                    src={getVkEmbedUrl(settings.vkChannel!)}
                     title="VK Stream"
                     className="w-full h-full border-0"
-                    allow="autoplay; encrypted-media"
+                    allow="autoplay; encrypted-media; fullscreen; picture-in-picture; screen-wake-lock"
+                    allowFullScreen
                   />
 
                   <iframe
@@ -154,7 +161,7 @@ export function BroadcastLayout({ settings, isAdmin, isMobile }: BroadcastLayout
                     onClick={toggleFullscreen}
                     className={`absolute top-0 z-20 flex items-center justify-center px-2 py-1.5 cursor-pointer ${isMobile && orientation === 'landscape' ? 'left-0' : 'left-8'}`}
                   >
-                    {isFullscreen ? <IconMinimize size={20} /> : <IconMaximize size={20} />}
+                    {isFullscreen ? <IconMinimize /> : <IconMaximize />}
                   </button>
                 )}
 
@@ -168,10 +175,11 @@ export function BroadcastLayout({ settings, isAdmin, isMobile }: BroadcastLayout
                   }
                 >
                   <iframe
-                    src={`https://live.vkvideo.ru/app/embed/${settings.vkChannel}`}
+                    src={getVkEmbedUrl(settings.vkChannel!)}
                     title="VK Stream"
                     className="absolute inset-0 w-full h-full border-0"
-                    allow="autoplay; encrypted-media"
+                    allow="autoplay; encrypted-media; fullscreen; picture-in-picture; screen-wake-lock"
+                    allowFullScreen
                   />
 
                   <PipOverlay containerRef={mainPlayerRef}>

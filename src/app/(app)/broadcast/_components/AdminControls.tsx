@@ -71,13 +71,13 @@ export function AdminControls({ settings }: AdminControlsProps) {
           </div>
           <div className="space-y-2">
             <Label htmlFor="vk-channel" className="text-muted-foreground text-xs uppercase">
-              VK канал
+              Прямая ссылка вк
             </Label>
             <Input
               id="vk-channel"
               value={vkChannel}
               onChange={(e) => setVkChannel(e.target.value)}
-              placeholder="f1_live"
+              placeholder="https://vk.com/video-22822305_456241864"
             />
           </div>
         </div>
