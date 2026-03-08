@@ -2,18 +2,6 @@ import type { Race } from '@/payload-types'
 import { getAllSeasonStats, getRaces } from '@/utilities/queries'
 import { isRaceCompleted } from '@/utilities/raceStatus'
 
-export type LeaderboardEntry = {
-  id: string
-  nickname: string
-  chartColor: string
-  totalPoints: number
-  totalPredictions: number
-  perfectPredictions: number
-  averagePoints: number
-  currentStreak: number
-  bestStreak: number
-}
-
 export type UserProgress = {
   userId: string
   nickname: string
@@ -23,7 +11,6 @@ export type UserProgress = {
 }
 
 export type LeaderboardData = {
-  leaderboardData: LeaderboardEntry[]
   usersProgress: UserProgress[]
   completedRaces: Race[]
 }
@@ -35,22 +22,6 @@ export async function getLeaderboardData(year?: number): Promise<LeaderboardData
     getAllSeasonStats({ year: currentYear, sort: '-totalPoints', depth: 1, limit: 15 }),
     getRaces({ year: currentYear }),
   ])
-
-  const leaderboardData: LeaderboardEntry[] = seasonStats.map((stat) => {
-    const user = typeof stat.user === 'object' ? stat.user : null
-
-    return {
-      id: user?.id || '',
-      nickname: user?.nickname || user?.email || 'Unknown',
-      chartColor: user?.chartColor || '#FFDF2C',
-      totalPoints: stat.totalPoints,
-      totalPredictions: stat.predictionsCount,
-      perfectPredictions: stat.perfectPredictions,
-      averagePoints: stat.predictionsCount > 0 ? stat.totalPoints / stat.predictionsCount : 0,
-      currentStreak: stat.currentStreak,
-      bestStreak: stat.bestStreak,
-    }
-  })
 
   const completedRaces = allRaces.filter((race) => isRaceCompleted(race))
 
@@ -90,7 +61,6 @@ export async function getLeaderboardData(year?: number): Promise<LeaderboardData
   })
 
   return {
-    leaderboardData,
     usersProgress,
     completedRaces,
   }

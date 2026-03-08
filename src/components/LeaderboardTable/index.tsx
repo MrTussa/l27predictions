@@ -10,6 +10,7 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table'
+import type { SeasonStat, User } from '@/payload-types'
 import { ArrowUpDown, Award, Medal, Trophy } from 'lucide-react'
 import Link from 'next/link'
 import { useEffect, useState } from 'react'
@@ -26,10 +27,6 @@ type LeaderboardEntry = {
   bestStreak: number
 }
 
-type Props = {
-  data: LeaderboardEntry[]
-}
-
 type SortKey =
   | 'totalPoints'
   | 'totalPredictions'
@@ -39,15 +36,16 @@ type SortKey =
   | 'bestStreak'
 
 import { PayloadSDK } from '@payloadcms/sdk'
+import { Skeleton } from '../ui/skeleton'
 
 const sdk = new PayloadSDK({
-  baseURL: process.env.NEXT_PUBLIC_SERVER_URL!,
+  baseURL: `${process.env.NEXT_PUBLIC_SERVER_URL}/api`,
 })
 
-export const LeaderboardTable: React.FC<Props> = ({ data: initialData }) => {
+export const LeaderboardTable: React.FC = () => {
   const [sortKey, setSortKey] = useState<SortKey>('totalPoints')
   const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('desc')
-  const [leaderboardData, setLeaderboardData] = useState(initialData)
+  const [leaderboardData, setLeaderboardData] = useState<LeaderboardEntry[] | null>(null)
   const [currentPage, setCurentPage] = useState(1)
   const [totalPages, setTotalPages] = useState(1)
   const handleSort = (key: SortKey) => {
@@ -69,14 +67,13 @@ export const LeaderboardTable: React.FC<Props> = ({ data: initialData }) => {
       }
     } else {
       if (currentPage <= 3) {
-        pages.push(1, 2, 3, '...', currentPage)
+        pages.push(1, 2, 3, '...', totalPages)
       } else if (currentPage >= totalPages - 2) {
         pages.push(1, '...', totalPages - 2, totalPages - 1, totalPages)
       } else {
         pages.push(1, '...', currentPage - 1, currentPage, currentPage + 1, '...', totalPages)
       }
     }
-
     return pages
   }
 
@@ -98,16 +95,32 @@ export const LeaderboardTable: React.FC<Props> = ({ data: initialData }) => {
     }
 
     getLeaderboardData().then((result) => {
-      setLeaderboardData(result.docs as unknown as LeaderboardEntry[])
+      const mapped: LeaderboardEntry[] = (result.docs as unknown as SeasonStat[]).map((stat) => {
+        const user = typeof stat.user === 'object' ? (stat.user as User) : null
+        return {
+          id: user?.id || '',
+          nickname: user?.nickname || user?.email || 'Unknown',
+          chartColor: user?.chartColor || '#FFDF2C',
+          totalPoints: stat.totalPoints,
+          totalPredictions: stat.predictionsCount,
+          perfectPredictions: stat.perfectPredictions,
+          averagePoints: stat.predictionsCount > 0 ? stat.totalPoints / stat.predictionsCount : 0,
+          currentStreak: stat.currentStreak,
+          bestStreak: stat.bestStreak,
+        }
+      })
+      setLeaderboardData(mapped)
       setTotalPages(result.totalPages)
     })
   }, [currentPage])
 
-  const sortedData = [...leaderboardData].sort((a, b) => {
-    const aValue = a[sortKey]
-    const bValue = b[sortKey]
-    return sortDirection === 'asc' ? aValue - bValue : bValue - aValue
-  })
+  const sortedData = leaderboardData
+    ? [...leaderboardData].sort((a, b) => {
+        const aValue = a[sortKey]
+        const bValue = b[sortKey]
+        return sortDirection === 'asc' ? aValue - bValue : bValue - aValue
+      })
+    : null
 
   const getPositionIcon = (position: number) => {
     switch (position) {
@@ -133,6 +146,54 @@ export const LeaderboardTable: React.FC<Props> = ({ data: initialData }) => {
       default:
         return 'hover:bg-muted/20'
     }
+  }
+
+  if (sortedData === null) {
+    return (
+      <Card variant="yellow-glow" corners="cut-corner" className="overflow-hidden">
+        {/* Заголовок таблицы */}
+        <div className="flex gap-4 px-4 py-3 bg-muted/50">
+          <Skeleton className="w-12 h-4" />
+          <Skeleton className="w-32 h-4" />
+          <Skeleton className="w-16 h-4 ml-auto" />
+          <Skeleton className="w-20 h-4" />
+          <Skeleton className="w-20 h-4" />
+          <Skeleton className="w-24 h-4" />
+          <Skeleton className="w-14 h-4" />
+          <Skeleton className="w-24 h-4" />
+        </div>
+        {/* Строки таблицы */}
+        {Array.from({ length: 8 }).map((_, i) => (
+          <div
+            key={i}
+            className={`flex items-center gap-4 px-4 py-4 border-b border-muted/20 ${
+              i === 0
+                ? 'bg-accent/10 border-l-4 border-l-accent'
+                : i === 1
+                  ? 'bg-muted/30 border-l-4 border-l-gray-400'
+                  : i === 2
+                    ? 'bg-muted/20 border-l-4 border-l-amber-600'
+                    : ''
+            }`}
+          >
+            <div className="w-12 flex items-center justify-center gap-2">
+              {i < 3 && <Skeleton variant="circle" className="w-5 h-5" />}
+              <Skeleton className="w-4 h-5" />
+            </div>
+            <div className="flex items-center gap-3 w-32">
+              <Skeleton variant="circle" className="w-3 h-3 shrink-0" />
+              <Skeleton className="flex-1 h-4" />
+            </div>
+            <Skeleton className="w-12 h-5 ml-auto" />
+            <Skeleton className="w-16 h-4" />
+            <Skeleton className="w-16 h-4" />
+            <Skeleton className="w-20 h-4" />
+            <Skeleton className="w-12 h-4" />
+            <Skeleton className="w-12 h-4" />
+          </div>
+        ))}
+      </Card>
+    )
   }
 
   return (
@@ -179,7 +240,7 @@ export const LeaderboardTable: React.FC<Props> = ({ data: initialData }) => {
               <Button
                 variant="ghost"
                 size="sm"
-                className="h-auto p-0 hover:bg-transparent"
+                className="h-auto whitespace-normal w-min p-0 hover:bg-transparent"
                 onClick={() => handleSort('averagePoints')}
               >
                 Средний балл
@@ -201,7 +262,7 @@ export const LeaderboardTable: React.FC<Props> = ({ data: initialData }) => {
               <Button
                 variant="ghost"
                 size="sm"
-                className="h-auto p-0 hover:bg-transparent"
+                className="h-auto whitespace-normal w-min p-0 hover:bg-transparent "
                 onClick={() => handleSort('bestStreak')}
               >
                 Лучший стрик
@@ -212,7 +273,7 @@ export const LeaderboardTable: React.FC<Props> = ({ data: initialData }) => {
         </TableHeader>
         <TableBody>
           {sortedData.map((entry, index) => {
-            const position = index + 1
+            const position = index + 1 + (currentPage - 1) * 15
             return (
               <TableRow key={entry.id} className={getRowStyles(position)}>
                 <TableCell className="text-center font-medium">
@@ -224,13 +285,13 @@ export const LeaderboardTable: React.FC<Props> = ({ data: initialData }) => {
                 <TableCell className="font-medium">
                   <Link
                     href={`/user/${entry.id}`}
-                    className="flex items-center gap-3 hover:text-accent transition-colors"
+                    className="flex items-center gap-3 hover:text-accent transition-colors "
                   >
                     <div
                       className="w-3 h-3 rounded-full"
                       style={{ backgroundColor: entry.chartColor }}
                     />
-                    {entry.nickname}
+                    <span className="truncate max-w-22">{entry.nickname}</span>
                   </Link>
                 </TableCell>
                 <TableCell className="text-right font-bold">{entry.totalPoints}</TableCell>
@@ -264,6 +325,7 @@ export const LeaderboardTable: React.FC<Props> = ({ data: initialData }) => {
           <Button
             variant={'ghost'}
             disabled={currentPage === 1}
+            className="rounded-full px-3"
             onClick={() => setCurentPage((p) => Math.max(1, p - 1))}
           >
             ←
@@ -278,6 +340,8 @@ export const LeaderboardTable: React.FC<Props> = ({ data: initialData }) => {
                 key={page}
                 variant={currentPage === page ? 'default' : 'ghost'}
                 disabled={currentPage === page}
+                size={'sm'}
+                className="disabled:opacity-100 rounded-full px-3"
                 onClick={() => setCurentPage(page as number)}
               >
                 {page}
@@ -287,6 +351,7 @@ export const LeaderboardTable: React.FC<Props> = ({ data: initialData }) => {
           <Button
             variant={'ghost'}
             disabled={currentPage === totalPages}
+            className="rounded-full px-3"
             onClick={() => setCurentPage((p) => Math.max(1, p + 1))}
           >
             →
