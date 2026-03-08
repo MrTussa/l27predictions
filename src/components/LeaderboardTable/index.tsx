@@ -10,7 +10,6 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table'
-import type { SeasonStat, User } from '@/payload-types'
 import { ArrowUpDown, Award, Medal, Trophy } from 'lucide-react'
 import Link from 'next/link'
 import { useEffect, useState } from 'react'
@@ -35,12 +34,7 @@ type SortKey =
   | 'currentStreak'
   | 'bestStreak'
 
-import { PayloadSDK } from '@payloadcms/sdk'
 import { Skeleton } from '../ui/skeleton'
-
-const sdk = new PayloadSDK({
-  baseURL: `${process.env.NEXT_PUBLIC_SERVER_URL}/api`,
-})
 
 export const LeaderboardTable: React.FC = () => {
   const [sortKey, setSortKey] = useState<SortKey>('totalPoints')
@@ -86,32 +80,13 @@ export const LeaderboardTable: React.FC = () => {
     async function fetchData() {
       try {
         setError(null)
-        const result = await sdk.find({
-          collection: 'season-stats',
-          where: {
-            season: { equals: new Date().getFullYear() },
-          },
-          sort: '-totalPoints',
-          limit: 15,
-          depth: 1,
-          page: currentPage,
+        const res = await fetch(`/api/leaderboard?page=${currentPage}`, {
+          signal: controller.signal,
         })
+        if (!res.ok) throw new Error('Failed to fetch')
+        const result = await res.json()
         if (controller.signal.aborted) return
-        const mapped: LeaderboardEntry[] = (result.docs as unknown as SeasonStat[]).map((stat) => {
-          const user = typeof stat.user === 'object' ? (stat.user as User) : null
-          return {
-            id: user?.id || '',
-            nickname: user?.nickname || user?.email || 'Unknown',
-            chartColor: user?.chartColor || '#FFDF2C',
-            totalPoints: stat.totalPoints,
-            totalPredictions: stat.predictionsCount,
-            perfectPredictions: stat.perfectPredictions,
-            averagePoints: stat.predictionsCount > 0 ? stat.totalPoints / stat.predictionsCount : 0,
-            currentStreak: stat.currentStreak,
-            bestStreak: stat.bestStreak,
-          }
-        })
-        setLeaderboardData(mapped)
+        setLeaderboardData(result.docs)
         setTotalPages(result.totalPages)
       } catch {
         if (controller.signal.aborted) return
@@ -159,7 +134,11 @@ export const LeaderboardTable: React.FC = () => {
 
   if (error) {
     return (
-      <Card variant="yellow-glow" corners="cut-corner" className="p-8 text-center text-muted-foreground">
+      <Card
+        variant="yellow-glow"
+        corners="cut-corner"
+        className="p-8 text-center text-muted-foreground"
+      >
         {error}
       </Card>
     )
@@ -167,7 +146,11 @@ export const LeaderboardTable: React.FC = () => {
 
   if (leaderboardData?.length === 0) {
     return (
-      <Card variant="yellow-glow" corners="cut-corner" className="p-8 text-center text-muted-foreground">
+      <Card
+        variant="yellow-glow"
+        corners="cut-corner"
+        className="p-8 text-center text-muted-foreground"
+      >
         Нет данных за текущий сезон
       </Card>
     )
