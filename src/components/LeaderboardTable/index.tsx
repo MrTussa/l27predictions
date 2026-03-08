@@ -46,6 +46,7 @@ export const LeaderboardTable: React.FC = () => {
   const [sortKey, setSortKey] = useState<SortKey>('totalPoints')
   const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('desc')
   const [leaderboardData, setLeaderboardData] = useState<LeaderboardEntry[] | null>(null)
+  const [error, setError] = useState<string | null>(null)
   const [currentPage, setCurentPage] = useState(1)
   const [totalPages, setTotalPages] = useState(1)
   const handleSort = (key: SortKey) => {
@@ -63,7 +64,7 @@ export const LeaderboardTable: React.FC = () => {
 
     if (totalPages <= maxVisible) {
       for (let i = 0; i < totalPages; i++) {
-        pages.push(1)
+        pages.push(i + 1)
       }
     } else {
       if (currentPage <= 3) {
@@ -80,38 +81,46 @@ export const LeaderboardTable: React.FC = () => {
   const pages = getPageNumbers()
 
   useEffect(() => {
-    async function getLeaderboardData() {
-      const data = await sdk.find({
-        collection: 'season-stats',
-        where: {
-          season: { equals: new Date().getFullYear() },
-        },
-        sort: '-totalPoints',
-        limit: 15,
-        depth: 1,
-        page: currentPage,
-      })
-      return data
+    const controller = new AbortController()
+
+    async function fetchData() {
+      try {
+        setError(null)
+        const result = await sdk.find({
+          collection: 'season-stats',
+          where: {
+            season: { equals: new Date().getFullYear() },
+          },
+          sort: '-totalPoints',
+          limit: 15,
+          depth: 1,
+          page: currentPage,
+        })
+        if (controller.signal.aborted) return
+        const mapped: LeaderboardEntry[] = (result.docs as unknown as SeasonStat[]).map((stat) => {
+          const user = typeof stat.user === 'object' ? (stat.user as User) : null
+          return {
+            id: user?.id || '',
+            nickname: user?.nickname || user?.email || 'Unknown',
+            chartColor: user?.chartColor || '#FFDF2C',
+            totalPoints: stat.totalPoints,
+            totalPredictions: stat.predictionsCount,
+            perfectPredictions: stat.perfectPredictions,
+            averagePoints: stat.predictionsCount > 0 ? stat.totalPoints / stat.predictionsCount : 0,
+            currentStreak: stat.currentStreak,
+            bestStreak: stat.bestStreak,
+          }
+        })
+        setLeaderboardData(mapped)
+        setTotalPages(result.totalPages)
+      } catch {
+        if (controller.signal.aborted) return
+        setError('Не удалось загрузить данные')
+      }
     }
 
-    getLeaderboardData().then((result) => {
-      const mapped: LeaderboardEntry[] = (result.docs as unknown as SeasonStat[]).map((stat) => {
-        const user = typeof stat.user === 'object' ? (stat.user as User) : null
-        return {
-          id: user?.id || '',
-          nickname: user?.nickname || user?.email || 'Unknown',
-          chartColor: user?.chartColor || '#FFDF2C',
-          totalPoints: stat.totalPoints,
-          totalPredictions: stat.predictionsCount,
-          perfectPredictions: stat.perfectPredictions,
-          averagePoints: stat.predictionsCount > 0 ? stat.totalPoints / stat.predictionsCount : 0,
-          currentStreak: stat.currentStreak,
-          bestStreak: stat.bestStreak,
-        }
-      })
-      setLeaderboardData(mapped)
-      setTotalPages(result.totalPages)
-    })
+    fetchData()
+    return () => controller.abort()
   }, [currentPage])
 
   const sortedData = leaderboardData
@@ -148,7 +157,23 @@ export const LeaderboardTable: React.FC = () => {
     }
   }
 
-  if (sortedData === null) {
+  if (error) {
+    return (
+      <Card variant="yellow-glow" corners="cut-corner" className="p-8 text-center text-muted-foreground">
+        {error}
+      </Card>
+    )
+  }
+
+  if (leaderboardData?.length === 0) {
+    return (
+      <Card variant="yellow-glow" corners="cut-corner" className="p-8 text-center text-muted-foreground">
+        Нет данных за текущий сезон
+      </Card>
+    )
+  }
+
+  if (sortedData === null || !leaderboardData) {
     return (
       <Card variant="yellow-glow" corners="cut-corner" className="overflow-hidden">
         {/* Заголовок таблицы */}
@@ -275,7 +300,7 @@ export const LeaderboardTable: React.FC = () => {
           {sortedData.map((entry, index) => {
             const position = index + 1 + (currentPage - 1) * 15
             return (
-              <TableRow key={entry.id} className={getRowStyles(position)}>
+              <TableRow key={entry.id || index} className={getRowStyles(position)}>
                 <TableCell className="text-center font-medium">
                   <div className="flex items-center justify-center gap-2">
                     {getPositionIcon(position)}
