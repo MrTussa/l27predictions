@@ -3,7 +3,7 @@ import { getServerSideUser } from '@/utilities/getServerSideUser'
 import { getTimezone } from '@/utilities/getTimezone'
 import { mergeOpenGraph } from '@/utilities/mergeOpenGraph'
 import { getProfileData, getUserPublicProfile } from '@/utilities/queries'
-import { IconBrandTelegram } from '@tabler/icons-react'
+import { IconBrandTelegram, IconCoins } from '@tabler/icons-react'
 import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
 
@@ -34,7 +34,15 @@ export default async function UserProfilePage({ params }: Props) {
   return (
     <div className="container px-4 md:px-16 py-6">
       <div className="max-w-6xl mx-auto space-y-2">
-        <h1 className="text-4xl font-bold uppercase tracking-tight">{publicUser.nickname}</h1>
+        <div className="flex justify-between">
+          <h1 className="text-4xl font-bold uppercase tracking-tight mb-2">
+            {publicUser.nickname}
+          </h1>
+          <span className="flex items-center text-xl text-accent">
+            <IconCoins />
+            {publicUser.pitCoins ? publicUser.pitCoins : 0}
+          </span>
+        </div>
 
         <div className="flex flex-col w-fit">
           {telegram && (

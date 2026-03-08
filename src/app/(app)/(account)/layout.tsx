@@ -3,7 +3,7 @@ import type { ReactNode } from 'react'
 import { AccountNav } from '@/components/AccountNav'
 import { RenderParams } from '@/components/RenderParams'
 import { getServerSideUser } from '@/utilities/getServerSideUser'
-import { IconBrandTelegram } from '@tabler/icons-react'
+import { IconBrandTelegram, IconCoins } from '@tabler/icons-react'
 import { redirect } from 'next/navigation'
 
 export default async function AccountLayout({ children }: { children: ReactNode }) {
@@ -20,9 +20,15 @@ export default async function AccountLayout({ children }: { children: ReactNode 
       <div className="max-w-6xl mx-auto">
         <RenderParams />
 
-        <h1 className="text-4xl font-bold uppercase tracking-tight mb-2">
-          {user.nickname || user.email}
-        </h1>
+        <div className="flex justify-between">
+          <h1 className="text-4xl font-bold uppercase tracking-tight mb-2">
+            {user.nickname || user.email}
+          </h1>
+          <span className="flex items-center text-xl text-accent">
+            <IconCoins />
+            {user.pitCoins}
+          </span>
+        </div>
 
         <div className="flex flex-col w-fit mb-2">
           {telegram && (
