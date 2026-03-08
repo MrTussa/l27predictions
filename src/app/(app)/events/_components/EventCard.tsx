@@ -110,13 +110,14 @@ export const EventCard: React.FC<Props> = ({ event, hasResponded, userResponse }
             <Button disabled className="w-full">
               Вы уже участвовали
             </Button>
-          ) : event.status === 'completed' ? (
-            <Link href={`/events/${event.id}/results`}>
-              <Button variant="outline" className="w-full">
-                Посмотреть результаты
-              </Button>
-            </Link>
-          ) : null}
+          ) : // : event.status === 'completed' ? (
+          //   <Link href={`/events/${event.id}/results`}>
+          //     <Button variant="outline" className="w-full">
+          //       Посмотреть результаты
+          //     </Button>
+          //   </Link>
+          // )
+          null}
         </div>
       </div>
     </Card>
