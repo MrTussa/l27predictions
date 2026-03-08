@@ -131,8 +131,12 @@ export async function recalculateSeasonStats(
     let bestStreak = 0
     let tempStreak = 0
 
-    for (let i = sortedRaces.length - 1; i >= 0; i--) {
-      const race = sortedRaces[i]
+    const completedRaces = sortedRaces.filter(
+      (race) => race.results && race.results.length > 0,
+    )
+
+    for (let i = completedRaces.length - 1; i >= 0; i--) {
+      const race = completedRaces[i]
       const hasPrediction = userPredictions.some((p) => {
         const predRaceId = typeof p.race === 'object' ? p.race.id : p.race
         return predRaceId === race.id
@@ -140,7 +144,7 @@ export async function recalculateSeasonStats(
 
       if (hasPrediction) {
         tempStreak++
-        if (i === sortedRaces.length - 1 - currentStreak) {
+        if (i === completedRaces.length - 1 - currentStreak) {
           currentStreak = tempStreak
         }
         if (tempStreak > bestStreak) {
