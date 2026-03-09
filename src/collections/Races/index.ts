@@ -148,7 +148,7 @@ export const Races: CollectionConfig = {
     afterChange: [updateSeasonStatsOnResults],
     beforeValidate: [
       ({ data }) => {
-        // Валидация: дата закрытия прогнозов должна быть раньше даты гонки
+        // Дата закрытия прогнозов должна быть раньше даты гонки
         if (data?.predictionCloseDate && data?.raceDate) {
           const closeDate = new Date(data.predictionCloseDate)
           const raceDate = new Date(data.raceDate)
@@ -158,7 +158,7 @@ export const Races: CollectionConfig = {
           }
         }
 
-        // Валидация: дата открытия должна быть раньше даты закрытия
+        // Дата открытия должна быть раньше даты закрытия
         if (data?.predictionOpenDate && data?.predictionCloseDate) {
           const openDate = new Date(data.predictionOpenDate)
           const closeDate = new Date(data.predictionCloseDate)
@@ -168,7 +168,7 @@ export const Races: CollectionConfig = {
           }
         }
 
-        // Валидация результатов: проверяем уникальность позиций
+        // Уникальность позиций
         if (data?.results && data.results.length > 0) {
           const positions = data.results.map((r: { position: number }) => r.position)
           const uniquePositions = new Set(positions)
@@ -177,7 +177,6 @@ export const Races: CollectionConfig = {
             throw new Error('Каждая позиция должна быть уникальной (1, 2, 3)')
           }
 
-          // Проверяем, что позиции идут от 1 до количества результатов
           const sortedPositions = [...positions].sort((a, b) => a - b)
           for (let i = 0; i < sortedPositions.length; i++) {
             if (sortedPositions[i] !== i + 1) {
