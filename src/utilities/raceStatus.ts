@@ -32,5 +32,10 @@ export function canMakePrediction(race: Race): boolean {
 }
 
 export function isRaceCompleted(race: Race): boolean {
-  return race.results !== null && race.results !== undefined && race.results.length > 0
+  return (
+    race.results !== null &&
+    race.results !== undefined &&
+    race.results.length > 0 &&
+    getRaceStatus(race) === 'completed'
+  )
 }
