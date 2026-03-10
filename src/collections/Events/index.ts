@@ -268,22 +268,20 @@ export const F1Events: CollectionConfig = {
     ],
     afterChange: [
       async ({ doc, req, operation, previousDoc }) => {
-        // Когда событие завершено, пересчитываем награды
         if (
           operation === 'update' &&
           doc.status === 'completed' &&
           previousDoc?.status !== 'completed' &&
           req.payload
         ) {
-          console.log(`\n🎉 Event "${doc.name}" completed, calculating rewards...`)
+          console.log(`\nEvent "${doc.name}" completed, calculating rewards...`)
 
-          // Импортируем utility для расчета наград (создадим позже)
           try {
             const { calculateEventRewards } = await import('@/utilities/calculateEventRewards')
             await calculateEventRewards(req.payload, doc.id)
-            console.log(`✅ Event rewards calculated successfully`)
+            console.log(` Event rewards calculated successfully`)
           } catch (error) {
-            console.error(`❌ Error calculating event rewards:`, error)
+            console.error(` Error calculating event rewards:`, error)
           }
         }
       },

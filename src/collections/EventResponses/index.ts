@@ -126,39 +126,14 @@ export const EventResponses: CollectionConfig = {
         description: 'Очки или Pit Coins (в зависимости от типа награды события)',
       },
     },
-    {
-      name: 'submittedAt',
-      type: 'date',
-      required: true,
-      admin: {
-        readOnly: true,
-        date: {
-          displayFormat: 'dd.MM.yyyy HH:mm',
-        },
-      },
-      label: 'Дата отправки',
-    },
-    {
-      name: 'updatedAt',
-      type: 'date',
-      admin: {
-        readOnly: true,
-        date: {
-          displayFormat: 'dd.MM.yyyy HH:mm',
-        },
-      },
-      label: 'Дата обновления',
-    },
   ],
   hooks: {
     beforeValidate: [
       async ({ data, req, operation }) => {
-        // Автоматически устанавливаем user при создании
         if (operation === 'create' && req.user && data) {
           data.user = req.user.id
         }
 
-        // Проверка уникальности [user, event]
         if (data?.user && data?.event && operation === 'create') {
           const userId = typeof data.user === 'object' ? data.user.id : data.user
           const eventId = typeof data.event === 'object' ? data.event.id : data.event
@@ -176,18 +151,6 @@ export const EventResponses: CollectionConfig = {
           }
         }
 
-        return data
-      },
-    ],
-    beforeChange: [
-      async ({ data, operation }) => {
-        const now = new Date().toISOString()
-
-        if (operation === 'create') {
-          data.submittedAt = now
-        }
-
-        data.updatedAt = now
         return data
       },
     ],

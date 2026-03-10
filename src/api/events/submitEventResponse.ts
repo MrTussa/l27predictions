@@ -19,7 +19,6 @@ export const submitEventResponse = async (req: PayloadRequest) => {
       return Response.json({ message: 'Необходимо ответить на вопросы' }, { status: 400 })
     }
 
-    // Получаем событие
     const event = await req.payload.findByID({
       collection: 'events',
       id: eventId,
@@ -29,12 +28,10 @@ export const submitEventResponse = async (req: PayloadRequest) => {
       return Response.json({ message: 'Событие не найдено' }, { status: 404 })
     }
 
-    // Проверяем статус события
     if (event.status !== 'open') {
       return Response.json({ message: 'Это событие не принимает ответы' }, { status: 400 })
     }
 
-    // Проверяем, не отправлял ли пользователь уже ответ
     const existingResponse = await req.payload.find({
       collection: 'event-responses',
       where: {
@@ -47,7 +44,6 @@ export const submitEventResponse = async (req: PayloadRequest) => {
       return Response.json({ message: 'Вы уже отправили ответ на это событие' }, { status: 400 })
     }
 
-    // Валидация ответов
     const questionsCount = event.questions?.length || 0
     if (answers.length !== questionsCount) {
       return Response.json(
@@ -56,7 +52,6 @@ export const submitEventResponse = async (req: PayloadRequest) => {
       )
     }
 
-    // Проверяем корректность каждого ответа
     for (let i = 0; i < answers.length; i++) {
       const answer = answers[i]
       const question = event.questions?.[i]
@@ -69,7 +64,6 @@ export const submitEventResponse = async (req: PayloadRequest) => {
         return Response.json({ message: `Несоответствие индекса вопроса` }, { status: 400 })
       }
 
-      // Проверяем в зависимости от типа вопроса
       if (question.questionType === 'yes-no') {
         if (!answer.selectedAnswer || !['yes', 'no'].includes(answer.selectedAnswer)) {
           return Response.json(
@@ -92,7 +86,9 @@ export const submitEventResponse = async (req: PayloadRequest) => {
         if (
           !answer.selectedOptions ||
           answer.selectedOptions.length === 0 ||
-          !answer.selectedOptions.every((opt: { optionIndex: number }) => typeof opt.optionIndex === 'number')
+          !answer.selectedOptions.every(
+            (opt: { optionIndex: number }) => typeof opt.optionIndex === 'number',
+          )
         ) {
           return Response.json(
             {
@@ -118,14 +114,12 @@ export const submitEventResponse = async (req: PayloadRequest) => {
       }
     }
 
-    // Создаем ответ
     const newResponse = await req.payload.create({
       collection: 'event-responses',
       data: {
         user: req.user.id,
         event: eventId,
         answers: answers,
-        submittedAt: new Date().toISOString(),
       },
     })
 

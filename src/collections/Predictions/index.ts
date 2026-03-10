@@ -1,48 +1,19 @@
 import type { CollectionConfig } from 'payload'
 
 import { adminOnly } from '@/access/adminOnly'
-import { canMakePrediction } from '@/utilities/raceStatus'
+import { adminOrSelf } from '@/access/adminOrSelf'
 import { normalizeID, normalizeIDs } from '@/utilities/normalizeID'
+import { canMakePrediction } from '@/utilities/raceStatus'
 
 export const Predictions: CollectionConfig = {
   slug: 'predictions',
   access: {
     create: ({ req: { user } }) => {
-      // Только авторизованные пользователи могут создавать прогнозы
       return !!user
     },
     delete: adminOnly,
-    read: ({ req: { user } }) => {
-      if (!user) return false
-
-      // Админ видит всё
-      if (user.roles?.includes('admin')) {
-        return true
-      }
-
-      // Обычный пользователь видит только свои прогнозы
-      return {
-        user: {
-          equals: user.id,
-        },
-      }
-    },
-    update: ({ req: { user } }) => {
-      if (!user) return false
-
-      // Админ может обновлять всё
-      if (user.roles?.includes('admin')) {
-        return true
-      }
-
-      // Обычный пользователь может обновлять только свои прогнозы
-      // Дополнительная проверка времени будет в beforeValidate хуке
-      return {
-        user: {
-          equals: user.id,
-        },
-      }
-    },
+    read: adminOrSelf,
+    update: adminOrSelf,
   },
   admin: {
     group: 'F1 Championship',
@@ -102,27 +73,14 @@ export const Predictions: CollectionConfig = {
         description: 'Рассчитывается автоматически после ввода результатов гонки',
       },
     },
-    {
-      name: 'submittedAt',
-      type: 'date',
-      admin: {
-        readOnly: true,
-        date: {
-          displayFormat: 'd MMM yyyy HH:mm',
-        },
-      },
-      label: 'Дата первой отправки',
-    },
   ],
   hooks: {
     beforeValidate: [
       async ({ data, req, operation }) => {
-        // Устанавливаем user из req.user при создании
         if (operation === 'create' && req.user && data) {
           data.user = req.user.id
         }
 
-        // Валидация: проверяем уникальность позиций в прогнозе
         if (data?.predictions && data.predictions.length > 0) {
           const positions = data.predictions.map((p: { position: number }) => p.position)
           const uniquePositions = new Set(positions)
@@ -131,14 +89,18 @@ export const Predictions: CollectionConfig = {
             throw new Error('Каждая позиция должна быть уникальной (1, 2, 3)')
           }
 
-          // Проверяем, что все позиции от 1 до 3
           const sortedPositions = [...positions].sort((a, b) => a - b)
-          if (sortedPositions.length !== 3 || sortedPositions[0] !== 1 || sortedPositions[2] !== 3) {
+          if (
+            sortedPositions.length !== 3 ||
+            sortedPositions[0] !== 1 ||
+            sortedPositions[2] !== 3
+          ) {
             throw new Error('Необходимо заполнить все 3 позиции (1, 2, 3)')
           }
 
-          // Проверяем уникальность пилотов
-          const drivers = normalizeIDs(data.predictions.map((p: { driver: string | object }) => p.driver))
+          const drivers = normalizeIDs(
+            data.predictions.map((p: { driver: string | object }) => p.driver),
+          )
           const uniqueDrivers = new Set(drivers)
 
           if (drivers.length !== uniqueDrivers.size) {
@@ -146,7 +108,6 @@ export const Predictions: CollectionConfig = {
           }
         }
 
-        // Проверяем, что окно прогнозов ещё открыто (только для не-админов)
         if (req.user && !req.user.roles?.includes('admin')) {
           if (data?.race) {
             const race = await req.payload.findByID({
@@ -154,21 +115,10 @@ export const Predictions: CollectionConfig = {
               id: normalizeID(data.race),
             })
 
-            // Используем унифицированную функцию проверки
             if (race && !canMakePrediction(race)) {
               throw new Error('Время для прогнозов на эту гонку истекло')
             }
           }
-        }
-
-        return data
-      },
-    ],
-    beforeChange: [
-      async ({ data, operation }) => {
-        // Устанавливаем submittedAt при первом создании
-        if (operation === 'create') {
-          data.submittedAt = new Date().toISOString()
         }
 
         return data

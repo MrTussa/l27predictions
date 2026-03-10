@@ -1,3 +1,5 @@
+'use server'
+
 import type { Prediction, SeasonStat, User } from '@/payload-types'
 import configPromise from '@payload-config'
 import { getPayload } from 'payload'
@@ -290,8 +292,6 @@ export type PublicUser = Pick<
 >
 
 export async function getUserPublicProfile(userId: string): Promise<PublicUser | null> {
-  const payload = await getPayload({ config: configPromise })
-
   try {
     const user = await payload.findByID({
       collection: 'users',
