@@ -15,6 +15,7 @@ export const RaceRatings: CollectionConfig = {
     group: 'F1 Championship',
     defaultColumns: ['user', 'race', 'rating', 'submittedAt'],
     useAsTitle: 'id',
+    hidden: true,
   },
   indexes: [
     {
