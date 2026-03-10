@@ -37,7 +37,6 @@ export const RaceRatings: CollectionConfig = {
       relationTo: 'races',
       required: true,
       label: 'Гонка',
-      admin: { readOnly: true },
     },
     {
       name: 'rating',
@@ -52,6 +51,14 @@ export const RaceRatings: CollectionConfig = {
     },
   ],
   hooks: {
+    beforeValidate: [
+      async ({ data, req, operation }) => {
+        if (operation === 'create' && req.user && data) {
+          data.user = req.user.id
+        }
+        return data
+      },
+    ],
     afterChange: [updateRaceRatingCounts],
   },
 }

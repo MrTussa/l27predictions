@@ -4,22 +4,25 @@ import { PodiumDriver } from '@/components/DriverCard/PodiumDriver'
 import { PredictionCard } from '@/components/DriverCard/PredictionCard'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
-import type { Prediction, Race, Team } from '@/payload-types'
-import { canMakePrediction } from '@/utilities/raceStatus'
+import type { Prediction, Race, RaceRating, Team } from '@/payload-types'
+import { canMakePrediction, isRaceCompleted } from '@/utilities/raceStatus'
 import Link from 'next/link'
 import { useMemo, useState } from 'react'
 import { RaceCarousel } from './_components/RaceCarousel'
+import { RateSelect } from './_components/RateSelect'
 
 interface PredictionsPageClientProps {
   races: Race[]
   teams: Team[]
   userPredictions: Omit<Prediction, 'user'>[]
+  racesRating: RaceRating[]
 }
 
 export function PredictionsPageClient({
   races,
   userPredictions,
   teams,
+  racesRating,
 }: PredictionsPageClientProps) {
   const now = new Date()
   const defaultRace =
@@ -29,6 +32,14 @@ export function PredictionsPageClient({
     }) || races[0]
 
   const [selectedRace, setSelectedRace] = useState<Race>(defaultRace)
+
+  const selectedRaceRating = useMemo(() => {
+    const found = racesRating.find((r) => {
+      const raceId = typeof r.race === 'object' ? r.race.id : r.race
+      return raceId === selectedRace.id
+    })
+    return found?.rating
+  }, [racesRating, selectedRace])
 
   const userPrediction = useMemo(() => {
     return userPredictions.find((pred) => {
@@ -165,6 +176,7 @@ export function PredictionsPageClient({
                       </Button>
                     </div>
                   ))}
+                {isRaceCompleted(selectedRace) && <RateSelect raceId={selectedRace.id} initialRating={selectedRaceRating} />}
               </div>
             </Card>
           </div>

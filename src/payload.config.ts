@@ -10,11 +10,13 @@ import { fileURLToPath } from 'url'
 import { submitEventResponse } from '@/api/events/submitEventResponse'
 import { createPrediction } from '@/api/predictions/createPrediction'
 import { updatePrediction } from '@/api/predictions/updatePrediction'
+import { submitRaceRating } from '@/api/race-ratings/submitRaceRating'
 import { Drivers } from '@/collections/Drivers'
 import { EventResponses } from '@/collections/EventResponses'
 import { F1Events } from '@/collections/Events'
 import { Media } from '@/collections/Media'
 import { Predictions } from '@/collections/Predictions'
+import { RaceRatings } from '@/collections/RaceRatings'
 import { Races } from '@/collections/Races'
 import { SeasonStats } from '@/collections/SeasonStats'
 import { Teams } from '@/collections/Teams'
@@ -36,6 +38,7 @@ export default buildConfig({
     Drivers,
     Races,
     Predictions,
+    RaceRatings,
     SeasonStats,
     F1Events,
     EventResponses,
@@ -76,6 +79,11 @@ export default buildConfig({
       path: '/event-responses',
       method: 'post',
       handler: submitEventResponse,
+    },
+    {
+      path: '/update-race-ratings',
+      method: 'post',
+      handler: submitRaceRating,
     },
   ],
   plugins: [

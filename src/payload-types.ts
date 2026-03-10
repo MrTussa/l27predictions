@@ -72,6 +72,7 @@ export interface Config {
     drivers: Driver;
     races: Race;
     predictions: Prediction;
+    'race-ratings': RaceRating;
     'season-stats': SeasonStat;
     events: Event;
     'event-responses': EventResponse;
@@ -88,6 +89,7 @@ export interface Config {
     drivers: DriversSelect<false> | DriversSelect<true>;
     races: RacesSelect<false> | RacesSelect<true>;
     predictions: PredictionsSelect<false> | PredictionsSelect<true>;
+    'race-ratings': RaceRatingsSelect<false> | RaceRatingsSelect<true>;
     'season-stats': SeasonStatsSelect<false> | SeasonStatsSelect<true>;
     events: EventsSelect<false> | EventsSelect<true>;
     'event-responses': EventResponsesSelect<false> | EventResponsesSelect<true>;
@@ -275,6 +277,14 @@ export interface Race {
   predictionCloseDate: string;
   raceDate: string;
   /**
+   * Обновляется автоматически при голосовании пользователей
+   */
+  rating?: {
+    ratingBad?: number | null;
+    ratingNormal?: number | null;
+    ratingGood?: number | null;
+  };
+  /**
    * Заполняется после завершения гонки для расчета баллов
    */
   results?:
@@ -304,7 +314,18 @@ export interface Prediction {
    * Рассчитывается автоматически после ввода результатов гонки
    */
   points?: number | null;
-  submittedAt?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "race-ratings".
+ */
+export interface RaceRating {
+  id: string;
+  user: string | User;
+  race: string | Race;
+  rating: 'bad' | 'normal' | 'good';
   updatedAt: string;
   createdAt: string;
 }
@@ -489,7 +510,6 @@ export interface EventResponse {
    * Очки или Pit Coins (в зависимости от типа награды события)
    */
   reward?: number | null;
-  submittedAt: string;
   updatedAt: string;
   createdAt: string;
 }
@@ -536,6 +556,10 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'predictions';
         value: string | Prediction;
+      } | null)
+    | ({
+        relationTo: 'race-ratings';
+        value: string | RaceRating;
       } | null)
     | ({
         relationTo: 'season-stats';
@@ -664,6 +688,13 @@ export interface RacesSelect<T extends boolean = true> {
   predictionOpenDate?: T;
   predictionCloseDate?: T;
   raceDate?: T;
+  rating?:
+    | T
+    | {
+        ratingBad?: T;
+        ratingNormal?: T;
+        ratingGood?: T;
+      };
   results?:
     | T
     | {
@@ -689,7 +720,17 @@ export interface PredictionsSelect<T extends boolean = true> {
         id?: T;
       };
   points?: T;
-  submittedAt?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "race-ratings_select".
+ */
+export interface RaceRatingsSelect<T extends boolean = true> {
+  user?: T;
+  race?: T;
+  rating?: T;
   updatedAt?: T;
   createdAt?: T;
 }
@@ -779,7 +820,6 @@ export interface EventResponsesSelect<T extends boolean = true> {
       };
   correctAnswersCount?: T;
   reward?: T;
-  submittedAt?: T;
   updatedAt?: T;
   createdAt?: T;
 }

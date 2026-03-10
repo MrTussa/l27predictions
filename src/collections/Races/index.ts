@@ -105,6 +105,37 @@ export const Races: CollectionConfig = {
       },
     },
     {
+      name: 'rating',
+      type: 'group',
+      label: 'Рейтинг гонки',
+      admin: {
+        description: 'Обновляется автоматически при голосовании пользователей',
+      },
+      fields: [
+        {
+          name: 'ratingBad',
+          type: 'number',
+          defaultValue: 0,
+          label: 'Плохо',
+          admin: { readOnly: true },
+        },
+        {
+          name: 'ratingNormal',
+          type: 'number',
+          defaultValue: 0,
+          label: 'Нормально',
+          admin: { readOnly: true },
+        },
+        {
+          name: 'ratingGood',
+          type: 'number',
+          defaultValue: 0,
+          label: 'Хорошо',
+          admin: { readOnly: true },
+        },
+      ],
+    },
+    {
       name: 'results',
       type: 'array',
       label: 'Результаты гонки (топ-3)',

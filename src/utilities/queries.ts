@@ -34,6 +34,17 @@ export async function getRaceById(raceId: string) {
   })
 }
 
+export async function getUserRacesRating(userId: string) {
+  const result = await payload.find({
+    collection: 'race-ratings',
+    where: {
+      user: { equals: userId },
+    },
+    pagination: false,
+  })
+  return result.docs || []
+}
+
 // PREDICTIONS
 
 export async function getAllPredictions(options?: {

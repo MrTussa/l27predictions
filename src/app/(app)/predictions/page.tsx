@@ -1,6 +1,6 @@
 import { getServerSideUser } from '@/utilities/getServerSideUser'
-import { getRaces, getTeams, getUserPredictions } from '@/utilities/queries'
 import { mergeOpenGraph } from '@/utilities/mergeOpenGraph'
+import { getRaces, getTeams, getUserPredictions, getUserRacesRating } from '@/utilities/queries'
 import type { Metadata } from 'next'
 import { redirect } from 'next/navigation'
 import { PredictionsPageClient } from './PredictionsPageClient'
@@ -12,13 +12,21 @@ export default async function PredictionsPage() {
     redirect(`/login?redirect=${encodeURIComponent('/predictions')}`)
   }
 
-  const [races, userPredictions, teams] = await Promise.all([
+  const [races, userPredictions, teams, racesRating] = await Promise.all([
     getRaces({ depth: 2 }),
     getUserPredictions(user.id, { depth: 1 }),
     getTeams({ depth: 1 }),
+    getUserRacesRating(user.id),
   ])
 
-  return <PredictionsPageClient races={races} teams={teams} userPredictions={userPredictions} />
+  return (
+    <PredictionsPageClient
+      races={races}
+      teams={teams}
+      userPredictions={userPredictions}
+      racesRating={racesRating}
+    />
+  )
 }
 
 export const metadata: Metadata = {
