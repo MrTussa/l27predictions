@@ -3,10 +3,11 @@ import { PointsEvolutionChart } from '@/components/PointsEvolutionChart'
 import { Card } from '@/components/ui/card'
 import { mergeOpenGraph } from '@/utilities/mergeOpenGraph'
 import type { Metadata } from 'next'
+import { RaceRatingsSection } from './_components/RaceRatingsSection'
 import { getLeaderboardData } from './_lib/getLeaderboardData'
 
 export default async function LeaderboardPage() {
-  const { usersProgress, completedRaces } = await getLeaderboardData()
+  const { usersProgress, completedRaces, ratedRaces } = await getLeaderboardData()
 
   return (
     <div className="container px-4 md:px-16 py-6">
@@ -28,6 +29,8 @@ export default async function LeaderboardPage() {
                 <PointsEvolutionChart races={completedRaces} usersProgress={usersProgress} />
               </Card>
             )}
+
+            <RaceRatingsSection races={ratedRaces} />
 
             <LeaderboardTable />
           </div>

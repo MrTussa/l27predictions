@@ -13,6 +13,7 @@ export type UserProgress = {
 export type LeaderboardData = {
   usersProgress: UserProgress[]
   completedRaces: Race[]
+  ratedRaces: Race[]
 }
 
 export async function getLeaderboardData(year?: number): Promise<LeaderboardData> {
@@ -24,6 +25,14 @@ export async function getLeaderboardData(year?: number): Promise<LeaderboardData
   ])
 
   const completedRaces = allRaces.filter((race) => isRaceCompleted(race))
+
+  const ratedRaces = allRaces.filter((race) => {
+    const total =
+      (race.rating?.ratingBad ?? 0) +
+      (race.rating?.ratingNormal ?? 0) +
+      (race.rating?.ratingGood ?? 0)
+    return total > 0
+  })
 
   const top10Stats = seasonStats.slice(0, 10)
 
@@ -63,5 +72,6 @@ export async function getLeaderboardData(year?: number): Promise<LeaderboardData
   return {
     usersProgress,
     completedRaces,
+    ratedRaces,
   }
 }
