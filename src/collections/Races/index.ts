@@ -62,9 +62,8 @@ export const Races: CollectionConfig = {
       label: 'SVG Path трассы',
       admin: {
         description:
-          'Строгое форматирование к размерам, обязательно  viewBox="144 144 512 512" width="800px" height="800px"',
-        placeholder:
-          '<svg xmlns="http://www.w3.org/2000/svg" fill="#000000" width="800px" height="800px" version="1.1" viewBox="144 144 512 512">',
+          'Только значение атрибута d тега <path>. Без обёртки <svg>. viewBox: 144 144 512 512',
+        placeholder: 'm608.99 238.08-24.379...',
       },
     },
     {

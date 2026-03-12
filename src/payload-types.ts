@@ -267,7 +267,7 @@ export interface Race {
    */
   countryFlag: string | Media;
   /**
-   * Строгое форматирование к размерам, обязательно  viewBox="144 144 512 512" width="800px" height="800px"
+   * Только значение атрибута d тега <path>. Без обёртки <svg>. viewBox: 144 144 512 512
    */
   trackSVGPath?: string | null;
   predictionOpenDate: string;

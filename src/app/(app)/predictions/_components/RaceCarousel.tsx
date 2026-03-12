@@ -65,11 +65,6 @@ export function RaceCarousel({ races, selectedRace, onRaceSelect }: RaceCarousel
         {races.map((race) => {
           const isSelected = race.id === selectedRace.id
           const svgPath = race.trackSVGPath || undefined
-          const fillRegExp = /fill="[^"]*"/
-          // Заменяем fill для неактивных гонок
-          const svgWithColor = svgPath?.match(fillRegExp)
-            ? svgPath?.replace(/fill="[^"]*"/, 'fill="#FFFFFF"')
-            : svgPath?.replace(/<svg /, '<svg fill="#FFFFFF"')
 
           return (
             <button
@@ -96,10 +91,13 @@ export function RaceCarousel({ races, selectedRace, onRaceSelect }: RaceCarousel
                         rotationSpeed={0.001}
                       />
                     ) : (
-                      <div
-                        className="w-full h-full flex items-center justify-center opacity-60 p-6"
-                        dangerouslySetInnerHTML={{ __html: svgWithColor || '' }}
-                      />
+                      <svg
+                        viewBox="100 100 512 512"
+                        className="w-full h-full opacity-60 p-2"
+                        fill="#FFFFFF"
+                      >
+                        <path d={svgPath} />
+                      </svg>
                     )
                   ) : (
                     <div className="w-full h-full flex items-center justify-center">
