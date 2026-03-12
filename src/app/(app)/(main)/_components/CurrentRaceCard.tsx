@@ -18,7 +18,6 @@ export function CurrentRaceCard({ race, votedCount, timeZone }: CurrentRaceCardP
   const raceDate = formatDate(race.raceDate, timeZone, 'dateTime')
   const now = new Date()
 
-  // Время до закрытия голосования
   const timeUntilClose = closeDate.getTime() - now.getTime()
   const hoursUntilClose = Math.floor(timeUntilClose / (1000 * 60 * 60))
   const daysUntilClose = Math.floor(hoursUntilClose / 24)

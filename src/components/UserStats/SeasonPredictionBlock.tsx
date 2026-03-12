@@ -172,9 +172,9 @@ export async function SeasonPredictionBlock({
           </div>
         )}
 
-        {response.submittedAt && (
+        {response.createdAt && (
           <p className="text-xs text-muted-foreground text-center">
-            Прогноз сделан: {formatDate(response.submittedAt, timeZone, 'short')}
+            Прогноз сделан: {formatDate(response.createdAt, timeZone, 'short')}
           </p>
         )}
       </div>

@@ -16,7 +16,7 @@ export const EventResponses: CollectionConfig = {
   },
   admin: {
     group: 'Events',
-    defaultColumns: ['user', 'event', 'correctAnswersCount', 'reward', 'submittedAt'],
+    defaultColumns: ['user', 'event', 'correctAnswersCount', 'reward'],
     useAsTitle: 'id',
     description: 'Ответы пользователей на события',
   },

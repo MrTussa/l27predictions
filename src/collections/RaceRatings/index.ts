@@ -13,7 +13,7 @@ export const RaceRatings: CollectionConfig = {
   },
   admin: {
     group: 'F1 Championship',
-    defaultColumns: ['user', 'race', 'rating', 'submittedAt'],
+    defaultColumns: ['user', 'race', 'rating'],
     useAsTitle: 'id',
     hidden: true,
   },

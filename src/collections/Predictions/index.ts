@@ -17,7 +17,7 @@ export const Predictions: CollectionConfig = {
   },
   admin: {
     group: 'F1 Championship',
-    defaultColumns: ['user', 'race', 'points', 'submittedAt'],
+    defaultColumns: ['user', 'race', 'points'],
     useAsTitle: 'id',
   },
   fields: [
