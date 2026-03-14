@@ -3,6 +3,7 @@
 import type { Prediction, SeasonStat, User } from '@/payload-types'
 import configPromise from '@payload-config'
 import { getPayload } from 'payload'
+import { cache } from 'react'
 
 const payload = await getPayload({ config: configPromise })
 
@@ -27,12 +28,12 @@ export async function getRaces(options?: { year?: number | null; depth?: number 
   return races.docs || []
 }
 
-export async function getRaceById(raceId: string) {
+export const getRaceById = cache(async (raceId: string) => {
   return payload.findByID({
     collection: 'races',
     id: raceId,
   })
-}
+})
 
 export async function getUserRacesRating(userId: string) {
   const result = await payload.find({
