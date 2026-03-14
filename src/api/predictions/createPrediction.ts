@@ -58,6 +58,7 @@ export const createPrediction = async (req: PayloadRequest) => {
 
     const newPrediction = await req.payload.create({
       collection: 'predictions',
+      overrideAccess: true,
       data: {
         user: req.user.id,
         race: raceId,
@@ -73,6 +74,7 @@ export const createPrediction = async (req: PayloadRequest) => {
       { status: 201 },
     )
   } catch (error: unknown) {
+    console.error('[createPrediction] Unexpected error:', error)
     const message = error instanceof Error ? error.message : 'Внутренняя ошибка сервера'
     return Response.json({ message }, { status: 500 })
   }

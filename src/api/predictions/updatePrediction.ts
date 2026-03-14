@@ -62,6 +62,7 @@ export const updatePrediction = async (req: PayloadRequest) => {
     const updatedPrediction = await req.payload.update({
       collection: 'predictions',
       id: predictionId,
+      overrideAccess: true,
       data: {
         predictions: predictions,
       },
@@ -72,6 +73,7 @@ export const updatePrediction = async (req: PayloadRequest) => {
       prediction: updatedPrediction,
     })
   } catch (error: unknown) {
+    console.error('[updatePrediction] Unexpected error:', error)
     const message = error instanceof Error ? error.message : 'Внутренняя ошибка сервера'
     return Response.json({ message }, { status: 500 })
   }

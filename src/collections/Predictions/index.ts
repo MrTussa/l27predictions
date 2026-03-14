@@ -2,8 +2,7 @@ import type { CollectionConfig } from 'payload'
 
 import { adminOnly } from '@/access/adminOnly'
 import { adminOrSelf } from '@/access/adminOrSelf'
-import { normalizeID, normalizeIDs } from '@/utilities/normalizeID'
-import { canMakePrediction } from '@/utilities/raceStatus'
+import { normalizeIDs } from '@/utilities/normalizeID'
 
 export const Predictions: CollectionConfig = {
   slug: 'predictions',
@@ -105,19 +104,6 @@ export const Predictions: CollectionConfig = {
 
           if (drivers.length !== uniqueDrivers.size) {
             throw new Error('Каждый пилот может быть выбран только один раз')
-          }
-        }
-
-        if (req.user && !req.user.roles?.includes('admin')) {
-          if (data?.race) {
-            const race = await req.payload.findByID({
-              collection: 'races',
-              id: normalizeID(data.race),
-            })
-
-            if (race && !canMakePrediction(race)) {
-              throw new Error('Время для прогнозов на эту гонку истекло')
-            }
           }
         }
 
