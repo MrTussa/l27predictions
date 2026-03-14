@@ -1,11 +1,10 @@
 'use client'
 
 import { Button } from '@/components/ui/button'
-import { Driver, Prediction, Race, User } from '@/payload-types'
+import { Driver, Prediction, Race } from '@/payload-types'
 import { useState } from 'react'
 
 import { DriverCardSelectable } from '@/components/DriverCard/DriverCardSelectable'
-import { PodiumSlot } from '@/components/DriverCard/PodiumSlot'
 import type { CollisionDetection } from '@dnd-kit/core'
 import {
   closestCenter,
@@ -22,14 +21,13 @@ import {
 import { rectSortingStrategy, SortableContext } from '@dnd-kit/sortable'
 import { useRouter } from 'next/navigation'
 import { toast } from 'sonner'
+import { PodiumDndSlot } from './PodiumDndSlot'
 
 type Props = {
   race: Race
   drivers: Driver[]
-  user: User
   existingPrediction: Prediction | null
   isPredictionOpen: boolean
-  isPredictionClosed: boolean
 }
 
 export const PredictionForm: React.FC<Props> = ({
@@ -197,6 +195,7 @@ export const PredictionForm: React.FC<Props> = ({
         </h2>
 
         <DndContext
+          id="prediction-dnd"
           sensors={sensors}
           collisionDetection={collisionDetectionStrategy}
           onDragStart={handleDragStart}
@@ -215,7 +214,7 @@ export const PredictionForm: React.FC<Props> = ({
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:flex lg:items-end lg:justify-center gap-4 lg:gap-6">
               <div className="sm:col-span-2 lg:order-2 lg:flex-1 flex justify-center">
                 <div className="w-full max-w-[280px]">
-                  <PodiumSlot
+                  <PodiumDndSlot
                     position={1}
                     driver={getPodiumDriver(0)}
                     onRemove={() => handleRemoveFromPodium(0)}
@@ -226,7 +225,7 @@ export const PredictionForm: React.FC<Props> = ({
 
               <div className="lg:order-1 lg:flex-1 flex justify-center">
                 <div className="w-full max-w-[280px]">
-                  <PodiumSlot
+                  <PodiumDndSlot
                     position={2}
                     driver={getPodiumDriver(1)}
                     onRemove={() => handleRemoveFromPodium(1)}
@@ -237,7 +236,7 @@ export const PredictionForm: React.FC<Props> = ({
 
               <div className="lg:order-3 lg:flex-1 flex justify-center">
                 <div className="w-full max-w-[280px]">
-                  <PodiumSlot
+                  <PodiumDndSlot
                     position={3}
                     driver={getPodiumDriver(2)}
                     onRemove={() => handleRemoveFromPodium(2)}
@@ -289,15 +288,13 @@ export const PredictionForm: React.FC<Props> = ({
           </SortableContext>
 
           <DragOverlay>
-            {activeId ? (
+            {activeId && drivers.find((d) => d.id === activeId) ? (
               <div className="opacity-50 scale-110 ">
                 <DriverCardSelectable driver={drivers.find((d) => d.id === activeId)!} />
               </div>
             ) : null}
           </DragOverlay>
         </DndContext>
-
-        {/* Кнопка сохранения */}
       </div>
     </div>
   )

@@ -1,11 +1,11 @@
+import { DriverCardBase, EmptySlot } from '@/components/DriverCard/DriverCardBase'
 import type { Driver } from '@/payload-types'
 import { useDroppable } from '@dnd-kit/core'
 import { useSortable } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
 import { IconX } from '@tabler/icons-react'
-import { DriverCardBase, EmptySlot } from './DriverCardBase'
 
-interface PodiumSlotProps {
+interface PodiumDndSlotProps {
   position: 1 | 2 | 3
   driver: Driver | null
   onRemove?: () => void
@@ -21,7 +21,7 @@ const POSITION_HEIGHTS = {
 /**
  * Droppable/sortable podium slot for prediction form
  */
-export function PodiumSlot({ position, driver, onRemove, disabled }: PodiumSlotProps) {
+export function PodiumDndSlot({ position, driver, onRemove, disabled }: PodiumDndSlotProps) {
   const podiumSlotId = `podium-${position}`
   const height = POSITION_HEIGHTS[position]
 
@@ -85,6 +85,7 @@ export function PodiumSlot({ position, driver, onRemove, disabled }: PodiumSlotP
           <DriverCardBase
             driver={driver}
             height={height}
+            priority={position === 1}
             topRightContent={position}
             topLeftContent={
               !disabled && onRemove ? (
