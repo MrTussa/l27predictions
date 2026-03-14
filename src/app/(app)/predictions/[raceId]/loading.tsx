@@ -30,16 +30,13 @@ export default function PredictionFormLoading() {
 
           {/* Доступные пилоты */}
           <div>
-            <Skeleton variant="title" className="w-56 h-8 mb-6" />
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+            <Skeleton className="w-full h-12" />
+            <div className="hidden lg:grid lg:grid-cols-4 gap-4">
               {Array.from({ length: 20 }).map((_, i) => (
                 <Skeleton key={i} className="h-40 w-full rounded-lg" />
               ))}
             </div>
           </div>
-
-          {/* Кнопка сохранения */}
-          <Skeleton className="w-full h-12" />
         </div>
 
         {/* Информация о гонке - 25% */}

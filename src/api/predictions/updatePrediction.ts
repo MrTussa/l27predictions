@@ -1,4 +1,5 @@
 import { canMakePrediction } from '@/utilities/raceStatus'
+import type { Prediction } from '@/payload-types'
 import type { PayloadRequest } from 'payload'
 import { addDataAndFileToRequest } from 'payload'
 
@@ -22,13 +23,14 @@ export const updatePrediction = async (req: PayloadRequest) => {
       return Response.json({ message: 'Необходимо заполнить все 3 позиции' }, { status: 400 })
     }
 
-    const existingPrediction = await req.payload.findByID({
-      collection: 'predictions',
-      id: predictionId,
-      depth: 1,
-    })
-
-    if (!existingPrediction) {
+    let existingPrediction: Prediction
+    try {
+      existingPrediction = (await req.payload.findByID({
+        collection: 'predictions',
+        id: predictionId,
+        depth: 1,
+      })) as Prediction
+    } catch {
       return Response.json({ message: 'Прогноз не найден' }, { status: 404 })
     }
 

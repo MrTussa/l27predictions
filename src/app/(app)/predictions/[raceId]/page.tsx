@@ -1,4 +1,4 @@
-import type { User } from '@/payload-types'
+import type { Race, User } from '@/payload-types'
 import { getServerSideUser } from '@/utilities/getServerSideUser'
 import { getTimezone } from '@/utilities/getTimezone'
 import {
@@ -9,8 +9,12 @@ import {
 } from '@/utilities/queries'
 import { canMakePrediction, getRaceStatus } from '@/utilities/raceStatus'
 import type { Metadata } from 'next'
+import { headers } from 'next/headers'
 import { notFound, redirect } from 'next/navigation'
+import { userAgent } from 'next/server'
+
 import { AboutRace } from './_components/AboutRace'
+import { PredictionDrawer } from './_components/PredictionDrawer'
 import { PredictionForm } from './_components/PredictionForm'
 
 type Props = {
@@ -20,14 +24,22 @@ type Props = {
 }
 
 export default async function PredictionPage({ params }: Props) {
+  const headersList = await headers()
+  const { device } = userAgent({ headers: headersList })
+  const ua = headersList.get('user-agent') ?? ''
+  const isMobile =
+    device.type === 'mobile' || device.type === 'tablet' || /iPhone|iPad|iPod|Android/i.test(ua)
+
   const { raceId } = await params
-  const [{ user }, timeZone] = await Promise.all([getServerSideUser(), getTimezone()])
+  const [{ user }, timeZone, race] = await Promise.all([
+    getServerSideUser(),
+    getTimezone(),
+    getRaceById(raceId).catch(() => null) as Promise<Race | null>,
+  ])
 
   if (!user) {
     redirect(`/login?redirect=${encodeURIComponent(`/predictions/${raceId}`)}`)
   }
-
-  const race = await getRaceById(raceId)
 
   if (!race) {
     notFound()
@@ -52,14 +64,21 @@ export default async function PredictionPage({ params }: Props) {
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
         {/* Форма прогноза - 75% */}
         <div className="lg:col-span-3">
-          <PredictionForm
-            race={race}
-            drivers={drivers}
-            user={user}
-            existingPrediction={existingPrediction}
-            isPredictionOpen={isPredictionOpen}
-            isPredictionClosed={isPredictionClosed}
-          />
+          {isMobile ? (
+            <PredictionDrawer
+              race={race}
+              drivers={drivers}
+              existingPrediction={existingPrediction}
+              isPredictionOpen={isPredictionOpen}
+            />
+          ) : (
+            <PredictionForm
+              race={race}
+              drivers={drivers}
+              existingPrediction={existingPrediction}
+              isPredictionOpen={isPredictionOpen}
+            />
+          )}
         </div>
 
         {/* Информация о гонке - 25% */}
