@@ -24,12 +24,10 @@ export function PredictionsPageClient({
   teams,
   racesRating,
 }: PredictionsPageClientProps) {
-  const now = new Date()
-  const defaultRace =
-    races.find((race) => {
-      const raceDate = new Date(race.raceDate)
-      return raceDate > now && race.results && race.results.length > 0
-    }) || races[0]
+  const lastRaceByDate = races.reduce((latest, race) =>
+    new Date(race.raceDate) > new Date(latest.raceDate) ? race : latest,
+  )
+  const defaultRace = races.findLast((race) => canMakePrediction(race)) ?? lastRaceByDate
 
   const [selectedRace, setSelectedRace] = useState<Race>(defaultRace)
 
