@@ -1,18 +1,16 @@
 import type { CollectionConfig } from 'payload'
 
 import { adminOnly } from '@/access/adminOnly'
-import { adminOrSelf } from '@/access/adminOrSelf'
+import { adminOrOwner } from '@/access/adminOrOwner'
 import { normalizeIDs } from '@/utilities/normalizeID'
 
 export const Predictions: CollectionConfig = {
   slug: 'predictions',
   access: {
-    create: ({ req: { user } }) => {
-      return !!user
-    },
+    create: ({ req: { user } }) => !!user,
     delete: adminOnly,
-    read: adminOrSelf,
-    update: adminOrSelf,
+    read: adminOrOwner(),
+    update: adminOrOwner(),
   },
   admin: {
     group: 'F1 Championship',

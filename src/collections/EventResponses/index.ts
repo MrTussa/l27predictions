@@ -1,5 +1,5 @@
 import { adminOnly } from '@/access/adminOnly'
-import { adminOrSelf } from '@/access/adminOrSelf'
+import { adminOrOwner } from '@/access/adminOrOwner'
 import type { CollectionConfig } from 'payload'
 
 /**
@@ -11,7 +11,7 @@ export const EventResponses: CollectionConfig = {
   access: {
     create: ({ req: { user } }) => !!user,
     delete: adminOnly,
-    read: adminOrSelf,
+    read: adminOrOwner(),
     update: adminOnly,
   },
   admin: {

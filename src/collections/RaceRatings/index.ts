@@ -1,5 +1,5 @@
 import { adminOnly } from '@/access/adminOnly'
-import { adminOrSelf } from '@/access/adminOrSelf'
+import { adminOrOwner } from '@/access/adminOrOwner'
 import type { CollectionConfig } from 'payload'
 import { updateRaceRatingCounts } from './hooks/updateRaceRatingCounts'
 
@@ -8,8 +8,8 @@ export const RaceRatings: CollectionConfig = {
   access: {
     create: ({ req: { user } }) => !!user,
     delete: adminOnly,
-    read: adminOrSelf,
-    update: adminOrSelf,
+    read: adminOrOwner(),
+    update: adminOrOwner(),
   },
   admin: {
     group: 'F1 Championship',
