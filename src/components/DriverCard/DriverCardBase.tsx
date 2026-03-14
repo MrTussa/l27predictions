@@ -9,6 +9,8 @@ export interface DriverCardBaseProps {
   topLeftContent?: ReactNode
   showGlow?: boolean
   className?: string
+  size?: 'base' | 'sm'
+  priority?: boolean
 }
 
 /**
@@ -22,6 +24,8 @@ export function DriverCardBase({
   topLeftContent,
   showGlow = true,
   className = '',
+  size = 'base',
+  priority = false,
 }: DriverCardBaseProps) {
   const photo = typeof driver.photo === 'object' ? driver.photo : null
   const countryFlag = typeof driver.countryFlag === 'object' ? driver.countryFlag : null
@@ -59,6 +63,7 @@ export function DriverCardBase({
                 src={photo.url}
                 alt={driver.name}
                 fill
+                priority={priority}
                 className="object-cover object-top"
                 sizes="(max-width: 768px) 100vw, 33vw"
               />
@@ -69,7 +74,7 @@ export function DriverCardBase({
         {/* Top right content (position number, driver number, etc.) */}
         {topRightContent && (
           <div
-            className="absolute top-4 right-4 text-6xl font-black opacity-30"
+            className={`absolute top-4 right-4   font-black opacity-30 ${size === 'base' ? 'text-6xl' : 'text-4xl sm:text-6xl'}`}
             style={{ color: teamColor }}
           >
             {topRightContent}
@@ -81,11 +86,15 @@ export function DriverCardBase({
 
         {/* Bottom info section */}
         <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-background via-background/95 to-transparent p-4 pt-12 flex flex-row items-center justify-between">
-          <div>
+          <div className="text-left">
             <div className="text-2xl font-black mb-1 tracking-wider" style={{ color: teamColor }}>
               {driver.shortName}
             </div>
-            <div className="text-sm font-bold text-foreground/90 mb-1 truncate">{driver.name}</div>
+            <div
+              className={`text-sm font-bold text-foreground/90 mb-1 truncate ${size === 'sm' && 'max-w-20 sm:max-w-none'}`}
+            >
+              {driver.name}
+            </div>
             <div className="text-xs text-muted-foreground truncate">{teamName}</div>
           </div>
           {countryFlag?.url && (
