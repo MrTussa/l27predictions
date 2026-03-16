@@ -102,6 +102,7 @@ export interface Config {
   db: {
     defaultIDType: string;
   };
+  fallbackLocale: null;
   globals: {
     'broadcast-settings': BroadcastSetting;
   };
@@ -109,9 +110,7 @@ export interface Config {
     'broadcast-settings': BroadcastSettingsSelect<false> | BroadcastSettingsSelect<true>;
   };
   locale: null;
-  user: User & {
-    collection: 'users';
-  };
+  user: User;
   jobs: {
     tasks: unknown;
     workflows: unknown;
@@ -176,6 +175,7 @@ export interface User {
       }[]
     | null;
   password?: string | null;
+  collection: 'users';
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
