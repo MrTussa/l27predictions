@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { toast } from 'sonner'
 
 type RatingValue = 'bad' | 'normal' | 'good'
@@ -48,6 +48,10 @@ export const RateSelect: React.FC<Props> = ({ raceId, initialRating }) => {
   const [rate, setRate] = useState<RatingValue | ''>(initialRating ?? '')
   const [loading, setLoading] = useState<boolean>(false)
   const [hoveredIndex, setHoveredIndex] = useState<number | null>(null)
+
+  useEffect(() => {
+    if (initialRating) setRate(initialRating)
+  }, [initialRating])
 
   const handleChange = async (value: RatingValue) => {
     if (value === rate || loading) return
