@@ -17,15 +17,26 @@ const NAV_ITEMS = [
   { label: 'Трансляция', href: '/broadcast' },
 ]
 
-export function Header() {
+interface HeaderProps {
+  isLive?: boolean
+  unvotedEventsCount?: number
+}
+
+export function Header({ isLive, unvotedEventsCount }: HeaderProps) {
   const pathname = usePathname()
+
+  const navItems = NAV_ITEMS.map((item) => ({
+    ...item,
+    badge: item.href === '/events' && unvotedEventsCount ? unvotedEventsCount : undefined,
+    isLive: item.href === '/broadcast' ? isLive : undefined,
+  }))
 
   return (
     <div className="relative z-20 border-b bg-background">
       <nav className="flex items-center justify-between container">
         <div className="block flex-none md:hidden">
           <Suspense fallback={null}>
-            <MobileMenu menu={NAV_ITEMS} />
+            <MobileMenu menu={navItems} />
           </Suspense>
         </div>
         <div className="flex w-full items-center justify-between">
@@ -34,8 +45,8 @@ export function Header() {
               <LogoIcon />
             </Link>
             <ul className=" hidden gap-4 text-sm md:flex md:items-center">
-              {NAV_ITEMS.map((item) => (
-                <li key={item.href}>
+              {navItems.map((item) => (
+                <li key={item.href} className="relative">
                   <Link
                     href={item.href}
                     className={cn(
@@ -43,11 +54,18 @@ export function Header() {
                       {
                         active: pathname.startsWith(item.href),
                         'text-accent': pathname.startsWith(item.href),
+                        'text-green-500 animate-pulse hover:animate-none hover:text-green-400':
+                          !!item.isLive && !pathname.startsWith(item.href),
                       },
                     )}
                   >
                     {item.label}
                   </Link>
+                  {item.badge ? (
+                    <span className="absolute -top-1 -right-2 h-3 min-w-3 rounded-full bg-accent text-[10px] font-bold text-background outline-background outline-1 flex items-center justify-center px-0.5">
+                      {item.badge}
+                    </span>
+                  ) : null}
                 </li>
               ))}
             </ul>

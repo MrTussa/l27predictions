@@ -4,6 +4,7 @@ import type { ReactNode } from 'react'
 import { AdminBar } from '@/components/AdminBar'
 import Footer from '@/components/Footer'
 import { Header } from '@/components/Header'
+import { getHeaderData } from '@/utilities/queries'
 import { ClarityAnalytics } from '@/components/metrics/ClarityAnalytics'
 import { TimezoneDetector } from '@/components/TimezoneDetector'
 import { Providers } from '@/providers'
@@ -24,6 +25,8 @@ export const metadata: Metadata = {
 }
 
 export default async function RootLayout({ children }: { children: ReactNode }) {
+  const { isLive, unvotedEventsCount } = await getHeaderData()
+
   return (
     <html
       className={[GeistSans.variable, GeistMono.variable, 'dark'].filter(Boolean).join(' ')}
@@ -41,7 +44,7 @@ export default async function RootLayout({ children }: { children: ReactNode }) 
         <Providers>
           <AdminBar />
 
-          <Header />
+          <Header isLive={isLive} unvotedEventsCount={unvotedEventsCount} />
           <main className="canvas min-h-[70dvh]">{children}</main>
           <Footer />
         </Providers>

@@ -10,14 +10,17 @@ import {
   SheetTrigger,
 } from '@/components/ui/sheet'
 import { useAuth } from '@/providers/Auth'
+import { cn } from '@/utilities/cn'
 import { MenuIcon } from 'lucide-react'
 import Link from 'next/link'
 import { usePathname, useSearchParams } from 'next/navigation'
-import React, { useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 
 interface MenuItem {
   label: string
   href: string
+  badge?: number
+  isLive?: boolean
 }
 
 interface Props {
@@ -60,12 +63,20 @@ export function MobileMenu({ menu }: Props) {
         <div className="py-4">
           <ul className="flex w-full flex-col gap-2">
             {menu.map((item) => (
-              <li key={item.href}>
+              <li key={item.href} className="relative">
                 <Link
                   href={item.href}
-                  className="block py-2 text-sm font-bold uppercase tracking-wider text-muted-foreground hover:text-accent transition-colors"
+                  className={cn(
+                    'flex items-center py-2 text-sm font-bold uppercase tracking-wider text-muted-foreground hover:text-accent transition-colors',
+                    { 'text-green-500 hover:text-green-400': !!item.isLive },
+                  )}
                 >
                   {item.label}
+                  {item.badge ? (
+                    <span className="ml-2 inline-flex h-4 min-w-4 rounded-full bg-accent text-[10px] font-bold text-background items-center justify-center px-0.5">
+                      {item.badge}
+                    </span>
+                  ) : null}
                 </Link>
               </li>
             ))}

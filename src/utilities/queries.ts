@@ -4,6 +4,7 @@ import type { Prediction, SeasonStat, User } from '@/payload-types'
 import configPromise from '@payload-config'
 import { getPayload } from 'payload'
 import { cache } from 'react'
+import { getServerSideUser } from './getServerSideUser'
 
 const payload = await getPayload({ config: configPromise })
 
@@ -329,5 +330,27 @@ export async function getUserPublicProfile(userId: string): Promise<PublicUser |
     }
   } catch {
     return null
+  }
+}
+
+// HEADER
+
+export async function getHeaderData(): Promise<{ isLive: boolean; unvotedEventsCount: number }> {
+  const [broadcastSettings, openEvents, { user }] = await Promise.all([
+    payload.findGlobal({ slug: 'broadcast-settings' }),
+    getEvents(['open']),
+    getServerSideUser(),
+  ])
+
+  if (!user) return { isLive: broadcastSettings.isLive ?? false, unvotedEventsCount: 0 }
+
+  const userResponses = await getUserEventResponses(user.id)
+  const respondedIds = new Set(
+    userResponses.map((r) => (typeof r.event === 'object' ? r.event.id : r.event)),
+  )
+
+  return {
+    isLive: broadcastSettings.isLive ?? false,
+    unvotedEventsCount: openEvents.filter((e) => !respondedIds.has(e.id)).length,
   }
 }
