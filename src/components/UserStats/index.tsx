@@ -25,7 +25,7 @@ export async function UserStats({ user, data, isOwnProfile, timeZone }: UserStat
       ?.map((entry) => {
         const race = typeof entry.race === 'object' ? entry.race : null
         return {
-          raceName: race?.name || `Раунд ${race?.round || '?'}`,
+          raceName: race?.name || `${race?.round || '?'} Раунд`,
           round: race?.round || 0,
           points: entry.points,
           cumulativePoints: entry.cumulativePoints,

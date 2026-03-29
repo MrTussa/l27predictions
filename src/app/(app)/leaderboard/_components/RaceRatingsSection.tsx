@@ -45,7 +45,10 @@ export function RaceRatingsSection({ races }: RaceRatingsSectionProps) {
                   </svg>
                 )}
 
-                <p className="text-xs font-bold uppercase truncate">{race.name}</p>
+                <div>
+                  <p className="text-xs font-bold uppercase truncate">{race.name}</p>
+                  <p className="text-xs text-muted-foreground">{race.round} Раунд</p>
+                </div>
 
                 <div className="h-2 w-full flex rounded-full overflow-hidden">
                   {bad > 0 && <div style={{ width: `${badPct}%`, backgroundColor: '#ef4444' }} />}

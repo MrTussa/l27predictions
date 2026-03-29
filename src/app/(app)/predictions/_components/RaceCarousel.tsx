@@ -107,6 +107,7 @@ export function RaceCarousel({ races, selectedRace, onRaceSelect }: RaceCarousel
                 </div>
                 <div className="p-3 text-center">
                   <div className="text-xs font-bold uppercase truncate">{race.name}</div>
+                  <div className="text-xs text-muted-foreground/70 mt-0.5">{race.round} Раунд</div>
                 </div>
               </Card>
             </button>

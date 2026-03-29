@@ -44,7 +44,7 @@ export function PreviousRaceCard({
             <IconFlag className="w-5 h-5 text-accent mt-1 shrink-0" />
             <div>
               <h3 className="text-xl font-bold">{race.name}</h3>
-              <p className="text-xs text-muted-foreground">Раунд {race.round}</p>
+              <p className="text-xs text-muted-foreground">{race.round} Раунд</p>
             </div>
           </div>
           <div className="flex flex-col items-baseline text-sm text-right text-muted-foreground">
