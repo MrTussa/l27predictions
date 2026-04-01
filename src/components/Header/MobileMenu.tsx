@@ -68,7 +68,10 @@ export function MobileMenu({ menu }: Props) {
                   href={item.href}
                   className={cn(
                     'flex items-center py-2 text-sm font-bold uppercase tracking-wider text-muted-foreground hover:text-accent transition-colors',
-                    { 'text-green-500 hover:text-green-400': !!item.isLive },
+                    {
+                      'text-green-500 hover:text-green-400': !!item.isLive,
+                      'text-red-700 animate-pulse hover:animate-none': item.href === '/save-data',
+                    },
                   )}
                 >
                   {item.label}
