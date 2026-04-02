@@ -15,7 +15,6 @@ const NAV_ITEMS = [
   { label: 'События', href: '/events' },
   { label: 'Таблица лидеров', href: '/leaderboard' },
   { label: 'Трансляция', href: '/broadcast' },
-  { label: 'СОХРАНИТЬ ДАННЫЕ!', href: '/save-data' },
 ]
 
 interface HeaderProps {
@@ -57,7 +56,6 @@ export function Header({ isLive, unvotedEventsCount }: HeaderProps) {
                         'text-accent': pathname.startsWith(item.href),
                         'text-green-500 animate-pulse hover:animate-none hover:text-green-400':
                           !!item.isLive && !pathname.startsWith(item.href),
-                        'text-red-700 animate-pulse hover:animate-none': item.href === '/save-data',
                       },
                     )}
                   >
