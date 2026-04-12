@@ -24,6 +24,13 @@ export default async function Login() {
       <p className="text-muted-foreground mb-8">Войдите в свой аккаунт для участия в чемпионате</p>
       <RenderParams />
       <LoginForm />
+      <p className="text-xs text-muted-foreground mt-4">
+        Нажимая кнопку «Войти», вы соглашаетесь с условиями{' '}
+        <a className="text-foreground" href="/privacy_policy_limonov27.pdf">
+          политики конфиденциальности
+        </a>
+        .
+      </p>
     </div>
   )
 }

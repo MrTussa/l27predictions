@@ -86,6 +86,7 @@ function Footer() {
           <span className="text-xs text-neutral-600 shrink-0">
             &copy; {new Date().getFullYear()} L27 Predictions
           </span>
+          <a className="text-xs text-neutral-600 max-w-2xl" href="/privacy_policy_limonov27.pdf">Политика конфиденциальности</a>
         </div>
       </div>
     </footer>

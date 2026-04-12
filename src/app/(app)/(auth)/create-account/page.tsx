@@ -26,6 +26,13 @@ export default async function CreateAccount() {
       </p>
       <RenderParams />
       <CreateAccountForm />
+      <p className="text-xs text-muted-foreground mt-4">
+        Нажимая кнопку «Войти», вы соглашаетесь с условиями{' '}
+        <a className="text-foreground" href="/privacy_policy_limonov27.pdf">
+          политики конфиденциальности
+        </a>
+        .
+      </p>
     </div>
   )
 }
