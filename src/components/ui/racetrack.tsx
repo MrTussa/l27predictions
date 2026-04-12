@@ -171,7 +171,7 @@ export default function RaceTrackVisualization({
   backgroundColor = 'transparent',
   rotationSpeed = 0.002,
   useBloom = true,
-  bloomStrength = 1,
+  bloomStrength = 0.3,
   className,
 }: RaceTrackVisualizationProps) {
   return (
@@ -200,3 +200,4 @@ export default function RaceTrackVisualization({
 }
 
 export { GlowingTrack }
+
