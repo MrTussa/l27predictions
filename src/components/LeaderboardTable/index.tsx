@@ -61,8 +61,10 @@ export const LeaderboardTable: React.FC = () => {
         pages.push(i + 1)
       }
     } else {
-      if (currentPage <= 3) {
+      if (currentPage < 3) {
         pages.push(1, 2, 3, '...', totalPages)
+      } else if (currentPage === 3) {
+        pages.push(1, currentPage - 1, currentPage, currentPage + 1, '...', totalPages)
       } else if (currentPage >= totalPages - 2) {
         pages.push(1, '...', totalPages - 2, totalPages - 1, totalPages)
       } else {
