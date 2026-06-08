@@ -277,6 +277,31 @@ button {
 }
 
 
+.canvas::before {
+  --spread: 35;
+  --dot: 1;
+  --size: 256;
+  --speed: 40;
+  --brightness: 1;
+  --intersect: source-in, xor;
+  --intersect-moz: intersect;
+  --depth: 100px;
+  --bg: gray;
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background: var(--bg);
+  mask:
+    radial-gradient(circle at 50% 50%, white calc(var(--dot) * 1px), transparent calc((var(--dot) * 1px) + 0.5px)) 50% 50% / calc(var(--spread) * 1px) calc(var(--spread) * 1px),
+    url("/noise-mask.webp") calc(var(--size) * 1px) 50% / calc(var(--size) * 1px) calc(var(--size) * 1px);
+  -webkit-mask-composite: var(--intersect);
+  mask-composite: var(--intersect-moz);
+  animation: flicker calc(var(--speed) * 1s) infinite linear;
+  filter: brightness(var(--brightness));
+  border-radius: 12px;
+}
 
 
 @keyframes flicker {
