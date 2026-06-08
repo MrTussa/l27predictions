@@ -32,16 +32,16 @@ export function Header({ isLive, unvotedEventsCount }: HeaderProps) {
   }))
 
   return (
-    <div className="relative z-20 border-b bg-background">
+    <header className="relative z-20 border-b bg-linear-to-r from-neutral-950/0 via-neutral-900/20 to-neutral-950/0 backdrop-blur-[2px]">
       <nav className="flex items-center justify-between container">
         <div className="block flex-none md:hidden">
           <Suspense fallback={null}>
             <MobileMenu menu={navItems} />
           </Suspense>
         </div>
-        <div className="flex w-full items-center justify-between">
+        <div className="z-10 flex w-full items-center justify-between">
           <div className="flex w-full gap-6 items-center">
-            <Link className="flex w-full items-center justify-center pt-4 pb-4 md:w-auto" href="/">
+            <Link className=" flex w-full items-center justify-center pt-4 pb-4 md:w-auto" href="/">
               <LogoIcon />
             </Link>
             <ul className=" hidden gap-4 text-sm md:flex md:items-center">
@@ -78,6 +78,6 @@ export function Header({ isLive, unvotedEventsCount }: HeaderProps) {
           </div>
         </div>
       </nav>
-    </div>
+    </header>
   )
 }
