@@ -4,10 +4,11 @@ import type { ReactNode } from 'react'
 import { AdminBar } from '@/components/AdminBar'
 import Footer from '@/components/Footer'
 import { Header } from '@/components/Header'
-import { getHeaderData } from '@/utilities/queries'
 import { ClarityAnalytics } from '@/components/metrics/ClarityAnalytics'
 import { TimezoneDetector } from '@/components/TimezoneDetector'
+import BgStage from '@/components/ui/background'
 import { Providers } from '@/providers'
+import { getHeaderData } from '@/utilities/queries'
 import { GeistMono } from 'geist/font/mono'
 import { GeistSans } from 'geist/font/sans'
 import './globals.css'
@@ -43,7 +44,7 @@ export default async function RootLayout({ children }: { children: ReactNode }) 
         <TimezoneDetector />
         <Providers>
           <AdminBar />
-
+          <BgStage />
           <Header isLive={isLive} unvotedEventsCount={unvotedEventsCount} />
           <main className="canvas min-h-[70dvh]">{children}</main>
           <Footer />
