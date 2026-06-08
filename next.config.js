@@ -6,6 +6,7 @@ const NEXT_PUBLIC_SERVER_URL = process.env.NEXT_PUBLIC_SERVER_URL || 'http://loc
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  allowedDevOrigins: ['192.168.31.180'],
   images: {
     remotePatterns: [
       ...[NEXT_PUBLIC_SERVER_URL].map((item) => {
@@ -33,6 +34,13 @@ const nextConfig = {
           { key: 'X-Content-Type-Options', value: 'nosniff' },
           { key: 'Referrer-Policy', value: 'strict-origin-when-cross-origin' },
           { key: 'Permissions-Policy', value: 'camera=(), microphone=(), geolocation=()' },
+        ],
+      },
+      {
+        // SVG-логотипы команд и флаги — статичные ресурсы, кэшируем на год
+        source: '/api/media/file/:path*',
+        headers: [
+          { key: 'Cache-Control', value: 'public, max-age=86400' },
         ],
       },
     ]

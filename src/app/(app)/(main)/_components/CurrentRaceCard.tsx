@@ -1,6 +1,6 @@
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
-import RaceTrackVisualization from '@/components/ui/racetrack'
+import { RaceTrackClient } from './RaceTrackClient'
 import type { Race } from '@/payload-types'
 import { formatDate } from '@/utilities/formatDate'
 import { IconClock } from '@tabler/icons-react'
@@ -31,11 +31,7 @@ export function CurrentRaceCard({ race, votedCount, timeZone }: CurrentRaceCardP
 
   return (
     <Card variant="yellow-glow" corners="cut-corner" className="h-full">
-      <RaceTrackVisualization
-        className="absolute w-full h-full z-1 -translate-y-6"
-        backgroundColor="#141414"
-        svgPath={race.trackSVGPath ? race.trackSVGPath : undefined}
-      />
+      <RaceTrackClient svgPath={race.trackSVGPath ?? undefined} />
       <div className="space-y-6 px-6 z-2 flex flex-col justify-between h-full mix-blend-lighten min-h-[350px]">
         <div className="border-b border-accent/30 pb-4 flex justify-between">
           <div>
