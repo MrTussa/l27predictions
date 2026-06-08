@@ -18,7 +18,6 @@ interface GlowingTrackProps {
   svgPath: string
   color?: string
   rotationSpeed?: number
-  maxFps?: number
 }
 
 interface RaceTrackVisualizationProps {
@@ -38,13 +37,46 @@ interface RaceTrackVisualizationProps {
 
 interface EffectsProps {
   bloomStrength: number
-  maxFps: number
 }
 
-const GlowingTrack = memo(function GlowingTrack({ svgPath, color = '#00ff00', rotationSpeed = 0.001, maxFps = 30 }: GlowingTrackProps) {
+function FrameClock({ fps }: { fps: number }) {
+  const { invalidate } = useThree()
+
+  useEffect(() => {
+    let intervalId: ReturnType<typeof setInterval>
+
+    function start() {
+      intervalId = setInterval(invalidate, 1000 / fps)
+    }
+
+    function stop() {
+      clearInterval(intervalId)
+    }
+
+    function handleVisibility() {
+      if (document.hidden) stop()
+      else start()
+    }
+
+    start()
+    document.addEventListener('visibilitychange', handleVisibility)
+
+    return () => {
+      stop()
+      document.removeEventListener('visibilitychange', handleVisibility)
+    }
+  }, [invalidate, fps])
+
+  return null
+}
+
+const GlowingTrack = memo(function GlowingTrack({
+  svgPath,
+  color = '#00ff00',
+  rotationSpeed = 0.001,
+}: GlowingTrackProps) {
   const groupRef = useRef<THREE.Group>(null)
   const elapsedRef = useRef(0)
-  const frameAccRef = useRef(0)
 
   const points = useMemo(() => {
     const loader = new SVGLoader()
@@ -112,18 +144,18 @@ const GlowingTrack = memo(function GlowingTrack({ svgPath, color = '#00ff00', ro
   }, [points])
 
   useEffect(() => {
-    return () => { tubeGeometry?.dispose() }
+    return () => {
+      tubeGeometry?.dispose()
+    }
   }, [tubeGeometry])
 
   useEffect(() => {
-    return () => { glowMaterial?.dispose() }
+    return () => {
+      glowMaterial?.dispose()
+    }
   }, [glowMaterial])
 
   useFrame((_: unknown, delta: number) => {
-    frameAccRef.current += delta
-    if (frameAccRef.current < 1 / maxFps) return
-    frameAccRef.current %= 1 / maxFps
-
     elapsedRef.current += delta
     if (groupRef.current) {
       groupRef.current.rotation.z += rotationSpeed
@@ -142,13 +174,11 @@ const GlowingTrack = memo(function GlowingTrack({ svgPath, color = '#00ff00', ro
   )
 })
 
-function Effects({ bloomStrength, maxFps }: EffectsProps) {
+function Effects({ bloomStrength }: EffectsProps) {
   const { gl, camera, scene, size } = useThree()
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const composer = useRef<any>(null)
-  const frameAccRef = useRef(0)
 
-  // Создаём EffectComposer один раз; size намеренно убран из deps
   useEffect(() => {
     gl.setClearColor(0x000000, 0)
 
@@ -183,15 +213,11 @@ function Effects({ bloomStrength, maxFps }: EffectsProps) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [gl, camera, scene, bloomStrength])
 
-  // Ресайз без пересоздания — просто обновляем размер
   useEffect(() => {
     composer.current?.setSize(size.width, size.height)
   }, [size])
 
-  useFrame((_: unknown, delta: number) => {
-    frameAccRef.current += delta
-    if (frameAccRef.current < 1 / maxFps) return
-    frameAccRef.current %= 1 / maxFps
+  useFrame(() => {
     composer.current?.render()
   }, 1)
 
@@ -211,6 +237,7 @@ export default function RaceTrackVisualization({
   return (
     <div className={className} style={{ backgroundColor }}>
       <Canvas
+        frameloop="demand"
         camera={{
           position: [0, -6, 6],
           fov: 35,
@@ -225,12 +252,12 @@ export default function RaceTrackVisualization({
         }}
         style={{ background: 'transparent', width: '100%', height: '100%' }}
       >
-        <GlowingTrack svgPath={svgPath} color={color} rotationSpeed={rotationSpeed} maxFps={maxFps} />
-        {useBloom && <Effects bloomStrength={bloomStrength} maxFps={maxFps} />}
+        <FrameClock fps={maxFps} />
+        <GlowingTrack svgPath={svgPath} color={color} rotationSpeed={rotationSpeed} />
+        {useBloom && <Effects bloomStrength={bloomStrength} />}
       </Canvas>
     </div>
   )
 }
 
 export { GlowingTrack }
-
