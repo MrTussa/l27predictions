@@ -1,75 +1,28 @@
 'use client'
 
-import type { PayloadAdminBarProps } from '@payloadcms/admin-bar'
-
-import { User } from '@/payload-types'
-import { cn } from '@/utilities/cn'
+import { useAuth } from '@/providers/Auth'
 import { PayloadAdminBar } from '@payloadcms/admin-bar'
-import { useSelectedLayoutSegments } from 'next/navigation'
-import React, { useState } from 'react'
+import React from 'react'
 
-const collectionLabels = {
-  races: {
-    plural: 'Гонки',
-    singular: 'Гонка',
-  },
-  drivers: {
-    plural: 'Пилоты',
-    singular: 'Пилот',
-  },
-  predictions: {
-    plural: 'Прогнозы',
-    singular: 'Прогноз',
-  },
-}
+const Title: React.FC = () => <span>Админка</span>
 
-const Title: React.FC = () => <span>Dashboard</span>
+export const AdminBar: React.FC = () => {
+  const { user } = useAuth()
 
-export const AdminBar: React.FC<{
-  adminBarProps?: PayloadAdminBarProps
-}> = (props) => {
-  const { adminBarProps } = props || {}
-  const segments = useSelectedLayoutSegments()
-  const [show, setShow] = useState(false)
-  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-  // @ts-ignore - todo fix, not sure why this is erroring
-  const collection = collectionLabels?.[segments?.[1]] ? segments?.[1] : 'races'
-
-  const onAuthChange = React.useCallback((user: User) => {
-    const canSeeAdmin = user?.roles && Array.isArray(user?.roles) && user?.roles?.includes('admin')
-
-    setShow(Boolean(canSeeAdmin))
-  }, [])
+  if (!user?.roles?.includes('admin')) return null
 
   return (
-    <div
-      className={cn('py-2 bg-black text-white', {
-        block: show,
-        hidden: !show,
-      })}
-    >
+    <div className="z-9999 fixed bottom-0 w-full py-2 px-10 bg-black text-white">
       <div className="container">
         <PayloadAdminBar
-          {...adminBarProps}
-          className="py-2 text-white"
+          className="py-2  text-white"
           classNames={{
             controls: 'font-medium text-white',
             logo: 'text-white',
             user: 'text-white',
           }}
           cmsURL={process.env.NEXT_PUBLIC_SERVER_URL}
-          collectionLabels={{
-            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-            // @ts-ignore - todo fix, not sure why this is erroring
-            plural: collectionLabels[collection]?.plural || 'Записи',
-            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-            // @ts-ignore - todo fix, not sure why this is erroring
-            singular: collectionLabels[collection]?.singular || 'Запись',
-          }}
           logo={<Title />}
-          // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-          // @ts-ignore - todo fix, not sure why this is erroring
-          onAuthChange={onAuthChange}
           style={{
             backgroundColor: 'transparent',
             padding: 0,

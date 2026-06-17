@@ -1,8 +1,8 @@
 import { PredictionCard } from '@/components/DriverCard/PredictionCard'
 import { Card } from '@/components/ui/card'
 import type { Race, Team, User } from '@/payload-types'
-import { formatDate } from '@/utilities/formatDate'
 import { IconFlag, IconTrophy } from '@tabler/icons-react'
+import Image from 'next/image'
 import Link from 'next/link'
 
 interface TopDriver {
@@ -30,39 +30,45 @@ export function PreviousRaceCard({
   topPredictors,
   timeZone,
 }: PreviousRaceCardProps) {
+  console.log(race.countryFlag)
   return (
     <Card variant="elevated" corners="cut-corner" className="h-full">
-      <div className="space-y-6 px-6">
+      <div className="space-y-4 px-6">
         {/* Заголовок */}
-        <div className="border-b border-muted pb-4">
+        <div className="border-b border-muted pb-4 flex justify-between">
           <h2 className="text-lg font-bold uppercase tracking-wide text-accent">Прошлая гонка</h2>
+          <IconFlag className="w-5 h-5 text-accent mt-1 shrink-0" />
         </div>
 
         {/* Название гонки */}
         <div className="flex items-center justify-between">
           <div className="flex items-start gap-3">
-            <IconFlag className="w-5 h-5 text-accent mt-1 shrink-0" />
             <div>
               <h3 className="text-xl font-bold">{race.name}</h3>
-              <p className="text-xs text-muted-foreground">{race.round} Раунд</p>
+              <p className="text-xs text-muted-foreground">
+                {race.round} Раунд ·{' '}
+                {new Intl.DateTimeFormat('ru-RU', {
+                  day: '2-digit',
+                  month: 'long',
+                  year: 'numeric',
+                  timeZone,
+                }).format(new Date(race.raceDate))}
+              </p>
             </div>
           </div>
-          <div className="flex flex-col items-baseline text-sm text-right text-muted-foreground">
-            <span>{formatDate(race.raceDate, timeZone, 'date')}</span>
-            <span className="w-full">
-              {new Intl.DateTimeFormat('ru-RU', { year: 'numeric', timeZone }).format(
-                new Date(race.raceDate),
-              )}
-            </span>
-          </div>
+          {race.countryFlag && typeof race.countryFlag === 'object' && (
+            <div>
+              <Image
+                width={50}
+                height={50}
+                alt={race.countryFlag.alt || race.name}
+                src={race.countryFlag.url || ''}
+              />
+            </div>
+          )}
         </div>
 
         {/* Флаг страны */}
-        {race.countryFlag && typeof race.countryFlag === 'string' && (
-          <div className="flex justify-center py-2">
-            <div className="text-6xl">{race.countryFlag}</div>
-          </div>
-        )}
 
         {/* Топ 3 гонщика */}
         <div className="space-y-3">
@@ -98,7 +104,7 @@ export function PreviousRaceCard({
                   <div className="flex items-center justify-between text-sm">
                     <div className="flex items-center gap-2">
                       <div
-                        className={`w-6 h-6 rounded-full flex items-center justify-center font-bold text-xs ${
+                        className={`w-6 h-6 clip-path-cut-corner-xs flex items-center justify-center font-bold text-xs ${
                           predictor.position === 1
                             ? 'bg-yellow-500 text-black'
                             : predictor.position === 2
@@ -109,10 +115,7 @@ export function PreviousRaceCard({
                         {predictor.position}
                       </div>
                       <div className="flex items-center gap-2">
-                        <div
-                          className="w-2 h-2 rounded-full"
-                          style={{ backgroundColor: barColor }}
-                        />
+                        <div className="w-2 h-2" style={{ backgroundColor: barColor }} />
                         <Link href={`/user/${user.id}`} className="font-medium">
                           {user.nickname || user.email}
                         </Link>
@@ -120,9 +123,9 @@ export function PreviousRaceCard({
                     </div>
                     <span className="text-accent font-bold">{predictor.points} очков</span>
                   </div>
-                  <div className="h-1.5 w-full rounded-full bg-muted/30 overflow-hidden">
+                  <div className="h-1.5 w-full clip-path-cut-corner-xs bg-muted/30 overflow-hidden">
                     <div
-                      className="h-full rounded-full transition-all duration-700 ease-out"
+                      className="h-full clip-path-cut-corner-xs transition-all duration-700 ease-out"
                       style={{ width: `${barWidth}%`, backgroundColor: barColor }}
                     />
                   </div>

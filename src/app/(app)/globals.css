@@ -202,9 +202,18 @@ button {
       0 100%);
 }
 
-/* Срезанные углы для кнопок (меньшего размера) */
 .clip-path-cut-corner-sm {
   --clip-size: 8px;
+  clip-path: polygon(0 0,
+      calc(100% - var(--clip-size)) 0,
+      100% var(--clip-size),
+      100% 100%,
+      var(--clip-size) 100%,
+      0 calc(100% - var(--clip-size)));
+}
+
+.clip-path-cut-corner-xs {
+  --clip-size: 6px;
   clip-path: polygon(0 0,
       calc(100% - var(--clip-size)) 0,
       100% var(--clip-size),
