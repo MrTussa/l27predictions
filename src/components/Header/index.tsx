@@ -62,7 +62,7 @@ export function Header({ isLive, unvotedEventsCount }: HeaderProps) {
                     {item.label}
                   </Link>
                   {item.badge ? (
-                    <span className="absolute -top-1 -right-2 h-3 min-w-3 rounded-full bg-accent text-[10px] font-bold text-background outline-background outline-1 flex items-center justify-center px-0.5">
+                    <span className="absolute -top-1 -right-2 h-3 min-w-3 rounded-full bg-accent text-[10px] font-bold font-mono text-background outline-background outline-1 flex items-center justify-center px-0.5">
                       {item.badge}
                     </span>
                   ) : null}

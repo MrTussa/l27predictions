@@ -104,7 +104,7 @@ export function PreviousRaceCard({
                   <div className="flex items-center justify-between text-sm">
                     <div className="flex items-center gap-2">
                       <div
-                        className={`w-6 h-6 clip-path-cut-corner-xs flex items-center justify-center font-bold text-xs ${
+                        className={`w-6 h-6 clip-path-cut-corner-xs flex items-center justify-center font-bold font-mono text-xs ${
                           predictor.position === 1
                             ? 'bg-yellow-500 text-black'
                             : predictor.position === 2
@@ -121,7 +121,7 @@ export function PreviousRaceCard({
                         </Link>
                       </div>
                     </div>
-                    <span className="text-accent font-bold">{predictor.points} очков</span>
+                    <span className="text-accent font-bold font-mono">{predictor.points} очков</span>
                   </div>
                   <div className="h-1.5 w-full clip-path-cut-corner-xs bg-muted/30 overflow-hidden">
                     <div

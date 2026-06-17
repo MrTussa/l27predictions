@@ -68,7 +68,7 @@ export function UserInfoCard({ user, seasonStats, userRank, totalUsers }: UserIn
             {firstLetter}
           </div>
           <div className="flex-1 min-w-0">
-            <div className="font-black uppercase tracking-wider text-base leading-tight truncate">
+            <div className="font-bold uppercase tracking-wider text-xl leading-tight truncate">
               {nickname}
             </div>
             <div className="text-xs text-muted-foreground uppercase tracking-widest">
@@ -76,7 +76,7 @@ export function UserInfoCard({ user, seasonStats, userRank, totalUsers }: UserIn
             </div>
           </div>
           {position > 0 && (
-            <div className="clip-path-cut-corner-sm bg-accent text-accent-foreground font-black text-sm px-3 py-2 uppercase tracking-wide shrink-0">
+            <div className="clip-path-cut-corner-sm bg-accent text-accent-foreground font-black font-mono text-sm px-3 py-2 uppercase tracking-wide shrink-0">
               P{position}
             </div>
           )}
@@ -88,11 +88,11 @@ export function UserInfoCard({ user, seasonStats, userRank, totalUsers }: UserIn
         <div className="space-y-1.5">
           <div className="text-xs text-muted-foreground uppercase tracking-widest">Очки сезона</div>
           <div className="flex items-center gap-3">
-            <span className="text-6xl font-black italic text-accent leading-none">
+            <span className="text-6xl font-black font-mono italic text-accent leading-none">
               {totalPoints}
             </span>
             {lastRacePoints != null && lastRacePoints > 0 && (
-              <div className="flex items-center gap-1 bg-[hsl(160_60%_10%)] text-[hsl(160_80%_55%)] text-sm font-bold px-2.5 py-1 rounded-full">
+              <div className="flex items-center gap-1 bg-[hsl(160_60%_10%)] text-[hsl(160_80%_55%)] text-sm font-bold font-mono px-2.5 py-1 rounded-full">
                 <IconClock className="w-3.5 h-3.5" />
                 <span>+{lastRacePoints}</span>
               </div>
@@ -108,19 +108,21 @@ export function UserInfoCard({ user, seasonStats, userRank, totalUsers }: UserIn
         {/* Stats grid */}
         <div className="grid grid-cols-2 gap-2">
           <StatTile label="Место">
-            <span className="text-2xl font-black">#{position}</span>
-            <span className="text-sm text-muted-foreground ml-1">/{totalUsers}</span>
+            <span className="text-2xl font-black font-mono">#{position}</span>
+            <span className="text-sm text-muted-foreground font-mono ml-1">/{totalUsers}</span>
           </StatTile>
           <StatTile label="Серия">
-            <span className="text-2xl font-black text-orange-400">{currentStreak}</span>
+            <span className="text-2xl font-black font-mono text-orange-400">{currentStreak}</span>
             <span className="text-lg ml-1">🔥</span>
           </StatTile>
           <StatTile label="Идеальных">
-            <span className="text-2xl font-black">{perfectPredictions}</span>
-            <span className="text-sm text-muted-foreground ml-1.5">из {predictionsCount}</span>
+            <span className="text-2xl font-black font-mono">{perfectPredictions}</span>
+            <span className="text-sm text-muted-foreground font-mono ml-1.5">
+              из {predictionsCount}
+            </span>
           </StatTile>
           <StatTile label="Средний">
-            <span className="text-2xl font-black">{averagePoints}</span>
+            <span className="text-2xl font-black font-mono">{averagePoints}</span>
           </StatTile>
         </div>
       </div>

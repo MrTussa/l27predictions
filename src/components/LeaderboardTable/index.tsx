@@ -289,7 +289,7 @@ export const LeaderboardTable: React.FC = () => {
                 <TableCell className="text-center font-medium">
                   <div className="flex items-center justify-center gap-2">
                     {getPositionIcon(position)}
-                    <span>{position}</span>
+                    <span className="font-mono">{position}</span>
                   </div>
                 </TableCell>
                 <TableCell className="font-medium">
@@ -304,24 +304,24 @@ export const LeaderboardTable: React.FC = () => {
                     <span className="truncate max-w-22">{entry.nickname}</span>
                   </Link>
                 </TableCell>
-                <TableCell className="text-right font-bold">{entry.totalPoints}</TableCell>
-                <TableCell className="text-right text-muted-foreground">
+                <TableCell className="text-right font-bold font-mono">{entry.totalPoints}</TableCell>
+                <TableCell className="text-right text-muted-foreground font-mono">
                   {entry.totalPredictions}
                 </TableCell>
-                <TableCell className="text-right text-muted-foreground">
+                <TableCell className="text-right text-muted-foreground font-mono">
                   {entry.perfectPredictions}
                 </TableCell>
-                <TableCell className="text-right text-muted-foreground">
+                <TableCell className="text-right text-muted-foreground font-mono">
                   {entry.averagePoints.toFixed(2)}
                 </TableCell>
                 <TableCell className="text-right">
                   {entry.currentStreak > 0 ? (
-                    <span className="text-accent font-semibold">🔥 {entry.currentStreak}</span>
+                    <span className="text-accent font-semibold font-mono">🔥 {entry.currentStreak}</span>
                   ) : (
                     <span className="text-muted-foreground">-</span>
                   )}
                 </TableCell>
-                <TableCell className="text-right text-muted-foreground">
+                <TableCell className="text-right text-muted-foreground font-mono">
                   {entry.bestStreak > 0 ? entry.bestStreak : '-'}
                 </TableCell>
               </TableRow>

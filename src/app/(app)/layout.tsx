@@ -9,8 +9,23 @@ import { TimezoneDetector } from '@/components/TimezoneDetector'
 import BgStage from '@/components/ui/background'
 import { Providers } from '@/providers'
 import { getHeaderData } from '@/utilities/queries'
-import { GeistMono } from 'geist/font/mono'
-import { GeistSans } from 'geist/font/sans'
+import localFont from 'next/font/local'
+
+const titillium = localFont({
+  src: [
+    { path: '../../fonts/titillium/TitilliumWeb-Regular.ttf',    weight: '400', style: 'normal' },
+    { path: '../../fonts/titillium/TitilliumWeb-SemiBold.ttf',   weight: '600', style: 'normal' },
+    { path: '../../fonts/titillium/TitilliumWeb-Bold.ttf',       weight: '700', style: 'normal' },
+    { path: '../../fonts/titillium/TitilliumWeb-BoldItalic.ttf', weight: '700', style: 'italic' },
+    { path: '../../fonts/titillium/TitilliumWeb-Black.ttf',      weight: '900', style: 'normal' },
+  ],
+  variable: '--font-geist-sans',
+})
+
+const jetbrains = localFont({
+  src: '../../fonts/jetBrainsMono/JetBrainsMono-VariableFont_wght.ttf',
+  variable: '--font-geist-mono',
+})
 import './globals.css'
 
 export const metadata: Metadata = {
@@ -30,7 +45,7 @@ export default async function RootLayout({ children }: { children: ReactNode }) 
 
   return (
     <html
-      className={[GeistSans.variable, GeistMono.variable, 'dark'].filter(Boolean).join(' ')}
+      className={[titillium.variable, jetbrains.variable, 'dark'].filter(Boolean).join(' ')}
       data-theme="dark"
       lang="ru"
       suppressHydrationWarning

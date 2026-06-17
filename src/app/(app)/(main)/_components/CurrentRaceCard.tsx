@@ -62,25 +62,25 @@ export function CurrentRaceCard({ race, votedCount, timeZone }: CurrentRaceCardP
               </div>
               <div className="flex flex-row">
                 <div className="flex flex-col items-center">
-                  <span className="text-3xl md:text-6xl font-bold text-accent text-shadow-accent text-shadow-[0_0_30px]">
+                  <span className="text-3xl md:text-6xl font-bold font-mono text-accent text-shadow-accent text-shadow-[0_0_30px]">
                     {daysUntilClose}
                   </span>
                   <span className="text-muted-foreground">дни</span>
                 </div>
-                <span className="font-bold text-muted-foreground text-2xl leading-9 md:text-4xl md:leading-14">
+                <span className="font-bold font-mono text-muted-foreground text-2xl leading-9 md:text-4xl md:leading-14">
                   {':'}
                 </span>
                 <div className="flex flex-col items-center">
-                  <span className="text-3xl md:text-6xl font-bold text-accent text-shadow-accent text-shadow-[0_0_30px]">
+                  <span className="text-3xl md:text-6xl font-bold font-mono text-accent text-shadow-accent text-shadow-[0_0_30px]">
                     {hoursUntilClose % 24}
                   </span>
                   <span className="text-muted-foreground">часы</span>
                 </div>
-                <span className="font-bold text-muted-foreground text-2xl leading-9 md:text-4xl md:leading-14">
+                <span className="font-bold font-mono text-muted-foreground text-2xl leading-9 md:text-4xl md:leading-14">
                   {':'}
                 </span>
                 <div className="flex flex-col items-center">
-                  <span className="text-3xl md:text-6xl font-bold text-accent text-shadow-accent text-shadow-[0_0_30px]">
+                  <span className="text-3xl md:text-6xl font-bold font-mono text-accent text-shadow-accent text-shadow-[0_0_30px]">
                     {minutesUntilClose % 60}
                   </span>
                   <span className="text-muted-foreground">минуты</span>
@@ -91,12 +91,12 @@ export function CurrentRaceCard({ race, votedCount, timeZone }: CurrentRaceCardP
             <div>
               <div className="text-xs md:text-sm tracking-wider text-muted-foreground uppercase text-right">
                 <div>Проголосовало</div>
-                <div className="text-sm md:text-base font-bold text-accent">{votedCount}</div>
+                <div className="text-sm md:text-base font-bold font-mono text-accent">{votedCount}</div>
               </div>
 
               <div className="text-xs md:text-sm text-muted-foreground uppercase tracking-wider text-right">
                 <div>Старт гонки</div>
-                <div className="text-base md:text-lg font-bold">{raceDate}</div>
+                <div className="text-base md:text-lg font-bold font-mono">{raceDate}</div>
               </div>
             </div>
           </div>
