@@ -1,9 +1,10 @@
+import type { User } from '@/payload-types'
+import configPromise from '@payload-config'
 import { cookies } from 'next/headers'
 import { getPayload } from 'payload'
-import configPromise from '@payload-config'
-import type { User } from '@/payload-types'
+import { cache } from 'react'
 
-export async function getServerSideUser(): Promise<{ user: User | null }> {
+export const getServerSideUser = cache(async (): Promise<{ user: User | null }> => {
   const payload = await getPayload({ config: configPromise })
   const cookieStore = await cookies()
   const token = cookieStore.get('payload-token')?.value
@@ -20,4 +21,4 @@ export async function getServerSideUser(): Promise<{ user: User | null }> {
   } catch {
     return { user: null }
   }
-}
+})

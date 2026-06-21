@@ -131,9 +131,7 @@ export async function recalculateSeasonStats(
     let bestStreak = 0
     let tempStreak = 0
 
-    const completedRaces = sortedRaces.filter(
-      (race) => race.results && race.results.length > 0,
-    )
+    const completedRaces = sortedRaces.filter((race) => race.results && race.results.length > 0)
 
     for (let i = completedRaces.length - 1; i >= 0; i--) {
       const race = completedRaces[i]
@@ -186,35 +184,26 @@ export async function recalculateSeasonStats(
     existingStats.map((stat) => [normalizeID(stat.user), stat]),
   )
 
-  for (const update of updates) {
-    const existing = existingStatsMap.get(update.userId)
+  await Promise.all(
+    updates.map((update) => {
+      const existing = existingStatsMap.get(update.userId)
+      const seasonPredictionPoints = existing?.seasonPredictionPoints || 0
+      const dataToSave = {
+        ...update.data,
+        totalPointsWithSeasonPrediction: update.totalPoints + seasonPredictionPoints,
+      }
 
-    const seasonPredictionPoints = existing?.seasonPredictionPoints || 0
-
-    const totalPointsWithSeasonPrediction = update.totalPoints + seasonPredictionPoints
-
-    const dataToSave = {
-      ...update.data,
-      totalPointsWithSeasonPrediction,
-    }
-
-    if (existing) {
-      await payload.update({
+      if (existing) {
+        return payload.update({
+          collection: 'season-stats',
+          id: existing.id,
+          data: { ...dataToSave, seasonPredictionPoints },
+        })
+      }
+      return payload.create({
         collection: 'season-stats',
-        id: existing.id,
-        data: {
-          ...dataToSave,
-          seasonPredictionPoints,
-        },
+        data: { ...dataToSave, seasonPredictionPoints: 0 },
       })
-    } else {
-      await payload.create({
-        collection: 'season-stats',
-        data: {
-          ...dataToSave,
-          seasonPredictionPoints: 0,
-        },
-      })
-    }
-  }
+    }),
+  )
 }

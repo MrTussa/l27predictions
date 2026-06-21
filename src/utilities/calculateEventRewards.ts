@@ -41,16 +41,17 @@ export async function calculateEventRewards(payload: Payload, eventId: string): 
 
   console.log(`Processing ${responses.length} responses for event "${event.name}"`)
 
-  for (const response of responses) {
+  const season = event.season || new Date().getFullYear()
+
+  const graded = responses.map((response) => {
     let correctAnswersCount = 0
-    let totalReward = 0
+    let reward = 0
 
     for (const answer of response.answers || []) {
-      const questionIndex = answer.questionIndex
-      const question = event.questions?.[questionIndex]
+      const question = event.questions?.[answer.questionIndex]
 
       if (!question) {
-        console.warn(`Question with index ${questionIndex} not found in event ${eventId}`)
+        console.warn(`Question with index ${answer.questionIndex} not found in event ${eventId}`)
         continue
       }
 
@@ -89,56 +90,56 @@ export async function calculateEventRewards(payload: Payload, eventId: string): 
 
       if (isCorrect) {
         correctAnswersCount++
-        totalReward += question.rewardPoints || 0
+        reward += question.rewardPoints || 0
       }
     }
 
-    const reward = totalReward
+    return { response, userId: normalizeID(response.user), correctAnswersCount, reward }
+  })
 
-    await payload.update({
+  const writes: Promise<unknown>[] = graded.map((g) =>
+    payload.update({
       collection: 'event-responses',
-      id: response.id,
-      data: {
-        correctAnswersCount,
-        reward,
-      },
+      id: g.response.id,
+      data: { correctAnswersCount: g.correctAnswersCount, reward: g.reward },
+    }),
+  )
+
+  const rewarded = graded.filter((g) => g.reward > 0 && g.userId)
+  const userIds = rewarded.map((g) => g.userId as string)
+
+  if (rewarded.length > 0 && event.rewardType === 'points') {
+    const { docs: stats } = await payload.find({
+      collection: 'season-stats',
+      where: { and: [{ user: { in: userIds } }, { season: { equals: season } }] },
+      limit: 10000,
+      depth: 0,
     })
+    const statByUser = new Map(stats.map((s) => [normalizeID(s.user), s]))
 
-    if (reward > 0) {
-      const userId = normalizeID(response.user)
-
-      if (event.rewardType === 'points') {
-        const currentYear = new Date().getFullYear()
-        const { docs: existingStats } = await payload.find({
-          collection: 'season-stats',
-          where: {
-            and: [
-              { user: { equals: userId } },
-              { season: { equals: event.season || currentYear } },
-            ],
-          },
-          limit: 1,
-        })
-
-        if (existingStats.length > 0) {
-          const stat = existingStats[0]
-          await payload.update({
+    for (const g of rewarded) {
+      const stat = statByUser.get(g.userId as string)
+      if (stat) {
+        writes.push(
+          payload.update({
             collection: 'season-stats',
             id: stat.id,
             data: {
-              totalPoints: (stat.totalPoints || 0) + reward,
+              totalPoints: (stat.totalPoints || 0) + g.reward,
               totalPointsWithSeasonPrediction:
-                (stat.totalPointsWithSeasonPrediction || stat.totalPoints || 0) + reward,
+                (stat.totalPointsWithSeasonPrediction || stat.totalPoints || 0) + g.reward,
             },
-          })
-        } else {
-          await payload.create({
+          }),
+        )
+      } else {
+        writes.push(
+          payload.create({
             collection: 'season-stats',
             data: {
-              user: userId,
-              season: event.season || currentYear,
-              totalPoints: reward,
-              totalPointsWithSeasonPrediction: reward,
+              user: g.userId as string,
+              season,
+              totalPoints: g.reward,
+              totalPointsWithSeasonPrediction: g.reward,
               seasonPredictionPoints: 0,
               predictionsCount: 0,
               perfectPredictions: 0,
@@ -147,30 +148,33 @@ export async function calculateEventRewards(payload: Payload, eventId: string): 
               raceHistory: [],
               lastCalculated: new Date().toISOString(),
             },
-          })
-        }
-      } else if (event.rewardType === 'pit-coins') {
-        const user = await payload.findByID({
-          collection: 'users',
-          id: userId,
-        })
-
-        if (user) {
-          await payload.update({
-            collection: 'users',
-            id: userId,
-            data: {
-              pitCoins: (user.pitCoins || 0) + reward,
-            },
-          })
-        }
+          }),
+        )
       }
+    }
+  } else if (rewarded.length > 0 && event.rewardType === 'pit-coins') {
+    const { docs: users } = await payload.find({
+      collection: 'users',
+      where: { id: { in: userIds } },
+      limit: 10000,
+      depth: 0,
+    })
+    const userById = new Map(users.map((u) => [String(u.id), u]))
 
-      console.log(
-        `User ${userId}: ${correctAnswersCount}/${response.answers?.length || 0} correct, reward: ${reward} ${event.rewardType}`,
+    for (const g of rewarded) {
+      const user = userById.get(g.userId as string)
+      if (!user) continue
+      writes.push(
+        payload.update({
+          collection: 'users',
+          id: g.userId as string,
+          data: { pitCoins: (user.pitCoins || 0) + g.reward },
+        }),
       )
     }
   }
 
-  console.log(`✅ Rewards calculated for event "${event.name}"`)
+  await Promise.all(writes)
+
+  console.log(`✅ Rewards calculated for event "${event.name}" (${rewarded.length} users rewarded)`)
 }

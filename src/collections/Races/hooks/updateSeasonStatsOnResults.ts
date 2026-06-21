@@ -45,19 +45,21 @@ export const updateSeasonStatsOnResults: CollectionAfterChangeHook = async ({
 
       const { calculatePoints } = await import('@/utilities/calculatePoints')
 
-      for (const prediction of predictions) {
-        const points = calculatePoints(prediction.predictions, doc.results)
-
-        if (points !== prediction.points) {
-          await req.payload.update({
-            collection: 'predictions',
-            id: prediction.id,
-            data: {
-              points,
-            },
-          })
-        }
-      }
+      await Promise.all(
+        predictions
+          .map((prediction) => ({
+            prediction,
+            points: calculatePoints(prediction.predictions, doc.results),
+          }))
+          .filter(({ prediction, points }) => points !== prediction.points)
+          .map(({ prediction, points }) =>
+            req.payload.update({
+              collection: 'predictions',
+              id: prediction.id,
+              data: { points },
+            }),
+          ),
+      )
 
       const { recalculateSeasonStats } = await import('@/utilities/recalculateSeasonStats')
       await recalculateSeasonStats(req.payload, userIds, doc.season, doc)

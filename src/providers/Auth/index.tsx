@@ -31,12 +31,17 @@ type AuthContext = {
 
 const Context = createContext({} as AuthContext)
 
-export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [user, setUser] = useState<User | null>()
+export const AuthProvider: React.FC<{
+  children: React.ReactNode
+  initialUser?: User | null
+}> = ({ children, initialUser }) => {
+  const [user, setUser] = useState<User | null | undefined>(initialUser)
 
   // used to track the single event of logging in or logging out
   // useful for `useEffect` hooks that should only run once
-  const [status, setStatus] = useState<'loggedIn' | 'loggedOut' | undefined>()
+  const [status, setStatus] = useState<'loggedIn' | 'loggedOut' | undefined>(
+    initialUser ? 'loggedIn' : undefined,
+  )
   const create = useCallback<Create>(async (args) => {
     try {
       const res = await fetch(`${process.env.NEXT_PUBLIC_SERVER_URL}/api/users/create`, {
@@ -115,6 +120,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   }, [])
 
   useEffect(() => {
+    if (initialUser !== undefined) return
+
     const fetchMe = async () => {
       try {
         const res = await fetch(`${process.env.NEXT_PUBLIC_SERVER_URL}/api/users/me`, {
@@ -139,7 +146,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
 
     void fetchMe()
-  }, [])
+  }, [initialUser])
 
   const forgotPassword = useCallback<ForgotPassword>(async (args) => {
     try {

@@ -135,39 +135,38 @@ export async function getUserStats({ user }: { user: User }) {
   return userStats.docs || []
 }
 
-export async function getUserSeasonStats(userId: string, year?: number, depth?: number) {
-  const { docs } = await payload.find({
-    collection: 'season-stats',
-    where: {
-      and: [{ user: { equals: userId } }, { season: { equals: year ?? currentYear } }],
-    },
-    limit: 1,
-    depth: depth ?? 1,
-  })
+export const getUserSeasonStats = cache(
+  async (userId: string, year?: number, depth?: number) => {
+    const { docs } = await payload.find({
+      collection: 'season-stats',
+      where: {
+        and: [{ user: { equals: userId } }, { season: { equals: year ?? currentYear } }],
+      },
+      limit: 1,
+      depth: depth ?? 1,
+    })
 
-  return docs[0] || null
-}
+    return docs[0] || null
+  },
+)
 
-export async function getAllSeasonStats(options?: {
-  year?: number
-  sort?: string
-  limit?: number
-  depth?: number
-}) {
-  const { year, sort = '-totalPoints', limit = 1000, depth = 1 } = options || {}
+export const getAllSeasonStats = cache(
+  async (options?: { year?: number; sort?: string; limit?: number; depth?: number }) => {
+    const { year, sort = '-totalPoints', limit = 1000, depth = 1 } = options || {}
 
-  const { docs } = await payload.find({
-    collection: 'season-stats',
-    where: {
-      season: { equals: year ?? currentYear },
-    },
-    sort,
-    limit,
-    depth,
-  })
+    const { docs } = await payload.find({
+      collection: 'season-stats',
+      where: {
+        season: { equals: year ?? currentYear },
+      },
+      sort,
+      limit,
+      depth,
+    })
 
-  return docs
-}
+    return docs
+  },
+)
 
 export async function getUserRank(
   userId: string,
@@ -335,7 +334,10 @@ export async function getUserPublicProfile(userId: string): Promise<PublicUser |
 
 // HEADER
 
-export async function getHeaderData(): Promise<{ isLive: boolean; unvotedEventsCount: number }> {
+export const getHeaderData = cache(async (): Promise<{
+  isLive: boolean
+  unvotedEventsCount: number
+}> => {
   const [broadcastSettings, openEvents, { user }] = await Promise.all([
     payload.findGlobal({ slug: 'broadcast-settings' }),
     getEvents(['open']),
@@ -353,4 +355,4 @@ export async function getHeaderData(): Promise<{ isLive: boolean; unvotedEventsC
     isLive: broadcastSettings.isLive ?? false,
     unvotedEventsCount: openEvents.filter((e) => !respondedIds.has(e.id)).length,
   }
-}
+})

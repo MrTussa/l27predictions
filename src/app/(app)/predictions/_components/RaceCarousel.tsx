@@ -2,10 +2,12 @@
 
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
-import RaceTrackVisualization from '@/components/ui/racetrack'
 import type { Race } from '@/payload-types'
 import { ChevronLeft, ChevronRight } from 'lucide-react'
+import dynamic from 'next/dynamic'
 import { useLayoutEffect, useRef } from 'react'
+
+const RaceTrackVisualization = dynamic(() => import('@/components/ui/racetrack'), { ssr: false })
 
 interface RaceCarouselProps {
   races: Race[]

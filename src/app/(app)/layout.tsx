@@ -9,6 +9,7 @@ import { TimezoneDetector } from '@/components/TimezoneDetector'
 import BgStage from '@/components/ui/background'
 import { Providers } from '@/providers'
 import { getHeaderData } from '@/utilities/queries'
+import { getServerSideUser } from '@/utilities/getServerSideUser'
 import localFont from 'next/font/local'
 
 const titillium = localFont({
@@ -41,7 +42,10 @@ export const metadata: Metadata = {
 }
 
 export default async function RootLayout({ children }: { children: ReactNode }) {
-  const { isLive, unvotedEventsCount } = await getHeaderData()
+  const [{ isLive, unvotedEventsCount }, { user }] = await Promise.all([
+    getHeaderData(),
+    getServerSideUser(),
+  ])
 
   return (
     <html
@@ -57,7 +61,7 @@ export default async function RootLayout({ children }: { children: ReactNode }) 
       <body>
         <ClarityAnalytics projectId={process.env.CLARITY_ID!} />
         <TimezoneDetector />
-        <Providers>
+        <Providers initialUser={user}>
           <AdminBar />
           <BgStage />
           <Header isLive={isLive} unvotedEventsCount={unvotedEventsCount} />

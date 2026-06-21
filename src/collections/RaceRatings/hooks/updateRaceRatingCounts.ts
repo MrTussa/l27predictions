@@ -14,16 +14,20 @@ export const updateRaceRatingCounts: CollectionAfterChangeHook = async ({ doc, r
     limit: 10000,
   })
 
+  const counts = ratings.reduce(
+    (acc, r) => {
+      if (r.rating === 'bad') acc.ratingBad++
+      else if (r.rating === 'normal') acc.ratingNormal++
+      else if (r.rating === 'good') acc.ratingGood++
+      return acc
+    },
+    { ratingBad: 0, ratingNormal: 0, ratingGood: 0 },
+  )
+
   await req.payload.update({
     collection: 'races',
     id: raceId,
-    data: {
-      rating: {
-        ratingBad: ratings.filter((r) => r.rating === 'bad').length,
-        ratingNormal: ratings.filter((r) => r.rating === 'normal').length,
-        ratingGood: ratings.filter((r) => r.rating === 'good').length,
-      },
-    },
+    data: { rating: counts },
     overrideAccess: true,
   })
 

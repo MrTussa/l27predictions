@@ -22,6 +22,9 @@ const nextConfig = {
     ],
   },
   reactStrictMode: true,
+  experimental: {
+    optimizePackageImports: ['three', 'recharts', 'lucide-react', '@tabler/icons-react'],
+  },
   async headers() {
     return [
       {

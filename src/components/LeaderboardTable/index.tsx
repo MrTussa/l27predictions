@@ -12,7 +12,7 @@ import {
 } from '@/components/ui/table'
 import { ArrowUpDown, Award, Medal, Trophy } from 'lucide-react'
 import Link from 'next/link'
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 
 type LeaderboardEntry = {
   id: string
@@ -100,13 +100,17 @@ export const LeaderboardTable: React.FC = () => {
     return () => controller.abort()
   }, [currentPage])
 
-  const sortedData = leaderboardData
-    ? [...leaderboardData].sort((a, b) => {
-        const aValue = a[sortKey]
-        const bValue = b[sortKey]
-        return sortDirection === 'asc' ? aValue - bValue : bValue - aValue
-      })
-    : null
+  const sortedData = useMemo(
+    () =>
+      leaderboardData
+        ? [...leaderboardData].sort((a, b) => {
+            const aValue = a[sortKey]
+            const bValue = b[sortKey]
+            return sortDirection === 'asc' ? aValue - bValue : bValue - aValue
+          })
+        : null,
+    [leaderboardData, sortKey, sortDirection],
+  )
 
   const getPositionIcon = (position: number) => {
     switch (position) {

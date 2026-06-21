@@ -75,8 +75,11 @@ export async function getHomePageData(userId?: string): Promise<HomePageData> {
   let totalUsersInLeaderboard = 0
 
   if (userId) {
-    userSeasonStats = await getUserSeasonStats(userId)
-    const rankData = await getUserRank(userId)
+    const [stats, rankData] = await Promise.all([
+      getUserSeasonStats(userId),
+      getUserRank(userId),
+    ])
+    userSeasonStats = stats
     userRank = rankData.rank
     totalUsersInLeaderboard = rankData.total
   } else {
