@@ -44,3 +44,6 @@ next-env.d.ts
 
 public/media
 .vscode
+
+skills-lock.json
+.agents

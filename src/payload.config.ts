@@ -22,7 +22,6 @@ import { SeasonStats } from '@/collections/SeasonStats'
 import { Teams } from '@/collections/Teams'
 import { Users } from '@/collections/Users'
 import { BroadcastSettings } from '@/globals/BroadcastSettings'
-import { plugins } from './plugins'
 
 const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
@@ -87,7 +86,6 @@ export default buildConfig({
     },
   ],
   plugins: [
-    ...plugins,
     s3Storage({
       collections: {
         media: true,
