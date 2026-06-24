@@ -282,7 +282,17 @@ button {
 }
 
 .glow-border {
+  filter: drop-shadow(0 0 5px var(--glow-color, #FFDF2C)) drop-shadow(0 0 8px color-mix(in srgb, var(--glow-color, #FFDF2C) 50%, transparent));
+}
+
+.glow-border-pulse {
   animation: glow-pulse 2s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .glow-border-pulse {
+    animation: none;
+  }
 }
 
 

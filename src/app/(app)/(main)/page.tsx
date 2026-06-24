@@ -35,7 +35,7 @@ export default async function HomePage() {
 
         {/* Грядущая гонка */}
         {openRace && (
-          <section className="glow-border lg:col-span-2">
+          <section className="glow-border glow-border-pulse lg:col-span-2">
             <CurrentRaceCard race={openRace} votedCount={votedCount} timeZone={timeZone} />
           </section>
         )}
