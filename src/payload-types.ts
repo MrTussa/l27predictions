@@ -288,6 +288,34 @@ export interface Race {
     ratingGood?: number | null;
   };
   /**
+   * Кэш ключа сессии OpenF1 (заполняется автоматически при импорте)
+   */
+  openf1SessionKey?: number | null;
+  /**
+   * Заполняется автоматически при импорте из OpenF1
+   */
+  startingGrid?:
+    | {
+        position: number;
+        driver: string | Driver;
+        id?: string | null;
+      }[]
+    | null;
+  /**
+   * Заполняется автоматически при импорте из OpenF1
+   */
+  recap?: {
+    fastestLapDriver?: (string | null) | Driver;
+    fastestLapTime?: number | null;
+    pitStops?: number | null;
+    overtakes?: number | null;
+    weather?: {
+      airTemp?: number | null;
+      trackTemp?: number | null;
+      rainfall?: boolean | null;
+    };
+  };
+  /**
    * Заполняется после завершения гонки для расчета баллов
    */
   results?:
@@ -697,6 +725,29 @@ export interface RacesSelect<T extends boolean = true> {
         ratingBad?: T;
         ratingNormal?: T;
         ratingGood?: T;
+      };
+  openf1SessionKey?: T;
+  startingGrid?:
+    | T
+    | {
+        position?: T;
+        driver?: T;
+        id?: T;
+      };
+  recap?:
+    | T
+    | {
+        fastestLapDriver?: T;
+        fastestLapTime?: T;
+        pitStops?: T;
+        overtakes?: T;
+        weather?:
+          | T
+          | {
+              airTemp?: T;
+              trackTemp?: T;
+              rainfall?: T;
+            };
       };
   results?:
     | T

@@ -135,6 +135,96 @@ export const Races: CollectionConfig = {
       ],
     },
     {
+      name: 'importFromOpenF1',
+      type: 'ui',
+      admin: {
+        components: {
+          Field: '@/components/admin/ImportRaceResultsButton#ImportRaceResultsButton',
+        },
+      },
+    },
+    {
+      name: 'openf1SessionKey',
+      type: 'number',
+      label: 'OpenF1 session_key',
+      admin: {
+        description: 'Кэш ключа сессии OpenF1 (заполняется автоматически при импорте)',
+      },
+    },
+    {
+      name: 'startingGrid',
+      type: 'array',
+      label: 'Стартовая решётка',
+      admin: {
+        description: 'Заполняется автоматически при импорте из OpenF1',
+        initCollapsed: true,
+      },
+      fields: [
+        {
+          type: 'row',
+          fields: [
+            {
+              name: 'position',
+              type: 'number',
+              required: true,
+              min: 1,
+              label: 'Позиция',
+              admin: { width: '20%' },
+            },
+            {
+              name: 'driver',
+              type: 'relationship',
+              relationTo: 'drivers',
+              required: true,
+              label: 'Пилот',
+              admin: { width: '80%' },
+            },
+          ],
+        },
+      ],
+    },
+    {
+      name: 'recap',
+      type: 'group',
+      label: 'Гонка в цифрах',
+      admin: {
+        description: 'Заполняется автоматически при импорте из OpenF1',
+      },
+      fields: [
+        {
+          name: 'fastestLapDriver',
+          type: 'relationship',
+          relationTo: 'drivers',
+          label: 'Быстрейший круг — пилот',
+        },
+        {
+          name: 'fastestLapTime',
+          type: 'number',
+          label: 'Быстрейший круг — время (сек)',
+        },
+        {
+          name: 'pitStops',
+          type: 'number',
+          label: 'Пит-стопов',
+        },
+        {
+          name: 'overtakes',
+          type: 'number',
+          label: 'Обгонов',
+        },
+        {
+          name: 'weather',
+          type: 'group',
+          label: 'Погода',
+          fields: [
+            { name: 'airTemp', type: 'number', label: 'Воздух (°C)' },
+            { name: 'trackTemp', type: 'number', label: 'Трасса (°C)' },
+            { name: 'rainfall', type: 'checkbox', label: 'Дождь', defaultValue: false },
+          ],
+        },
+      ],
+    },
+    {
       name: 'results',
       type: 'array',
       label: 'Результаты гонки (топ-3)',
