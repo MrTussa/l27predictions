@@ -23,13 +23,6 @@ export function CurrentRaceCard({ race, votedCount, timeZone }: CurrentRaceCardP
   const hoursUntilClose = Math.floor(timeUntilClose / (1000 * 60 * 60))
   const daysUntilClose = Math.floor(hoursUntilClose / 24)
 
-  const formatTimeRemaining = () => {
-    if (daysUntilClose > 0) {
-      return `${daysUntilClose} д ${hoursUntilClose % 24} ч`
-    }
-    return `${hoursUntilClose} ч`
-  }
-
   return (
     <Card variant="yellow-glow" corners="cut-corner" className="h-full">
       <RaceTrackClient svgPath={race.trackSVGPath ?? undefined} />
@@ -91,7 +84,9 @@ export function CurrentRaceCard({ race, votedCount, timeZone }: CurrentRaceCardP
             <div>
               <div className="text-xs md:text-sm tracking-wider text-muted-foreground uppercase text-right">
                 <div>Проголосовало</div>
-                <div className="text-sm md:text-base font-bold font-mono text-accent">{votedCount}</div>
+                <div className="text-sm md:text-base font-bold font-mono text-accent">
+                  {votedCount}
+                </div>
               </div>
 
               <div className="text-xs md:text-sm text-muted-foreground uppercase tracking-wider text-right">
