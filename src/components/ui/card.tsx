@@ -18,6 +18,7 @@ const cardOuterVariants = cva('relative transition-all duration-200', {
     corners: {
       sharp: '',
       'cut-corner': 'clip-path-cut-corner',
+      'cut-corner-sm': 'clip-path-cut-corner-sm',
       'angled-top': 'clip-path-angled-top',
     },
     borderWidth: {
@@ -37,6 +38,7 @@ const cardInnerVariants = cva('bg-card text-card-foreground w-full h-full flex f
     corners: {
       sharp: '',
       'cut-corner': 'clip-path-cut-corner py-4',
+      'cut-corner-sm': 'clip-path-cut-corner-sm',
       'angled-top': 'clip-path-angled-top py-4',
     },
   },
@@ -46,21 +48,43 @@ const cardInnerVariants = cva('bg-card text-card-foreground w-full h-full flex f
 })
 
 export interface CardProps
-  extends React.ComponentProps<'div'>,
-    VariantProps<typeof cardOuterVariants> {}
+  extends React.ComponentProps<'div'>, VariantProps<typeof cardOuterVariants> {
+  accentColor?: string
+}
 
-function Card({ className, variant, corners, borderWidth, children, ...props }: CardProps) {
+function Card({
+  className,
+  variant,
+  corners,
+  borderWidth,
+  accentColor,
+  children,
+  style,
+  ...props
+}: CardProps) {
   const hasClippedCorners = corners !== 'sharp'
 
   return (
     <div
       data-slot="card-outer"
-      className={cn(cardOuterVariants({ variant, corners, borderWidth }), className)}
+      className={cn(
+        cardOuterVariants({ variant, corners, borderWidth: accentColor ? undefined : borderWidth }),
+        accentColor && 'pl-1 pr-px py-px',
+        className,
+      )}
+      style={accentColor ? { backgroundColor: accentColor, ...style } : style}
       {...props}
     >
       <div
         data-slot="card-inner"
         className={cn(cardInnerVariants({ corners: hasClippedCorners ? corners : 'sharp' }))}
+        style={
+          accentColor
+            ? {
+                background: `linear-gradient(110deg, color-mix(in srgb, ${accentColor} 24%, var(--card)), var(--card))`,
+              }
+            : undefined
+        }
       >
         {children}
       </div>
