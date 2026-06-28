@@ -6,7 +6,8 @@ import {
   getRaceRecap,
   getSessionResult,
   getStartingGrid,
-  resolveRaceSession,
+  resolveSessions,
+  type RaceRecap,
 } from '@/utilities/openf1'
 
 export async function POST(req: Request) {
@@ -24,14 +25,14 @@ export async function POST(req: Request) {
     const payload = await getPayload({ config: configPromise })
     const race = await payload.findByID({ collection: 'races', id: raceId, depth: 0 })
 
-    const sessionKey =
-      race.openf1SessionKey ?? (await resolveRaceSession(race.season, race.raceDate))
-    if (!sessionKey) {
+    const sessions = await resolveSessions(race.season, race.raceDate)
+    if (!sessions) {
       return Response.json(
         { error: 'Не удалось найти сессию OpenF1 для этой гонки' },
         { status: 404 },
       )
     }
+    const { raceSessionKey, qualifyingSessionKey } = sessions
 
     const { docs: drivers } = await payload.find({
       collection: 'drivers',
@@ -51,21 +52,14 @@ export async function POST(req: Request) {
       return id
     }
 
-    const resultRows = await getSessionResult(sessionKey)
+    const resultRows = raceSessionKey ? await getSessionResult(raceSessionKey) : []
     const results: { position: number; driver: string }[] = []
     for (const row of resultRows.slice(0, 3)) {
       const driver = mapDriver(row.driver_number, `Результат P${row.position}`)
       if (driver) results.push({ position: row.position as number, driver })
     }
 
-    if (results.length !== 3) {
-      return Response.json(
-        { error: 'Не удалось собрать полный топ-3 (проверьте номера пилотов)', warnings },
-        { status: 422 },
-      )
-    }
-
-    const gridRows = await getStartingGrid(sessionKey)
+    const gridRows = qualifyingSessionKey ? await getStartingGrid(qualifyingSessionKey) : []
     const startingGrid = gridRows
       .map((row) => {
         const driver = mapDriver(row.driver_number, `Решётка P${row.position}`)
@@ -73,29 +67,62 @@ export async function POST(req: Request) {
       })
       .filter((r): r is { position: number; driver: string } => r !== null)
 
-    const r = await getRaceRecap(sessionKey)
-    const fastestLapDriver = r.fastestLapDriverNumber
-      ? (mapDriver(r.fastestLapDriverNumber, 'Быстрейший круг') ?? undefined)
-      : undefined
-    const recap = {
-      fastestLapDriver,
-      fastestLapTime: r.fastestLapTime ?? undefined,
-      pitStops: r.pitStops,
-      overtakes: r.overtakes,
-      weather: {
-        airTemp: r.airTemp ?? undefined,
-        trackTemp: r.trackTemp ?? undefined,
-        rainfall: r.rainfall,
-      },
+    let r: RaceRecap | null = null
+    try {
+      r = raceSessionKey ? await getRaceRecap(raceSessionKey) : null
+    } catch {
+      warnings.push('Статистика OpenF1 недоступна (превышен лимит запросов), импортировано без неё')
+    }
+
+    const recap =
+      r && r.fastestLapTime != null
+        ? {
+            fastestLapDriver: r.fastestLapDriverNumber
+              ? (mapDriver(r.fastestLapDriverNumber, 'Быстрейший круг') ?? undefined)
+              : undefined,
+            fastestLapTime: r.fastestLapTime,
+            pitStops: r.pitStops,
+            overtakes: r.overtakes,
+            weather: {
+              airTemp: r.airTemp ?? undefined,
+              trackTemp: r.trackTemp ?? undefined,
+              rainfall: r.rainfall,
+            },
+          }
+        : null
+
+    const hasResults = results.length === 3
+    const hasGrid = startingGrid.length > 0
+    const hasRecap = recap != null
+
+    if (!hasResults && !hasGrid && !hasRecap) {
+      return Response.json(
+        {
+          error: 'Нет данных для импорта: сессия ещё не дала результатов, решётки или статистики',
+          warnings,
+        },
+        { status: 422 },
+      )
     }
 
     await payload.update({
       collection: 'races',
       id: raceId,
-      data: { results, startingGrid, recap, openf1SessionKey: sessionKey },
+      data: {
+        ...(raceSessionKey ? { openf1SessionKey: raceSessionKey } : {}),
+        ...(hasResults ? { results } : {}),
+        ...(hasGrid ? { startingGrid } : {}),
+        ...(hasRecap ? { recap } : {}),
+      },
     })
 
-    return Response.json({ ok: true, sessionKey, warnings })
+    return Response.json({
+      ok: true,
+      raceSessionKey,
+      qualifyingSessionKey,
+      imported: { results: hasResults, startingGrid: startingGrid.length, recap: hasRecap },
+      warnings,
+    })
   } catch (error: unknown) {
     console.error('Error importing race results:', error)
     const message = error instanceof Error ? error.message : 'Unknown error'

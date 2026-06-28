@@ -1,16 +1,22 @@
 const BASE = 'https://api.openf1.org/v1'
 const REVALIDATE = 86400 // сутки
 
-async function openf1<T>(path: string): Promise<T[]> {
+async function openf1<T>(path: string, retries = 3): Promise<T[]> {
   const res = await fetch(`${BASE}${path}`, { next: { revalidate: REVALIDATE } })
   if (res.status === 404) return []
+  if (res.status === 429 && retries > 0) {
+    const retryAfter = Number(res.headers.get('retry-after')) || 4 - retries
+    await new Promise((r) => setTimeout(r, Math.max(retryAfter, 1) * 1000))
+    return openf1<T>(path, retries - 1)
+  } // из-за ограничений по вызовам делаем задержку при 429
   if (!res.ok) {
     throw new Error(`OpenF1 ${path} -> ${res.status}`)
   }
   return (await res.json()) as T[]
 }
 
-type Session = { session_key: number; date_start: string; year: number }
+type Meeting = { meeting_key: number; date_start: string }
+type SessionInfo = { session_key: number; session_name: string }
 type ResultRow = {
   position: number | null
   driver_number: number
@@ -26,23 +32,27 @@ type Weather = {
   rainfall: number | null
 }
 
-export async function resolveRaceSession(
+export async function resolveSessions(
   year: number,
   raceDate: string | Date,
-): Promise<number | null> {
-  const sessions = await openf1<Session>(`/sessions?year=${year}&session_name=Race`)
-  if (sessions.length === 0) return null
+): Promise<{ raceSessionKey: number | null; qualifyingSessionKey: number | null } | null> {
+  const meetings = await openf1<Meeting>(`/meetings?year=${year}`)
+  if (meetings.length === 0) return null
 
   const target = new Date(raceDate).getTime()
-  const closest = sessions.reduce(
-    (best, s) => {
-      const diff = Math.abs(new Date(s.date_start).getTime() - target)
-      return diff < best.diff ? { key: s.session_key, diff } : best
-    },
-    { key: sessions[0].session_key, diff: Infinity },
+  const meeting = meetings.reduce((best, m) =>
+    Math.abs(new Date(m.date_start).getTime() - target) <
+    Math.abs(new Date(best.date_start).getTime() - target)
+      ? m
+      : best,
   )
 
-  return closest.key
+  const sessions = await openf1<SessionInfo>(`/sessions?meeting_key=${meeting.meeting_key}`)
+  return {
+    raceSessionKey: sessions.find((s) => s.session_name === 'Race')?.session_key ?? null,
+    qualifyingSessionKey:
+      sessions.find((s) => s.session_name === 'Qualifying')?.session_key ?? null,
+  }
 }
 
 export async function getSessionResult(sessionKey: number): Promise<ResultRow[]> {
@@ -74,7 +84,7 @@ export async function getRaceRecap(sessionKey: number): Promise<RaceRecap> {
     openf1<Lap>(`/laps?session_key=${sessionKey}`),
     openf1<unknown>(`/pit?session_key=${sessionKey}`),
     openf1<Weather>(`/weather?session_key=${sessionKey}`),
-    openf1<unknown>(`/overtakes?session_key=${sessionKey}`).catch(() => []), // beta-эндпоинт
+    openf1<unknown>(`/overtakes?session_key=${sessionKey}`).catch(() => []),
   ])
 
   const fastest = laps
