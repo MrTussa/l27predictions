@@ -13,6 +13,7 @@ import { headers } from 'next/headers'
 import { notFound, redirect } from 'next/navigation'
 import { userAgent } from 'next/server'
 
+import { StartingGrid } from '../_components/StartingGrid'
 import { AboutRace } from './_components/AboutRace'
 import { PredictionDrawer } from './_components/PredictionDrawer'
 import { PredictionForm } from './_components/PredictionForm'
@@ -62,15 +63,19 @@ export default async function PredictionPage({ params }: Props) {
   return (
     <div className="px-4 md:px-16 py-6">
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
-        {/* Форма прогноза - 75% */}
         <div className="lg:col-span-3">
           {isMobile ? (
-            <PredictionDrawer
-              race={race}
-              drivers={drivers}
-              existingPrediction={existingPrediction}
-              isPredictionOpen={isPredictionOpen}
-            />
+            <>
+              {race.startingGrid && race.startingGrid.length > 0 && (
+                <StartingGrid grid={race.startingGrid} />
+              )}
+              <PredictionDrawer
+                race={race}
+                drivers={drivers}
+                existingPrediction={existingPrediction}
+                isPredictionOpen={isPredictionOpen}
+              />
+            </>
           ) : (
             <PredictionForm
               race={race}
@@ -81,8 +86,10 @@ export default async function PredictionPage({ params }: Props) {
           )}
         </div>
 
-        {/* Информация о гонке - 25% */}
-        <div className="lg:col-span-1">
+        <div className="lg:col-span-1 space-y-6">
+          {!isMobile && race.startingGrid && race.startingGrid.length > 0 && (
+            <StartingGrid grid={race.startingGrid} />
+          )}
           <AboutRace
             race={race}
             isPredictionOpen={isPredictionOpen}

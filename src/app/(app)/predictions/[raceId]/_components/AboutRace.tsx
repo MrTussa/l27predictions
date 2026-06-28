@@ -50,9 +50,8 @@ export function AboutRace({
   }
 
   return (
-    <Card variant="elevated" corners="cut-corner" className="h-fit sticky top-4 ">
+    <Card variant="elevated" corners="cut-corner">
       <div className="space-y-4 px-4">
-        {/* Заголовок */}
         <div className="border-b border-muted pb-4">
           <div className="flex items-start gap-3">
             <IconFlag className="w-5 h-5 text-accent mt-1 shrink-0" />
@@ -63,7 +62,6 @@ export function AboutRace({
           </div>
         </div>
 
-        {/* Дата начала гонки */}
         <div className="space-y-1">
           <div className="text-sm text-muted-foreground uppercase tracking-wider flex items-center gap-2">
             <IconCalendar className="w-4 h-4" />
@@ -77,7 +75,6 @@ export function AboutRace({
           </div>
         </div>
 
-        {/* Закрытие прогнозов */}
         <div className="space-y-1">
           <div className="text-sm text-muted-foreground uppercase tracking-wider flex items-center gap-2">
             <IconClock className="w-4 h-4" />
@@ -91,7 +88,6 @@ export function AboutRace({
           </div>
         </div>
 
-        {/* Статус */}
         {status && (
           <div className="pt-4 border-t border-muted">
             <div
@@ -103,7 +99,6 @@ export function AboutRace({
           </div>
         )}
 
-        {/* Список проголосовавших */}
         {recentPredictors.length > 0 && (
           <div className="pt-4 border-t border-muted">
             <div className="text-sm text-muted-foreground uppercase tracking-wider mb-3 flex items-center gap-2">
