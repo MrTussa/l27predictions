@@ -1,7 +1,6 @@
 'use client'
 
 import type { Race } from '@/payload-types'
-import { Check } from 'lucide-react'
 import { useMemo, useState } from 'react'
 import { Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts'
 
@@ -117,48 +116,9 @@ export function PointsEvolutionChart({ races, usersProgress }: PointsEvolutionCh
   }
 
   return (
-    <div className="w-full flex flex-col md:flex-row gap-6 px-6">
-      {/* Левая панель - список пользователей */}
-      <div className="w-full md:w-64 shrink-0 space-y-2">
-        <h3 className="text-sm font-bold uppercase tracking-wider text-muted-foreground mb-4">
-          Игроки
-        </h3>
-        <div className="space-y-1">
-          {usersProgress.map((user) => {
-            const isSelected = selectedUsers.has(user.userId)
-            const totalPoints = user.cumulativePoints[user.cumulativePoints.length - 1] || 0
-
-            return (
-              <button
-                key={user.userId}
-                onClick={() => toggleUser(user.userId)}
-                className={`w-full flex items-center gap-3 px-3 py-2  border transition-all cursor-pointer ${
-                  isSelected
-                    ? 'bg-background/50 border-accent/30 hover:border-accent/50'
-                    : 'bg-muted/20 border-muted/20 hover:bg-muted/30 opacity-50'
-                }`}
-                style={{
-                  borderLeftWidth: '3px',
-                  borderLeftColor: isSelected ? user.chartColor : 'transparent',
-                }}
-              >
-                <div
-                  className="w-3 h-3 rounded-full shrink-0"
-                  style={{ backgroundColor: user.chartColor }}
-                />
-                <div className="flex-1 text-left min-w-0">
-                  <div className="text-sm font-medium truncate">{user.nickname}</div>
-                  <div className="text-xs text-muted-foreground">Всего: {totalPoints}</div>
-                </div>
-                {isSelected && <Check className="w-4 h-4 text-accent shrink-0" />}
-              </button>
-            )
-          })}
-        </div>
-      </div>
-
-      {/* Правая панель - график */}
-      <div className="flex-1 min-w-0 overflow-x-auto overflow-y-hidden custom-scrollbar">
+    <div className="w-full space-y-4 px-6">
+      {/* График */}
+      <div className="w-full overflow-x-auto overflow-y-hidden custom-scrollbar">
         <ResponsiveContainer minWidth={'600px'} width="100%" height={550}>
           <LineChart data={chartData} margin={{ top: 20, right: 30, left: 20, bottom: 20 }}>
             <XAxis
@@ -183,7 +143,6 @@ export function PointsEvolutionChart({ races, usersProgress }: PointsEvolutionCh
             />
             <Tooltip content={<CustomTooltip />} />
 
-            {/* Линии для выбранных пользователей */}
             {visibleUsers.map((user) => (
               <Line
                 key={user.userId}
@@ -199,6 +158,31 @@ export function PointsEvolutionChart({ races, usersProgress }: PointsEvolutionCh
             ))}
           </LineChart>
         </ResponsiveContainer>
+      </div>
+
+      {/* Игроки — компактные чипы под графиком (клик = скрыть/показать линию) */}
+      <div className="flex flex-wrap justify-center gap-2">
+        {usersProgress.map((user) => {
+          const isSelected = selectedUsers.has(user.userId)
+          const totalPoints = user.cumulativePoints[user.cumulativePoints.length - 1] || 0
+
+          return (
+            <button
+              key={user.userId}
+              onClick={() => toggleUser(user.userId)}
+              className={`clip-path-cut-corner-xs relative cursor-pointer transition-all ${
+                isSelected ? '' : 'opacity-40 hover:opacity-70'
+              }`}
+              style={{ backgroundColor: isSelected ? user.chartColor : 'rgba(255,255,255,0.10)' }}
+            >
+              <span className="clip-path-cut-corner-xs absolute inset-px bg-card" />
+              <span className="relative z-10 inline-flex items-center gap-1.5 px-2.5 py-1 text-xs font-medium">
+                <span className="max-w-28 truncate">{user.nickname}</span>
+                <span className="tabular-nums text-muted-foreground">{totalPoints}</span>
+              </span>
+            </button>
+          )
+        })}
       </div>
     </div>
   )
