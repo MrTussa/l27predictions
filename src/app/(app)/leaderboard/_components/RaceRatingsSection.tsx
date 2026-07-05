@@ -10,8 +10,9 @@ export function RaceRatingsSection({ races }: RaceRatingsSectionProps) {
 
   return (
     <Card variant="default" corners="cut-corner">
-      <div className="px-6">
-        <h2 className="text-2xl font-bold mb-6 text-accent uppercase tracking-tight">
+      <div className="px-6 space-y-6">
+        <h2 className="flex items-center gap-2.5 text-xl font-black uppercase tracking-tight">
+          <span className="inline-block h-0.75 w-3.5 bg-accent" />
           Рейтинг гонок
         </h2>
 
@@ -29,7 +30,7 @@ export function RaceRatingsSection({ races }: RaceRatingsSectionProps) {
             return (
               <div
                 key={race.id}
-                className="min-w-[175px] max-w-[175px] flex-shrink-0 bg-muted/20 border border-muted/30 rounded p-3 space-y-2"
+                className="min-w-43.75 max-w-43.75 shrink-0 bg-muted/20 border border-muted/30 rounded p-3 space-y-2"
               >
                 {race.trackSVGPath && (
                   <svg
