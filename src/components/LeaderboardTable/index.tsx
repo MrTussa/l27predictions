@@ -211,7 +211,7 @@ export const LeaderboardTable: React.FC = () => {
   }
 
   return (
-    <Card variant="yellow-glow" corners="cut-corner" className="overflow-hidden gap-0">
+    <Card variant="yellow-glow" corners="cut-corner" className="overflow-hidden gap-0 max-w-6xl">
       <Table>
         <TableHeader>
           <TableRow className="bg-muted/50">
@@ -308,7 +308,9 @@ export const LeaderboardTable: React.FC = () => {
                     <span className="truncate max-w-22">{entry.nickname}</span>
                   </Link>
                 </TableCell>
-                <TableCell className="text-right font-bold font-mono">{entry.totalPoints}</TableCell>
+                <TableCell className="text-right font-bold font-mono">
+                  {entry.totalPoints}
+                </TableCell>
                 <TableCell className="text-right text-muted-foreground font-mono">
                   {entry.totalPredictions}
                 </TableCell>
@@ -320,7 +322,9 @@ export const LeaderboardTable: React.FC = () => {
                 </TableCell>
                 <TableCell className="text-right">
                   {entry.currentStreak > 0 ? (
-                    <span className="text-accent font-semibold font-mono">🔥 {entry.currentStreak}</span>
+                    <span className="text-accent font-semibold font-mono">
+                      🔥 {entry.currentStreak}
+                    </span>
                   ) : (
                     <span className="text-muted-foreground">-</span>
                   )}
@@ -335,7 +339,7 @@ export const LeaderboardTable: React.FC = () => {
       </Table>
 
       {totalPages > 1 && (
-        <div className="flex items-center justify-center flex-row gap-1 p-3">
+        <div className="flex items-center justify-center flex-row gap-1 ">
           <Button
             variant={'ghost'}
             disabled={currentPage === 1}
