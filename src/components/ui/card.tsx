@@ -50,6 +50,7 @@ const cardInnerVariants = cva('bg-card text-card-foreground w-full h-full flex f
 export interface CardProps
   extends React.ComponentProps<'div'>, VariantProps<typeof cardOuterVariants> {
   accentColor?: string
+  accentPosition?: 'left' | 'bottom'
 }
 
 function Card({
@@ -58,18 +59,21 @@ function Card({
   corners,
   borderWidth,
   accentColor,
+  accentPosition = 'left',
   children,
   style,
   ...props
 }: CardProps) {
   const hasClippedCorners = corners !== 'sharp'
+  const accentPad = accentPosition === 'bottom' ? 'pb-1 pt-px px-px' : 'pl-1 pr-px py-px'
+  const accentGradientDir = accentPosition === 'bottom' ? 'to top' : '110deg'
 
   return (
     <div
       data-slot="card-outer"
       className={cn(
         cardOuterVariants({ variant, corners, borderWidth: accentColor ? undefined : borderWidth }),
-        accentColor && 'pl-1 pr-px py-px',
+        accentColor && accentPad,
         className,
       )}
       style={accentColor ? { backgroundColor: accentColor, ...style } : style}
@@ -81,7 +85,7 @@ function Card({
         style={
           accentColor
             ? {
-                background: `linear-gradient(110deg, color-mix(in srgb, ${accentColor} 24%, var(--card)), var(--card))`,
+                background: `linear-gradient(${accentGradientDir}, color-mix(in srgb, ${accentColor} 24%, var(--card)), var(--card))`,
               }
             : undefined
         }
