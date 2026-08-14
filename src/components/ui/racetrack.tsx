@@ -24,16 +24,16 @@ interface RaceTrackVisualizationProps {
   svgPath?: string
   color?: string
   backgroundColor?: string
-  cameraAngle?: number
   rotationSpeed?: number
   /**
    * При использовании отключает transparent
    */
   useBloom?: boolean
   className?: string
-  bloomStrength?: number
-  maxFps?: number
 }
+
+const BLOOM_STRENGTH = 0.3
+const MAX_FPS = 30
 
 interface EffectsProps {
   bloomStrength: number
@@ -230,8 +230,6 @@ export default function RaceTrackVisualization({
   backgroundColor = 'transparent',
   rotationSpeed = 0.005,
   useBloom = true,
-  bloomStrength = 0.3,
-  maxFps = 30,
   className,
 }: RaceTrackVisualizationProps) {
   return (
@@ -252,12 +250,10 @@ export default function RaceTrackVisualization({
         }}
         style={{ background: 'transparent', width: '100%', height: '100%' }}
       >
-        <FrameClock fps={maxFps} />
+        <FrameClock fps={MAX_FPS} />
         <GlowingTrack svgPath={svgPath} color={color} rotationSpeed={rotationSpeed} />
-        {useBloom && <Effects bloomStrength={bloomStrength} />}
+        {useBloom && <Effects bloomStrength={BLOOM_STRENGTH} />}
       </Canvas>
     </div>
   )
 }
-
-export { GlowingTrack }

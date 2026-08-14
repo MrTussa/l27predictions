@@ -1,13 +1,7 @@
 import { DriverCardBase, EmptySlot } from '@/components/DriverCard/DriverCardBase'
+import { Button } from '@/components/ui/button'
 import type { Driver } from '@/payload-types'
 import { IconX } from '@tabler/icons-react'
-
-interface PodiumDrawerSlotProps {
-  position: 1 | 2 | 3
-  driver: Driver | null
-  onRemove?: () => void
-  disabled?: boolean
-}
 
 const POSITION_HEIGHTS = {
   1: 'h-[250px] lg:h-[340px]',
@@ -15,14 +9,59 @@ const POSITION_HEIGHTS = {
   3: 'h-[250px] lg:h-[300px]',
 } as const
 
+export function SavePredictionButton({
+  filledSlotsCount,
+  isSubmitting,
+  isUpdate,
+  onClick,
+}: {
+  filledSlotsCount: number
+  isSubmitting: boolean
+  isUpdate: boolean
+  onClick: () => void
+}) {
+  return (
+    <Button
+      onClick={onClick}
+      disabled={filledSlotsCount !== 3 || isSubmitting}
+      className="w-full my-6"
+      size="lg"
+      variant={filledSlotsCount === 3 ? 'default' : 'ghost'}
+    >
+      {isSubmitting ? 'Сохранение...' : isUpdate ? 'Обновить прогноз' : 'Сохранить прогноз'}
+    </Button>
+  )
+}
+
+type Props = {
+  position: 1 | 2 | 3
+  driver: Driver | null
+  onRemove?: () => void
+  disabled?: boolean
+  /** Подсветка пустого слота при наведении перетаскиваемой карточки. */
+  isHighlighted?: boolean
+} & React.ComponentProps<'div'>
+
 /**
- * Droppable/sortable podium slot for prediction form
+ * Слот подиума. Разметка общая для DnD-версии (десктоп) и drawer-версии (мобилка);
+ * ref / style / drag-хендлеры прокидывает вызывающий.
  */
-export function PodiumDrawerSlot({ position, driver, onRemove, disabled }: PodiumDrawerSlotProps) {
+export function PodiumSlot({
+  position,
+  driver,
+  onRemove,
+  disabled,
+  isHighlighted,
+  ...rest
+}: Props) {
   const height = POSITION_HEIGHTS[position]
 
   if (!driver) {
-    return <EmptySlot position={position} height={height} />
+    return (
+      <div {...rest}>
+        <EmptySlot position={position} height={height} isHighlighted={isHighlighted} />
+      </div>
+    )
   }
 
   const team = typeof driver.team === 'object' ? driver.team : null
@@ -30,6 +69,7 @@ export function PodiumDrawerSlot({ position, driver, onRemove, disabled }: Podiu
 
   return (
     <div
+      {...rest}
       className={`${!disabled ? 'cursor-grab active:cursor-grabbing' : 'cursor-not-allowed'}`}
       data-position={position}
       data-driver-id={driver.id}

@@ -1,10 +1,6 @@
 import type { CollectionConfig } from 'payload'
 
-import { adminOnly } from '@/access/adminOnly'
-import { adminOnlyFieldAccess } from '@/access/adminOnlyFieldAccess'
-import { adminOrSelf } from '@/access/adminOrSelf'
-import { publicAccess } from '@/access/publicAccess'
-import { checkRole } from '@/access/utilities'
+import { adminOnly, adminOnlyFieldAccess, adminOrSelf, isAdmin, publicAccess } from '@/access'
 
 import { resetPasswordEmail } from '@/utilities/email-templates'
 import { ensureFirstUserIsAdmin } from './hooks/ensureFirstUserIsAdmin'
@@ -12,7 +8,7 @@ import { ensureFirstUserIsAdmin } from './hooks/ensureFirstUserIsAdmin'
 export const Users: CollectionConfig = {
   slug: 'users',
   access: {
-    admin: ({ req: { user } }) => checkRole(['admin'], user),
+    admin: ({ req: { user } }) => isAdmin(user),
     create: publicAccess,
     delete: adminOnly,
     read: adminOrSelf,

@@ -1,5 +1,4 @@
-import { adminOnly } from '@/access/adminOnly'
-import { publicAccess } from '@/access/publicAccess'
+import { adminOnly, publicAccess } from '@/access'
 import type { CollectionConfig } from 'payload'
 
 /**

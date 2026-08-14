@@ -11,23 +11,13 @@ import {
   TableRow,
 } from '@/components/ui/table'
 import { Nickname } from '@/components/Nickname'
-import { ArrowUpDown, Award, Medal, Trophy } from 'lucide-react'
+import type { LeaderboardEntry } from '@/app/(app)/leaderboard/_lib/getLeaderboardData'
+import { IconArrowsUpDown, IconAward, IconMedal, IconTrophy } from '@tabler/icons-react'
 import { motion } from 'motion/react'
 import Link from 'next/link'
-import { useEffect, useMemo, useState } from 'react'
+import { useMemo, useState } from 'react'
 
-type LeaderboardEntry = {
-  id: string
-  nickname: string
-  chartColor: string
-  equippedNicknameEffect?: string | null
-  totalPoints: number
-  totalPredictions: number
-  perfectPredictions: number
-  averagePoints: number
-  currentStreak: number
-  bestStreak: number
-}
+const PER_PAGE = 15
 
 type SortKey =
   | 'totalPoints'
@@ -37,15 +27,12 @@ type SortKey =
   | 'currentStreak'
   | 'bestStreak'
 
-import { Skeleton } from '../ui/skeleton'
-
-export const LeaderboardTable: React.FC = () => {
+export const LeaderboardTable: React.FC<{ entries: LeaderboardEntry[] }> = ({ entries }) => {
   const [sortKey, setSortKey] = useState<SortKey>('totalPoints')
   const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('desc')
-  const [leaderboardData, setLeaderboardData] = useState<LeaderboardEntry[] | null>(null)
-  const [error, setError] = useState<string | null>(null)
   const [currentPage, setCurentPage] = useState(1)
-  const [totalPages, setTotalPages] = useState(1)
+  const totalPages = Math.max(1, Math.ceil(entries.length / PER_PAGE))
+
   const handleSort = (key: SortKey) => {
     if (sortKey === key) {
       setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc')
@@ -79,50 +66,24 @@ export const LeaderboardTable: React.FC = () => {
 
   const pages = getPageNumbers()
 
-  useEffect(() => {
-    const controller = new AbortController()
-
-    async function fetchData() {
-      try {
-        setError(null)
-        const res = await fetch(`/api/leaderboard?page=${currentPage}`, {
-          signal: controller.signal,
-        })
-        if (!res.ok) throw new Error('Failed to fetch')
-        const result = await res.json()
-        if (controller.signal.aborted) return
-        setLeaderboardData(result.docs)
-        setTotalPages(result.totalPages)
-      } catch {
-        if (controller.signal.aborted) return
-        setError('Не удалось загрузить данные')
-      }
-    }
-
-    fetchData()
-    return () => controller.abort()
-  }, [currentPage])
-
-  const sortedData = useMemo(
+  const pageData = useMemo(
     () =>
-      leaderboardData
-        ? [...leaderboardData].sort((a, b) => {
-            const aValue = a[sortKey]
-            const bValue = b[sortKey]
-            return sortDirection === 'asc' ? aValue - bValue : bValue - aValue
-          })
-        : null,
-    [leaderboardData, sortKey, sortDirection],
+      entries
+        .toSorted((a, b) =>
+          sortDirection === 'asc' ? a[sortKey] - b[sortKey] : b[sortKey] - a[sortKey],
+        )
+        .slice((currentPage - 1) * PER_PAGE, currentPage * PER_PAGE),
+    [entries, sortKey, sortDirection, currentPage],
   )
 
   const getPositionIcon = (position: number) => {
     switch (position) {
       case 1:
-        return <Trophy className="w-5 h-5 text-accent" />
+        return <IconTrophy className="w-5 h-5 text-accent" />
       case 2:
-        return <Medal className="w-5 h-5 text-gray-400" />
+        return <IconMedal className="w-5 h-5 text-gray-400" />
       case 3:
-        return <Award className="w-5 h-5 text-amber-600" />
+        return <IconAward className="w-5 h-5 text-amber-600" />
       default:
         return null
     }
@@ -141,19 +102,7 @@ export const LeaderboardTable: React.FC = () => {
     }
   }
 
-  if (error) {
-    return (
-      <Card
-        variant="yellow-glow"
-        corners="cut-corner"
-        className="p-8 text-center text-muted-foreground"
-      >
-        {error}
-      </Card>
-    )
-  }
-
-  if (leaderboardData?.length === 0) {
+  if (entries.length === 0) {
     return (
       <Card
         variant="yellow-glow"
@@ -161,54 +110,6 @@ export const LeaderboardTable: React.FC = () => {
         className="p-8 text-center text-muted-foreground"
       >
         Нет данных за текущий сезон
-      </Card>
-    )
-  }
-
-  if (sortedData === null || !leaderboardData) {
-    return (
-      <Card variant="yellow-glow" corners="cut-corner" className="overflow-hidden">
-        {/* Заголовок таблицы */}
-        <div className="flex gap-4 px-4 py-3 bg-muted/50">
-          <Skeleton className="w-12 h-4" />
-          <Skeleton className="w-32 h-4" />
-          <Skeleton className="w-16 h-4 ml-auto" />
-          <Skeleton className="w-20 h-4" />
-          <Skeleton className="w-20 h-4" />
-          <Skeleton className="w-24 h-4" />
-          <Skeleton className="w-14 h-4" />
-          <Skeleton className="w-24 h-4" />
-        </div>
-        {/* Строки таблицы */}
-        {Array.from({ length: 8 }).map((_, i) => (
-          <div
-            key={i}
-            className={`flex items-center gap-4 px-4 py-4 border-b border-muted/20 ${
-              i === 0
-                ? 'bg-accent/10 border-l-4 border-l-accent'
-                : i === 1
-                  ? 'bg-muted/30 border-l-4 border-l-gray-400'
-                  : i === 2
-                    ? 'bg-muted/20 border-l-4 border-l-amber-600'
-                    : ''
-            }`}
-          >
-            <div className="w-12 flex items-center justify-center gap-2">
-              {i < 3 && <Skeleton variant="circle" className="w-5 h-5" />}
-              <Skeleton className="w-4 h-5" />
-            </div>
-            <div className="flex items-center gap-3 w-32">
-              <Skeleton variant="circle" className="w-3 h-3 shrink-0" />
-              <Skeleton className="flex-1 h-4" />
-            </div>
-            <Skeleton className="w-12 h-5 ml-auto" />
-            <Skeleton className="w-16 h-4" />
-            <Skeleton className="w-16 h-4" />
-            <Skeleton className="w-20 h-4" />
-            <Skeleton className="w-12 h-4" />
-            <Skeleton className="w-12 h-4" />
-          </div>
-        ))}
       </Card>
     )
   }
@@ -228,7 +129,7 @@ export const LeaderboardTable: React.FC = () => {
                 onClick={() => handleSort('totalPoints')}
               >
                 Баллы
-                <ArrowUpDown className="ml-2 h-4 w-4" />
+                <IconArrowsUpDown className="ml-2 h-4 w-4" />
               </Button>
             </TableHead>
             <TableHead className="text-right">
@@ -239,7 +140,7 @@ export const LeaderboardTable: React.FC = () => {
                 onClick={() => handleSort('totalPredictions')}
               >
                 Прогнозов
-                <ArrowUpDown className="ml-2 h-4 w-4" />
+                <IconArrowsUpDown className="ml-2 h-4 w-4" />
               </Button>
             </TableHead>
             <TableHead className="text-right">
@@ -250,7 +151,7 @@ export const LeaderboardTable: React.FC = () => {
                 onClick={() => handleSort('perfectPredictions')}
               >
                 Идеальных
-                <ArrowUpDown className="ml-2 h-4 w-4" />
+                <IconArrowsUpDown className="ml-2 h-4 w-4" />
               </Button>
             </TableHead>
             <TableHead className="text-right">
@@ -261,7 +162,7 @@ export const LeaderboardTable: React.FC = () => {
                 onClick={() => handleSort('averagePoints')}
               >
                 Средний балл
-                <ArrowUpDown className="ml-2 h-4 w-4" />
+                <IconArrowsUpDown className="ml-2 h-4 w-4" />
               </Button>
             </TableHead>
             <TableHead className="text-right">
@@ -272,7 +173,7 @@ export const LeaderboardTable: React.FC = () => {
                 onClick={() => handleSort('currentStreak')}
               >
                 Стрик
-                <ArrowUpDown className="ml-2 h-4 w-4" />
+                <IconArrowsUpDown className="ml-2 h-4 w-4" />
               </Button>
             </TableHead>
             <TableHead className="text-right">
@@ -283,14 +184,14 @@ export const LeaderboardTable: React.FC = () => {
                 onClick={() => handleSort('bestStreak')}
               >
                 Лучший стрик
-                <ArrowUpDown className="ml-2 h-4 w-4" />
+                <IconArrowsUpDown className="ml-2 h-4 w-4" />
               </Button>
             </TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
-          {sortedData.map((entry, index) => {
-            const position = index + 1 + (currentPage - 1) * 15
+          {pageData.map((entry, index) => {
+            const position = index + 1 + (currentPage - 1) * PER_PAGE
             return (
               <motion.tr
                 key={entry.id || index}

@@ -1,6 +1,6 @@
 import type { GlobalConfig } from 'payload'
 
-import { adminOnly } from '@/access/adminOnly'
+import { adminOnly } from '@/access'
 
 export const BroadcastSettings: GlobalConfig = {
   slug: 'broadcast-settings',

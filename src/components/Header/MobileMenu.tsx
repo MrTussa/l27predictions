@@ -11,7 +11,7 @@ import {
 } from '@/components/ui/sheet'
 import { useAuth } from '@/providers/Auth'
 import { cn } from '@/utilities/cn'
-import { MenuIcon } from 'lucide-react'
+import { IconMenu2 } from '@tabler/icons-react'
 import Link from 'next/link'
 import { usePathname, useSearchParams } from 'next/navigation'
 import { useEffect, useState } from 'react'
@@ -51,7 +51,7 @@ export function MobileMenu({ menu }: Props) {
   return (
     <Sheet onOpenChange={setIsOpen} open={isOpen}>
       <SheetTrigger className="relative flex h-11 w-11 items-center justify-center rounded-md border text-muted-foreground hover:text-accent transition-colors">
-        <MenuIcon className="h-4" />
+        <IconMenu2 className="h-4" />
       </SheetTrigger>
 
       <SheetContent side="left" className="px-4">

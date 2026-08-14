@@ -1,5 +1,5 @@
 import type { Driver } from '@/payload-types'
-import { Trophy } from 'lucide-react'
+import { IconTrophy } from '@tabler/icons-react'
 import { DriverCardBase, EmptySlot } from './DriverCardBase'
 
 interface PodiumDriverProps {
@@ -29,7 +29,7 @@ export function PodiumDriver({ position, driver }: PodiumDriverProps) {
       height={height}
       topRightContent={position}
       topLeftContent={
-        position === 1 ? <Trophy className="w-10 h-10 text-accent" fill="#FFDF2C" /> : null
+        position === 1 ? <IconTrophy className="w-10 h-10 text-accent" fill="#FFDF2C" /> : null
       }
       showGlow={true}
     />

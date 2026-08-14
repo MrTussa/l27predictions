@@ -1,13 +1,13 @@
 import { CountUp } from '@/components/CountUp'
 import { Nickname } from '@/components/Nickname'
 import { Card } from '@/components/ui/card'
-import { Award, Medal, Trophy } from 'lucide-react'
+import { IconAward, IconMedal, IconTrophy } from '@tabler/icons-react'
 import Link from 'next/link'
 import type { PodiumEntry } from '../_lib/getLeaderboardData'
 
 const PODIUM = {
   1: {
-    icon: Trophy,
+    icon: IconTrophy,
     label: 'Чемпион',
     medal: 'var(--accent, #FFD320)',
     order: 'sm:order-2',
@@ -16,7 +16,7 @@ const PODIUM = {
     pts: 'text-4xl',
   },
   2: {
-    icon: Medal,
+    icon: IconMedal,
     label: '2 место',
     medal: '#C2C9D2',
     order: 'sm:order-1',
@@ -25,7 +25,7 @@ const PODIUM = {
     pts: 'text-3xl',
   },
   3: {
-    icon: Award,
+    icon: IconAward,
     label: '3 место',
     medal: '#CD6B2C',
     order: 'sm:order-3',

@@ -1,6 +1,5 @@
 'use client'
 
-import { Button } from '@/components/ui/button'
 import { Driver, Prediction, Race } from '@/payload-types'
 import { useState } from 'react'
 
@@ -19,9 +18,9 @@ import {
   useSensors,
 } from '@dnd-kit/core'
 import { rectSortingStrategy, SortableContext } from '@dnd-kit/sortable'
-import { useRouter } from 'next/navigation'
-import { toast } from 'sonner'
 import { PodiumDndSlot } from './PodiumDndSlot'
+import { SavePredictionButton } from './PodiumSlot'
+import { usePodiumPrediction } from './usePodiumPrediction'
 
 type Props = {
   race: Race
@@ -36,22 +35,10 @@ export const PredictionForm: React.FC<Props> = ({
   existingPrediction,
   isPredictionOpen,
 }) => {
-  const router = useRouter()
-  const [isSubmitting, setIsSubmitting] = useState(false)
+  const { podium, setPodium, getPodiumDriver, filledSlotsCount, isSubmitting, handleSubmit } =
+    usePodiumPrediction({ race, drivers, existingPrediction })
+
   const [activeId, setActiveId] = useState<string | null>(null)
-
-  const initialPodium: (string | null)[] = [null, null, null]
-  if (existingPrediction) {
-    existingPrediction.predictions
-      .sort((a, b) => a.position - b.position)
-      .forEach((p, index) => {
-        if (index < 3) {
-          initialPodium[index] = typeof p.driver === 'object' ? p.driver.id : p.driver
-        }
-      })
-  }
-
-  const [podium, setPodium] = useState<(string | null)[]>(initialPodium)
 
   const sensors = useSensors(
     useSensor(MouseSensor, {
@@ -76,12 +63,6 @@ export const PredictionForm: React.FC<Props> = ({
   }
 
   const availableDrivers = drivers.filter((d) => !podium.includes(d.id))
-
-  const getPodiumDriver = (position: 0 | 1 | 2): Driver | null => {
-    const driverId = podium[position]
-    if (!driverId) return null
-    return drivers.find((d) => d.id === driverId) || null
-  }
 
   const handleDragStart = (event: DragStartEvent) => {
     setActiveId(event.active.id as string)
@@ -136,55 +117,6 @@ export const PredictionForm: React.FC<Props> = ({
     newPodium[position] = null
     setPodium(newPodium)
   }
-
-  const handleSubmit = async () => {
-    const filledSlots = podium.filter((id) => id !== null)
-    if (filledSlots.length !== 3) {
-      toast.error('Заполните все 3 места на подиуме')
-      return
-    }
-
-    setIsSubmitting(true)
-
-    try {
-      const predictions = podium.map((driverId, index) => ({
-        position: index + 1,
-        driver: driverId as string,
-      }))
-
-      const method = existingPrediction ? 'PATCH' : 'POST'
-      const url = existingPrediction
-        ? `/api/predictions/${existingPrediction.id}`
-        : `/api/predictions`
-
-      const response = await fetch(url, {
-        method,
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        credentials: 'include',
-        body: JSON.stringify({
-          race: race.id,
-          predictions,
-        }),
-      })
-
-      if (!response.ok) {
-        const error = await response.json()
-        throw new Error(error.message || 'Ошибка при сохранении прогноза')
-      }
-
-      toast.success(existingPrediction ? 'Прогноз успешно обновлен!' : 'Прогноз успешно сохранен!')
-      router.push('/predictions')
-    } catch (error) {
-      console.error('Submission error:', error)
-      toast.error(error instanceof Error ? error.message : 'Не удалось сохранить прогноз')
-    } finally {
-      setIsSubmitting(false)
-    }
-  }
-
-  const filledSlotsCount = podium.filter((id) => id !== null).length
 
   return (
     <div className="space-y-8">
@@ -248,19 +180,12 @@ export const PredictionForm: React.FC<Props> = ({
           </SortableContext>
 
           {isPredictionOpen && (
-            <Button
+            <SavePredictionButton
+              filledSlotsCount={filledSlotsCount}
+              isSubmitting={isSubmitting}
+              isUpdate={!!existingPrediction}
               onClick={handleSubmit}
-              disabled={filledSlotsCount !== 3 || isSubmitting}
-              className="w-full my-6"
-              size="lg"
-              variant={filledSlotsCount === 3 ? 'default' : 'ghost'}
-            >
-              {isSubmitting
-                ? 'Сохранение...'
-                : existingPrediction
-                  ? 'Обновить прогноз'
-                  : 'Сохранить прогноз'}
-            </Button>
+            />
           )}
 
           <SortableContext items={availableDrivers.map((d) => d.id)} strategy={() => null}>

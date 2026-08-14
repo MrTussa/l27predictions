@@ -8,7 +8,8 @@ import { SeasonPodium } from './_components/SeasonPodium'
 import { getLeaderboardData } from './_lib/getLeaderboardData'
 
 export default async function LeaderboardPage() {
-  const { usersProgress, completedRaces, ratedRaces, seasonPodium } = await getLeaderboardData()
+  const { usersProgress, completedRaces, ratedRaces, seasonPodium, standings } =
+    await getLeaderboardData()
 
   return (
     <div className="px-4 md:px-16 py-6 space-y-6 max-w-450 mx-auto">
@@ -26,7 +27,7 @@ export default async function LeaderboardPage() {
       </div>
 
       <div className="w-full flex justify-center">
-        <LeaderboardTable />
+        <LeaderboardTable entries={standings} />
       </div>
     </div>
   )

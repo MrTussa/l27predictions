@@ -1,7 +1,6 @@
 import type { CollectionConfig } from 'payload'
 
-import { adminOnly } from '@/access/adminOnly'
-import { publicAccess } from '@/access/publicAccess'
+import { adminOnly, publicAccess } from '@/access'
 
 export const Teams: CollectionConfig = {
   slug: 'teams',

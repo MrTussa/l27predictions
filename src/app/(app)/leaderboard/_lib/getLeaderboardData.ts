@@ -19,18 +19,32 @@ export type PodiumEntry = {
   perfectPredictions: number
 }
 
+export type LeaderboardEntry = {
+  id: string
+  nickname: string
+  chartColor: string
+  equippedNicknameEffect?: string | null
+  totalPoints: number
+  totalPredictions: number
+  perfectPredictions: number
+  averagePoints: number
+  currentStreak: number
+  bestStreak: number
+}
+
 export type LeaderboardData = {
   usersProgress: UserProgress[]
   completedRaces: Race[]
   ratedRaces: Race[]
   seasonPodium: PodiumEntry[]
+  standings: LeaderboardEntry[]
 }
 
 export async function getLeaderboardData(year?: number): Promise<LeaderboardData> {
   const currentYear = year ?? new Date().getFullYear()
 
   const [seasonStats, allRaces] = await Promise.all([
-    getAllSeasonStats({ year: currentYear, sort: '-totalPoints', depth: 1, limit: 15 }),
+    getAllSeasonStats({ year: currentYear, sort: '-totalPoints', depth: 1 }),
     getRaces({ year: currentYear }),
   ])
 
@@ -91,10 +105,27 @@ export async function getLeaderboardData(year?: number): Promise<LeaderboardData
     }
   })
 
+  const standings: LeaderboardEntry[] = seasonStats.map((stat) => {
+    const user = typeof stat.user === 'object' ? stat.user : null
+    return {
+      id: user?.id || '',
+      nickname: user?.nickname || user?.email || 'Unknown',
+      chartColor: user?.chartColor || '#FFDF2C',
+      equippedNicknameEffect: user?.equippedNicknameEffect || null,
+      totalPoints: stat.totalPoints,
+      totalPredictions: stat.predictionsCount,
+      perfectPredictions: stat.perfectPredictions,
+      averagePoints: stat.predictionsCount > 0 ? stat.totalPoints / stat.predictionsCount : 0,
+      currentStreak: stat.currentStreak,
+      bestStreak: stat.bestStreak,
+    }
+  })
+
   return {
     usersProgress,
     completedRaces,
     ratedRaces,
     seasonPodium,
+    standings,
   }
 }

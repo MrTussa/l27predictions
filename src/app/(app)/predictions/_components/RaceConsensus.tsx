@@ -1,5 +1,5 @@
 import { Card } from '@/components/ui/card'
-import { Check, X } from 'lucide-react'
+import { IconCheck, IconX } from '@tabler/icons-react'
 import type { RaceConsensus as RaceConsensusData } from '../_lib/buildConsensus'
 
 export function RaceConsensus({ consensus }: { consensus: RaceConsensusData }) {
@@ -93,9 +93,9 @@ export function RaceConsensus({ consensus }: { consensus: RaceConsensusData }) {
                         }`}
                       >
                         {slot.hit ? (
-                          <Check className="h-4 w-4 text-emerald-400" />
+                          <IconCheck className="h-4 w-4 text-emerald-400" />
                         ) : (
-                          <X className="h-4 w-4 text-red-500" />
+                          <IconX className="h-4 w-4 text-red-500" />
                         )}
                       </span>
                     )}

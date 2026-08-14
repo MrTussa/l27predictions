@@ -3,7 +3,7 @@
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 import type { Race } from '@/payload-types'
-import { ChevronLeft, ChevronRight } from 'lucide-react'
+import { IconChevronLeft, IconChevronRight } from '@tabler/icons-react'
 import dynamic from 'next/dynamic'
 import { useLayoutEffect, useRef } from 'react'
 
@@ -57,7 +57,7 @@ export function RaceCarousel({ races, selectedRace, onRaceSelect }: RaceCarousel
         onClick={() => scrollToRace('left')}
         disabled={currentIndex === 0}
       >
-        <ChevronLeft className="w-6 h-6" />
+        <IconChevronLeft className="w-6 h-6" />
       </Button>
 
       <div
@@ -124,7 +124,7 @@ export function RaceCarousel({ races, selectedRace, onRaceSelect }: RaceCarousel
         onClick={() => scrollToRace('right')}
         disabled={currentIndex === races.length - 1}
       >
-        <ChevronRight className="w-6 h-6" />
+        <IconChevronRight className="w-6 h-6" />
       </Button>
     </div>
   )

@@ -10,22 +10,15 @@ type ResetPassword = (args: {
   token: string
 }) => Promise<void>
 
-type ForgotPassword = (args: { email: string }) => Promise<void>
-
-type Create = (args: { email: string; password: string; passwordConfirm: string }) => Promise<void>
-
 type Login = (args: { email: string; password: string }) => Promise<User>
 
 type Logout = () => Promise<void>
 
 type AuthContext = {
-  create: Create
-  forgotPassword: ForgotPassword
   login: Login
   logout: Logout
   resetPassword: ResetPassword
   setUser: (user: User | null) => void
-  status: 'loggedIn' | 'loggedOut' | undefined
   user?: User | null
 }
 
@@ -36,39 +29,6 @@ export const AuthProvider: React.FC<{
   initialUser?: User | null
 }> = ({ children, initialUser }) => {
   const [user, setUser] = useState<User | null | undefined>(initialUser)
-
-  // used to track the single event of logging in or logging out
-  // useful for `useEffect` hooks that should only run once
-  const [status, setStatus] = useState<'loggedIn' | 'loggedOut' | undefined>(
-    initialUser ? 'loggedIn' : undefined,
-  )
-  const create = useCallback<Create>(async (args) => {
-    try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_SERVER_URL}/api/users/create`, {
-        body: JSON.stringify({
-          email: args.email,
-          password: args.password,
-          passwordConfirm: args.passwordConfirm,
-        }),
-        credentials: 'include',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        method: 'POST',
-      })
-
-      if (res.ok) {
-        const { data, errors } = await res.json()
-        if (errors) throw new Error(errors[0].message)
-        setUser(data?.loginUser?.user)
-        setStatus('loggedIn')
-      } else {
-        throw new Error('Invalid login')
-      }
-    } catch (_e) {
-      throw new Error('An error occurred while attempting to login.')
-    }
-  }, [])
 
   const login = useCallback<Login>(async (args) => {
     try {
@@ -88,7 +48,6 @@ export const AuthProvider: React.FC<{
         const { errors, user } = await res.json()
         if (errors) throw new Error(errors[0].message)
         setUser(user)
-        setStatus('loggedIn')
         return user
       }
 
@@ -110,7 +69,6 @@ export const AuthProvider: React.FC<{
 
       if (res.ok) {
         setUser(null)
-        setStatus('loggedOut')
       } else {
         throw new Error('An error occurred while attempting to logout.')
       }
@@ -135,7 +93,6 @@ export const AuthProvider: React.FC<{
         if (res.ok) {
           const { user: meUser } = await res.json()
           setUser(meUser || null)
-          setStatus(meUser ? 'loggedIn' : undefined)
         } else {
           throw new Error('An error occurred while fetching your account.')
         }
@@ -147,31 +104,6 @@ export const AuthProvider: React.FC<{
 
     void fetchMe()
   }, [initialUser])
-
-  const forgotPassword = useCallback<ForgotPassword>(async (args) => {
-    try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_SERVER_URL}/api/users/forgot-password`, {
-        body: JSON.stringify({
-          email: args.email,
-        }),
-        credentials: 'include',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        method: 'POST',
-      })
-
-      if (res.ok) {
-        const { data, errors } = await res.json()
-        if (errors) throw new Error(errors[0].message)
-        setUser(data?.loginUser?.user)
-      } else {
-        throw new Error('Invalid login')
-      }
-    } catch (_e) {
-      throw new Error('An error occurred while attempting to login.')
-    }
-  }, [])
 
   const resetPassword = useCallback<ResetPassword>(async (args) => {
     try {
@@ -192,7 +124,6 @@ export const AuthProvider: React.FC<{
         const { data, errors } = await res.json()
         if (errors) throw new Error(errors[0].message)
         setUser(data?.loginUser?.user)
-        setStatus(data?.loginUser?.user ? 'loggedIn' : undefined)
       } else {
         throw new Error('Invalid login')
       }
@@ -204,13 +135,10 @@ export const AuthProvider: React.FC<{
   return (
     <Context.Provider
       value={{
-        create,
-        forgotPassword,
         login,
         logout,
         resetPassword,
         setUser,
-        status,
         user,
       }}
     >

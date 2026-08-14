@@ -5,7 +5,7 @@ import { headers } from 'next/headers'
 import { userAgent } from 'next/server'
 import { getPayload } from 'payload'
 
-import { checkRole } from '@/access/utilities'
+import { isAdmin } from '@/access'
 import { getServerSideUser } from '@/utilities/getServerSideUser'
 
 import { BroadcastLayout } from './_components/BroadcastLayout'
@@ -28,15 +28,13 @@ export default async function BroadcastPage() {
   const payload = await getPayload({ config: configPromise })
   const settings = await payload.findGlobal({ slug: 'broadcast-settings' })
   const { user } = await getServerSideUser()
-  const isAdmin = checkRole(['admin'], user)
-
   return (
     <div>
       <div className="container px-4 md:px-16 py-4">
         <h1 className="text-4xl font-bold uppercase tracking-tight">Трансляция</h1>
       </div>
 
-      <BroadcastLayout settings={settings} isAdmin={isAdmin} isMobile={isMobile} />
+      <BroadcastLayout settings={settings} isAdmin={isAdmin(user)} isMobile={isMobile} />
     </div>
   )
 }

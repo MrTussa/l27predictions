@@ -29,5 +29,3 @@ export default function BgStage() {
     </div>
   )
 }
-
-// Object.assign(window, { BgStage })

@@ -10,7 +10,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
 import { useAuth } from '@/providers/Auth'
-import { User } from 'lucide-react'
+import { IconUser } from '@tabler/icons-react'
 import Link from 'next/link'
 
 export const UserMenu: React.FC = () => {
@@ -42,7 +42,7 @@ export const UserMenu: React.FC = () => {
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <button className="inline-flex items-center justify-center gap-2 px-4 h-8 text-xs font-bold uppercase tracking-wider text-muted-foreground hover:text-accent hover:bg-accent/10 hover:border hover:border-accent transition-colors cursor-pointer ">
-          <User className="w-4 h-4" />
+          <IconUser className="w-4 h-4" />
           <span className="hidden md:inline">{user.nickname}</span>
         </button>
       </DropdownMenuTrigger>

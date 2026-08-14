@@ -2,14 +2,11 @@ import { mongooseAdapter } from '@payloadcms/db-mongodb'
 import { nodemailerAdapter } from '@payloadcms/email-nodemailer'
 import { s3Storage } from '@payloadcms/storage-s3'
 
-import { lexicalEditor } from '@payloadcms/richtext-lexical'
 import path from 'path'
 import { buildConfig } from 'payload'
 import { fileURLToPath } from 'url'
 
 import { submitEventResponse } from '@/api/events/submitEventResponse'
-import { createPrediction } from '@/api/predictions/createPrediction'
-import { updatePrediction } from '@/api/predictions/updatePrediction'
 import { submitRaceRating } from '@/api/race-ratings/submitRaceRating'
 import { shop } from '@/api/shop/shop'
 import { Drivers } from '@/collections/Drivers'
@@ -50,7 +47,6 @@ export default buildConfig({
   db: mongooseAdapter({
     url: process.env.DATABASE_URI || '',
   }),
-  editor: lexicalEditor(),
   email: nodemailerAdapter({
     defaultFromAddress: 'noreply@limonov27.ru',
     defaultFromName: 'L27Predictions',
@@ -65,16 +61,6 @@ export default buildConfig({
     },
   }),
   endpoints: [
-    {
-      path: '/predictions',
-      method: 'post',
-      handler: createPrediction,
-    },
-    {
-      path: '/predictions/:id',
-      method: 'patch',
-      handler: updatePrediction,
-    },
     {
       path: '/event-responses',
       method: 'post',

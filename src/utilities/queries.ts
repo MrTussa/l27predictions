@@ -127,18 +127,6 @@ export async function getUserPredictionForRace(userId: string, raceId: string) {
 
 // SEASON STATS
 
-export async function getUserStats({ user }: { user: User }) {
-  const userStats = await payload.find({
-    collection: 'season-stats',
-    where: {
-      and: [{ user: { equals: user.id } }, { season: { equals: currentYear } }],
-    },
-    limit: 1,
-    pagination: false,
-  })
-  return userStats.docs || []
-}
-
 export const getUserSeasonStats = cache(async (userId: string, year?: number, depth?: number) => {
   const { docs } = await payload.find({
     collection: 'season-stats',
