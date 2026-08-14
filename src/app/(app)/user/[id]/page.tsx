@@ -1,3 +1,4 @@
+import { Nickname } from '@/components/Nickname'
 import { UserStats } from '@/components/UserStats'
 import { getServerSideUser } from '@/utilities/getServerSideUser'
 import { getTimezone } from '@/utilities/getTimezone'
@@ -36,7 +37,7 @@ export default async function UserProfilePage({ params }: Props) {
       <div className="max-w-6xl mx-auto space-y-2">
         <div className="flex justify-between">
           <h1 className="text-4xl font-bold uppercase tracking-tight mb-2">
-            {publicUser.nickname}
+            <Nickname effect={publicUser.equippedNicknameEffect}>{publicUser.nickname}</Nickname>
           </h1>
           <span className="flex items-center text-xl text-accent">
             <IconCoins />

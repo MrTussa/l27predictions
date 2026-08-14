@@ -1,4 +1,5 @@
 import { AccountForm } from '@/components/forms/AccountForm'
+import { ShopTab } from '@/components/ShopTab'
 import { mergeOpenGraph } from '@/utilities/mergeOpenGraph'
 import type { Metadata } from 'next'
 import { Suspense } from 'react'
@@ -19,6 +20,8 @@ export default async function AccountPage({
           <AccountStats />
         </Suspense>
       )}
+
+      {activeTab === 'shop' && <ShopTab />}
 
       {activeTab === 'settings' && (
         <Suspense fallback={<TabSkeleton />}>

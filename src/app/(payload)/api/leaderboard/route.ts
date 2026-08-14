@@ -25,6 +25,7 @@ export async function GET(req: Request) {
         id: user?.id || '',
         nickname: user?.nickname || user?.email || 'Unknown',
         chartColor: user?.chartColor || '#FFDF2C',
+        equippedNicknameEffect: user?.equippedNicknameEffect || null,
         totalPoints: stat.totalPoints,
         totalPredictions: stat.predictionsCount,
         perfectPredictions: stat.perfectPredictions,

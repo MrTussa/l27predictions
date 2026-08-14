@@ -1,6 +1,7 @@
 import type { ReactNode } from 'react'
 
 import { AccountNav } from '@/components/AccountNav'
+import { Nickname } from '@/components/Nickname'
 import { RenderParams } from '@/components/RenderParams'
 import { getServerSideUser } from '@/utilities/getServerSideUser'
 import { IconBrandTelegram, IconCoins } from '@tabler/icons-react'
@@ -22,7 +23,7 @@ export default async function AccountLayout({ children }: { children: ReactNode 
 
         <div className="flex justify-between">
           <h1 className="text-4xl font-bold uppercase tracking-tight mb-2">
-            {user.nickname || user.email}
+            <Nickname effect={user.equippedNicknameEffect}>{user.nickname || user.email}</Nickname>
           </h1>
           <span className="flex items-center text-xl text-accent">
             <IconCoins />

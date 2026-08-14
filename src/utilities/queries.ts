@@ -52,14 +52,17 @@ export async function getUserRacesRating(userId: string) {
 
 export async function getAllPredictions(options?: {
   raceId?: string
+  raceIds?: string[]
   limit?: number
   depth?: number
 }) {
-  const { raceId, limit = 10000, depth = 2 } = options || {}
+  const { raceId, raceIds, limit = 10000, depth = 2 } = options || {}
 
-  const where: { race?: { equals: string } } = {}
+  const where: { race?: { equals: string } | { in: string[] } } = {}
   if (raceId) {
     where.race = { equals: raceId }
+  } else if (raceIds) {
+    where.race = { in: raceIds }
   }
 
   const { docs } = await payload.find({
@@ -299,7 +302,13 @@ export async function getProfileData(userId: string): Promise<ProfileData> {
 
 export type PublicUser = Pick<
   User,
-  'id' | 'nickname' | 'chartColor' | 'telegramUsername' | 'name' | 'pitCoins'
+  | 'id'
+  | 'nickname'
+  | 'chartColor'
+  | 'telegramUsername'
+  | 'name'
+  | 'pitCoins'
+  | 'equippedNicknameEffect'
 >
 
 export async function getUserPublicProfile(userId: string): Promise<PublicUser | null> {
@@ -314,6 +323,7 @@ export async function getUserPublicProfile(userId: string): Promise<PublicUser |
         telegramUsername: true,
         name: true,
         pitCoins: true,
+        equippedNicknameEffect: true,
       },
     })
 
@@ -325,6 +335,8 @@ export async function getUserPublicProfile(userId: string): Promise<PublicUser |
       chartColor: user.chartColor,
       telegramUsername: user.telegramUsername ?? null,
       name: user.name ?? null,
+      pitCoins: user.pitCoins ?? 0,
+      equippedNicknameEffect: user.equippedNicknameEffect ?? null,
     }
   } catch {
     return null

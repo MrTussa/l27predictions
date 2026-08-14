@@ -100,6 +100,33 @@ export const Users: CollectionConfig = {
       },
     },
     {
+      name: 'ownedCosmetics',
+      type: 'text',
+      hasMany: true,
+      label: 'Купленные косметические предметы',
+      // Mutated only via the shop endpoint (overrideAccess). Locked from the
+      // generic user PATCH so a user can't grant themselves items.
+      access: {
+        create: adminOnlyFieldAccess,
+        update: adminOnlyFieldAccess,
+      },
+      admin: {
+        readOnly: true,
+      },
+    },
+    {
+      name: 'equippedNicknameEffect',
+      type: 'text',
+      label: 'Активный эффект ника',
+      access: {
+        create: adminOnlyFieldAccess,
+        update: adminOnlyFieldAccess,
+      },
+      admin: {
+        readOnly: true,
+      },
+    },
+    {
       name: 'name',
       type: 'text',
       label: 'Полное имя (опционально)',

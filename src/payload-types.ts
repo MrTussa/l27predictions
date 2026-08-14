@@ -159,6 +159,8 @@ export interface User {
    * Виртуальная валюта для покупок в магазине
    */
   pitCoins?: number | null;
+  ownedCosmetics?: string[] | null;
+  equippedNicknameEffect?: string | null;
   name?: string | null;
   roles?: ('admin' | 'user')[] | null;
   updatedAt: string;
@@ -659,6 +661,8 @@ export interface UsersSelect<T extends boolean = true> {
   telegramUsername?: T;
   chartColor?: T;
   pitCoins?: T;
+  ownedCosmetics?: T;
+  equippedNicknameEffect?: T;
   name?: T;
   roles?: T;
   updatedAt?: T;

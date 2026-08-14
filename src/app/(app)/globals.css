@@ -5,8 +5,6 @@
 
 @custom-variant dark (&:is([data-theme='dark'] *));
 
-
-
 /*
   The default border color has changed to `currentColor` in Tailwind CSS v4,
   so we've added these compatibility styles to make sure everything still
@@ -16,7 +14,6 @@
   color utility to any element that depends on these defaults.
 */
 @layer base {
-
   *,
   ::after,
   ::before,
@@ -52,7 +49,6 @@
     color: white;
   }
 
-
   .custom-scrollbar::-webkit-scrollbar {
     width: 0.5rem;
     height: 0.5rem;
@@ -66,7 +62,7 @@
   }
 
   .custom-scrollbar::-webkit-scrollbar-track {
-    background: #534A14;
+    background: #534a14;
     border-radius: 100vh;
   }
 
@@ -99,7 +95,7 @@
   --muted: hsl(217.2 32.6% 17.5%);
   --muted-foreground: hsl(215 20.2% 65.1%);
 
-  --accent: #FFDF2C;
+  --accent: #ffdf2c;
   --accent-foreground: hsl(41, 33%, 17%);
 
   --destructive: hsl(0 62.8% 30.6%);
@@ -141,7 +137,6 @@
 }
 
 @layer base {
-
   h1,
   h2,
   h3,
@@ -184,52 +179,62 @@ button {
 
 .clip-path-cut-corner {
   --clip-size: 20px;
-  clip-path: polygon(0 0,
-      calc(100% - var(--clip-size)) 0,
-      100% var(--clip-size),
-      100% 100%,
-      var(--clip-size) 100%,
-      0 calc(100% - var(--clip-size)));
+  clip-path: polygon(
+    0 0,
+    calc(100% - var(--clip-size)) 0,
+    100% var(--clip-size),
+    100% 100%,
+    var(--clip-size) 100%,
+    0 calc(100% - var(--clip-size))
+  );
 }
 
 .clip-path-angled-top {
   --clip-size: 15px;
-  clip-path: polygon(0 var(--clip-size),
-      var(--clip-size) 0,
-      calc(100% - var(--clip-size)) 0,
-      100% var(--clip-size),
-      100% 100%,
-      0 100%);
+  clip-path: polygon(
+    0 var(--clip-size),
+    var(--clip-size) 0,
+    calc(100% - var(--clip-size)) 0,
+    100% var(--clip-size),
+    100% 100%,
+    0 100%
+  );
 }
 
 .clip-path-cut-corner-sm {
   --clip-size: 8px;
-  clip-path: polygon(0 0,
-      calc(100% - var(--clip-size)) 0,
-      100% var(--clip-size),
-      100% 100%,
-      var(--clip-size) 100%,
-      0 calc(100% - var(--clip-size)));
+  clip-path: polygon(
+    0 0,
+    calc(100% - var(--clip-size)) 0,
+    100% var(--clip-size),
+    100% 100%,
+    var(--clip-size) 100%,
+    0 calc(100% - var(--clip-size))
+  );
 }
 
 .clip-path-cut-corner-xs {
   --clip-size: 6px;
-  clip-path: polygon(0 0,
-      calc(100% - var(--clip-size)) 0,
-      100% var(--clip-size),
-      100% 100%,
-      var(--clip-size) 100%,
-      0 calc(100% - var(--clip-size)));
+  clip-path: polygon(
+    0 0,
+    calc(100% - var(--clip-size)) 0,
+    100% var(--clip-size),
+    100% 100%,
+    var(--clip-size) 100%,
+    0 calc(100% - var(--clip-size))
+  );
 }
 
 .clip-path-angled-sm {
   --clip-size: 6px;
-  clip-path: polygon(0 var(--clip-size),
-      var(--clip-size) 0,
-      calc(100% - var(--clip-size)) 0,
-      100% var(--clip-size),
-      100% 100%,
-      0 100%);
+  clip-path: polygon(
+    0 var(--clip-size),
+    var(--clip-size) 0,
+    calc(100% - var(--clip-size)) 0,
+    100% var(--clip-size),
+    100% 100%,
+    0 100%
+  );
 }
 
 /* Дополнительные утилиты для F1 стиля */
@@ -243,9 +248,13 @@ button {
   inset: 0;
   padding: 2px;
   background: linear-gradient(135deg, var(--accent) 0%, transparent 50%, var(--accent) 100%);
-  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask:
+    linear-gradient(#fff 0 0) content-box,
+    linear-gradient(#fff 0 0);
   -webkit-mask-composite: xor;
-  mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  mask:
+    linear-gradient(#fff 0 0) content-box,
+    linear-gradient(#fff 0 0);
   mask-composite: exclude;
   opacity: 0.6;
   pointer-events: none;
@@ -270,19 +279,21 @@ button {
 
 /* Glow эффект для блоков с clip-path через drop-shadow */
 @keyframes glow-pulse {
-
   0%,
   100% {
-    filter: drop-shadow(0 0 5px var(--glow-color, #FFDF2C)) drop-shadow(0 0 10px color-mix(in srgb, var(--glow-color, #FFDF2C) 50%, transparent));
+    filter: drop-shadow(0 0 5px var(--glow-color, #ffdf2c))
+      drop-shadow(0 0 10px color-mix(in srgb, var(--glow-color, #ffdf2c) 50%, transparent));
   }
 
   50% {
-    filter: drop-shadow(0 0 5px var(--glow-color, #FFDF2C)) drop-shadow(0 0 3px color-mix(in srgb, var(--glow-color, #FFDF2C) 60%, transparent));
+    filter: drop-shadow(0 0 5px var(--glow-color, #ffdf2c))
+      drop-shadow(0 0 3px color-mix(in srgb, var(--glow-color, #ffdf2c) 60%, transparent));
   }
 }
 
 .glow-border {
-  filter: drop-shadow(0 0 5px var(--glow-color, #FFDF2C)) drop-shadow(0 0 8px color-mix(in srgb, var(--glow-color, #FFDF2C) 50%, transparent));
+  filter: drop-shadow(0 0 5px var(--glow-color, #ffdf2c))
+    drop-shadow(0 0 8px color-mix(in srgb, var(--glow-color, #ffdf2c) 50%, transparent));
 }
 
 .glow-border-pulse {
@@ -295,15 +306,13 @@ button {
   }
 }
 
-
 .bg-stage {
   position: fixed;
   inset: 0;
   z-index: 0;
   overflow: hidden;
   pointer-events: none;
-  background:
-    radial-gradient(120% 80% at 50% -10%, #0E1117 0%, var(--bg) 55%);
+  background: radial-gradient(120% 80% at 50% -10%, #0e1117 0%, var(--bg) 55%);
 }
 
 .bg-grid {
@@ -320,12 +329,12 @@ button {
 }
 
 .bg-grid::before {
-  content: "";
+  content: '';
   position: absolute;
   inset: -60% -10% -10% -10%;
   background-image:
-    linear-gradient(to right, rgba(255, 255, 255, 0.10) 1px, transparent 1px),
-    linear-gradient(to bottom, rgba(255, 255, 255, 0.10) 1px, transparent 1px);
+    linear-gradient(to right, rgba(255, 255, 255, 0.1) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(255, 255, 255, 0.1) 1px, transparent 1px);
   background-size: 56px 56px;
   transform: rotateX(74deg);
   transform-origin: 50% 100%;
@@ -349,7 +358,12 @@ button {
   top: -20%;
   height: 140%;
   width: 2px;
-  background: linear-gradient(to bottom, transparent, var(--streak, rgba(225, 6, 0, 0.6)), transparent);
+  background: linear-gradient(
+    to bottom,
+    transparent,
+    var(--streak, rgba(225, 6, 0, 0.6)),
+    transparent
+  );
   filter: blur(0.5px);
   transform: rotate(18deg);
   animation: streak-fly var(--d, 7s) linear infinite;
@@ -382,12 +396,14 @@ button {
   mix-blend-mode: screen;
   opacity: 0.85;
   background:
-    radial-gradient(38% 46% at 18% 28%, rgba(225, 6, 0, 0.30), transparent 70%),
+    radial-gradient(38% 46% at 18% 28%, rgba(225, 6, 0, 0.3), transparent 70%),
     radial-gradient(40% 48% at 82% 18%, rgba(255, 211, 32, 0.26), transparent 70%),
     radial-gradient(46% 54% at 72% 82%, rgba(0, 210, 255, 0.22), transparent 72%),
     radial-gradient(40% 50% at 26% 84%, rgba(47, 209, 95, 0.18), transparent 72%),
-    radial-gradient(36% 44% at 52% 50%, rgba(255, 223, 44, 0.10), transparent 70%);
-  animation: iri-drift 26s ease-in-out infinite alternate, iri-hue 22s linear infinite;
+    radial-gradient(36% 44% at 52% 50%, rgba(255, 223, 44, 0.1), transparent 70%);
+  animation:
+    iri-drift 26s ease-in-out infinite alternate,
+    iri-hue 22s linear infinite;
 }
 
 @keyframes iri-drift {
@@ -396,7 +412,7 @@ button {
   }
 
   50% {
-    transform: translate(4%, -3%) scale(1.10);
+    transform: translate(4%, -3%) scale(1.1);
   }
 
   100% {
@@ -421,24 +437,109 @@ button {
   right: 0;
   height: 10px;
   background-image:
-    linear-gradient(45deg, rgba(255, 255, 255, 0.5) 25%, transparent 25%, transparent 75%, rgba(255, 255, 255, 0.5) 75%),
-    linear-gradient(45deg, rgba(255, 255, 255, 0.5) 25%, transparent 25%, transparent 75%, rgba(255, 255, 255, 0.5) 75%);
+    linear-gradient(
+      45deg,
+      rgba(255, 255, 255, 0.5) 25%,
+      transparent 25%,
+      transparent 75%,
+      rgba(255, 255, 255, 0.5) 75%
+    ),
+    linear-gradient(
+      45deg,
+      rgba(255, 255, 255, 0.5) 25%,
+      transparent 25%,
+      transparent 75%,
+      rgba(255, 255, 255, 0.5) 75%
+    );
   background-size: 20px 20px;
-  background-position: 0 0, 10px 10px;
+  background-position:
+    0 0,
+    10px 10px;
   opacity: 0.06;
 }
 
 .bg-vignette {
   position: absolute;
   inset: 0;
-  background:
-    radial-gradient(120% 120% at 50% 30%, transparent 55%, rgba(0, 0, 0, 0.65) 100%);
+  background: radial-gradient(120% 120% at 50% 30%, transparent 55%, rgba(0, 0, 0, 0.65) 100%);
 }
-
-
 
 @keyframes flicker {
   to {
-    mask-position: 50% 50%, 0 50%;
+    mask-position:
+      50% 50%,
+      0 50%;
+  }
+}
+
+/* ── Nickname cosmetic effects (Pit Coins shop) ───────────────────────── */
+.nick-gold-gradient {
+  background: linear-gradient(90deg, #fff3b0, #ffdf2c, #d99e00);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  font-weight: 700;
+}
+
+.nick-glow {
+  color: #ffdf2c;
+  text-shadow:
+    0 0 6px rgba(255, 223, 44, 0.9),
+    0 0 12px rgba(255, 223, 44, 0.5);
+  font-weight: 700;
+}
+
+.nick-fire {
+  background: linear-gradient(90deg, #ffdf2c, #ff8a00, #ff2d2d);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  font-weight: 700;
+}
+
+.nick-ice {
+  color: #9fe3ff;
+  text-shadow:
+    0 0 6px rgba(120, 210, 255, 0.9),
+    0 0 12px rgba(120, 210, 255, 0.5);
+  font-weight: 700;
+}
+
+.nick-shimmer {
+  background: linear-gradient(90deg, #b9b9b9 25%, #fff 50%, #b9b9b9 75%);
+  background-size: 200% auto;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  font-weight: 700;
+  animation: nick-shimmer 2.5s linear infinite;
+}
+
+@keyframes nick-shimmer {
+  to {
+    background-position: -200% center;
+  }
+}
+
+.nick-rainbow {
+  background: linear-gradient(90deg, #ff2d2d, #ffdf2c, #2dff6a, #2d9bff, #b02dff, #ff2d2d);
+  background-size: 200% auto;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  font-weight: 700;
+  animation: nick-rainbow 4s linear infinite;
+}
+
+@keyframes nick-rainbow {
+  to {
+    background-position: -200% center;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .nick-shimmer,
+  .nick-rainbow {
+    animation: none;
   }
 }

@@ -11,6 +11,7 @@ import { submitEventResponse } from '@/api/events/submitEventResponse'
 import { createPrediction } from '@/api/predictions/createPrediction'
 import { updatePrediction } from '@/api/predictions/updatePrediction'
 import { submitRaceRating } from '@/api/race-ratings/submitRaceRating'
+import { shop } from '@/api/shop/shop'
 import { Drivers } from '@/collections/Drivers'
 import { EventResponses } from '@/collections/EventResponses'
 import { F1Events } from '@/collections/Events'
@@ -83,6 +84,11 @@ export default buildConfig({
       path: '/update-race-ratings',
       method: 'post',
       handler: submitRaceRating,
+    },
+    {
+      path: '/shop',
+      method: 'post',
+      handler: shop,
     },
   ],
   plugins: [

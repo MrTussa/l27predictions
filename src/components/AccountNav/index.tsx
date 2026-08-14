@@ -32,6 +32,19 @@ export const AccountNav: React.FC<Props> = ({ className }) => {
         <li>
           <Button asChild variant="link">
             <Link
+              href="/account?tab=shop"
+              className={clsx('text-muted-foreground hover:text-accent hover:no-underline', {
+                'text-primary': activeTab === 'shop',
+              })}
+            >
+              Магазин
+            </Link>
+          </Button>
+        </li>
+
+        <li>
+          <Button asChild variant="link">
+            <Link
               href="/account?tab=settings"
               className={clsx('text-muted-foreground hover:text-accent hover:no-underline', {
                 'text-primary': activeTab === 'settings',
