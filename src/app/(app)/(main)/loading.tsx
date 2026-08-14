@@ -4,14 +4,14 @@ import { Skeleton, SkeletonText } from '@/components/ui/skeleton'
 export default function Loading() {
   return (
     <div className="px-4 md:px-16 py-6 min-h-[calc(100vh-100px)]">
-      <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
-        <div className="lg:col-span-1">
+      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6">
+        <div className="order-2 xl:order-1">
           <Card variant="gray" corners="cut-corner" className="h-full min-h-80 ">
             <SkeletonText lines={8} className="space-y-6 px-6 py-8" />
           </Card>
         </div>
 
-        <div className="lg:col-span-2">
+        <div className="order-1 md:col-span-2 xl:order-2">
           <Card variant="yellow-glow" corners="cut-corner" className="h-full">
             <div className=" flex flex-col justify-between h-full px-6">
               <SkeletonText lines={2} className="space-y-6 " />
@@ -29,7 +29,7 @@ export default function Loading() {
           </Card>
         </div>
 
-        <div className="lg:col-span-1">
+        <div className="order-3">
           <Card variant="gray" corners="cut-corner" className="h-full min-h-80 ">
             <SkeletonText lines={8} className="space-y-6 px-6 py-8" />
           </Card>

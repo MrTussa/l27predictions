@@ -22,9 +22,9 @@ export default async function HomePage() {
 
   return (
     <div className="px-4 md:px-16 py-6 min-h-[calc(100vh-100px)]">
-      <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6">
         {/* Пользователь */}
-        <section className="lg:-span-1">
+        <section className="order-2 xl:order-1">
           <UserInfoCard
             user={currentUser}
             seasonStats={userSeasonStats}
@@ -35,7 +35,7 @@ export default async function HomePage() {
 
         {/* Грядущая гонка */}
         {openRace && (
-          <section className="glow-border glow-border-pulse lg:col-span-2">
+          <section className="glow-border glow-border-pulse order-1 md:col-span-2 xl:order-2">
             <CurrentRaceCard race={openRace} votedCount={votedCount} timeZone={timeZone} />
           </section>
         )}
@@ -43,7 +43,7 @@ export default async function HomePage() {
         {/* Прошлая гонка */}
 
         {previousRace && previousRaceData && (
-          <section className="lg:col-span-1">
+          <section className="order-3">
             <PreviousRaceCard race={previousRace} {...previousRaceData} timeZone={timeZone} />
           </section>
         )}

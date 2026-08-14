@@ -30,7 +30,6 @@ export function PreviousRaceCard({
   topPredictors,
   timeZone,
 }: PreviousRaceCardProps) {
-  console.log(race.countryFlag)
   return (
     <Card variant="elevated" corners="cut-corner" className="h-full">
       <div className="space-y-4 px-6">

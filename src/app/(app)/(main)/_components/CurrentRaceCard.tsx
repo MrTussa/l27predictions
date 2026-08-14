@@ -5,6 +5,7 @@ import { formatDate } from '@/utilities/formatDate'
 import { IconClock } from '@tabler/icons-react'
 import Image from 'next/image'
 import Link from 'next/link'
+import { Countdown } from './Countdown'
 import { RaceTrackClient } from './RaceTrackClient'
 
 interface CurrentRaceCardProps {
@@ -14,14 +15,7 @@ interface CurrentRaceCardProps {
 }
 
 export function CurrentRaceCard({ race, votedCount, timeZone }: CurrentRaceCardProps) {
-  const closeDate = new Date(race.predictionCloseDate)
   const raceDate = formatDate(race.raceDate, timeZone, 'dateTime')
-  const now = new Date()
-
-  const timeUntilClose = closeDate.getTime() - now.getTime()
-  const minutesUntilClose = Math.floor(timeUntilClose / (1000 * 60))
-  const hoursUntilClose = Math.floor(timeUntilClose / (1000 * 60 * 60))
-  const daysUntilClose = Math.floor(hoursUntilClose / 24)
 
   return (
     <Card variant="yellow-glow" corners="cut-corner" className="h-full">
@@ -53,32 +47,7 @@ export function CurrentRaceCard({ race, votedCount, timeZone }: CurrentRaceCardP
                 <IconClock className="w-4 h-4" />
                 До закрытия прогнозов
               </div>
-              <div className="flex flex-row">
-                <div className="flex flex-col items-center">
-                  <span className="text-3xl md:text-6xl font-bold font-mono text-accent text-shadow-accent text-shadow-[0_0_30px]">
-                    {daysUntilClose}
-                  </span>
-                  <span className="text-muted-foreground">дни</span>
-                </div>
-                <span className="font-bold font-mono text-muted-foreground text-2xl leading-9 md:text-4xl md:leading-14">
-                  {':'}
-                </span>
-                <div className="flex flex-col items-center">
-                  <span className="text-3xl md:text-6xl font-bold font-mono text-accent text-shadow-accent text-shadow-[0_0_30px]">
-                    {hoursUntilClose % 24}
-                  </span>
-                  <span className="text-muted-foreground">часы</span>
-                </div>
-                <span className="font-bold font-mono text-muted-foreground text-2xl leading-9 md:text-4xl md:leading-14">
-                  {':'}
-                </span>
-                <div className="flex flex-col items-center">
-                  <span className="text-3xl md:text-6xl font-bold font-mono text-accent text-shadow-accent text-shadow-[0_0_30px]">
-                    {minutesUntilClose % 60}
-                  </span>
-                  <span className="text-muted-foreground">минуты</span>
-                </div>
-              </div>
+              <Countdown targetDate={race.predictionCloseDate} />
             </div>
 
             <div>
