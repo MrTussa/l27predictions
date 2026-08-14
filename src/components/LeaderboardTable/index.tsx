@@ -10,7 +10,9 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table'
+import { Nickname } from '@/components/Nickname'
 import { ArrowUpDown, Award, Medal, Trophy } from 'lucide-react'
+import { motion } from 'motion/react'
 import Link from 'next/link'
 import { useEffect, useMemo, useState } from 'react'
 
@@ -18,6 +20,7 @@ type LeaderboardEntry = {
   id: string
   nickname: string
   chartColor: string
+  equippedNicknameEffect?: string | null
   totalPoints: number
   totalPredictions: number
   perfectPredictions: number
@@ -289,7 +292,14 @@ export const LeaderboardTable: React.FC = () => {
           {sortedData.map((entry, index) => {
             const position = index + 1 + (currentPage - 1) * 15
             return (
-              <TableRow key={entry.id || index} className={getRowStyles(position)}>
+              <motion.tr
+                key={entry.id || index}
+                layout="position"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ duration: 0.2 }}
+                className={getRowStyles(position) + ' border-b transition-colors'}
+              >
                 <TableCell className="text-center font-medium">
                   <div className="flex items-center justify-center gap-2">
                     {getPositionIcon(position)}
@@ -305,7 +315,9 @@ export const LeaderboardTable: React.FC = () => {
                       className="w-3 h-3 rounded-full"
                       style={{ backgroundColor: entry.chartColor }}
                     />
-                    <span className="truncate max-w-22">{entry.nickname}</span>
+                    <Nickname effect={entry.equippedNicknameEffect} className="truncate max-w-22">
+                      {entry.nickname}
+                    </Nickname>
                   </Link>
                 </TableCell>
                 <TableCell className="text-right font-bold font-mono">
@@ -332,7 +344,7 @@ export const LeaderboardTable: React.FC = () => {
                 <TableCell className="text-right text-muted-foreground font-mono">
                   {entry.bestStreak > 0 ? entry.bestStreak : '-'}
                 </TableCell>
-              </TableRow>
+              </motion.tr>
             )
           })}
         </TableBody>

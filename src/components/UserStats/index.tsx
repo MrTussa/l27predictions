@@ -1,3 +1,4 @@
+import { CountUp } from '@/components/CountUp'
 import { Card } from '@/components/ui/card'
 import type { ProfileData, PublicUser } from '@/utilities/queries'
 import { IconChartLine, IconFlame, IconTarget, IconTrophy } from '@tabler/icons-react'
@@ -86,7 +87,9 @@ export async function UserStats({ user, data, isOwnProfile, timeZone }: UserStat
                 <p className="text-sm text-muted-foreground uppercase tracking-wider">
                   {stat.label}
                 </p>
-                <p className="text-3xl font-bold">{stat.value}</p>
+                <p className="text-3xl font-bold">
+                  {typeof stat.value === 'number' ? <CountUp value={stat.value} /> : stat.value}
+                </p>
                 {'subtitle' in stat && stat.subtitle && (
                   <p className="text-xs text-muted-foreground">{stat.subtitle}</p>
                 )}

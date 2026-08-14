@@ -1,3 +1,4 @@
+import { CountUp } from '@/components/CountUp'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 import type { SeasonStat, User } from '@/payload-types'
@@ -71,9 +72,6 @@ export function UserInfoCard({ user, seasonStats, userRank, totalUsers }: UserIn
             <div className="font-bold uppercase tracking-wider text-xl leading-tight truncate">
               {nickname}
             </div>
-            <div className="text-xs text-muted-foreground uppercase tracking-widest">
-              Профиль гонщика
-            </div>
           </div>
           {position > 0 && (
             <div className="clip-path-cut-corner-sm bg-accent text-accent-foreground font-black font-mono text-sm px-3 py-2 uppercase tracking-wide shrink-0">
@@ -89,7 +87,7 @@ export function UserInfoCard({ user, seasonStats, userRank, totalUsers }: UserIn
           <div className="text-xs text-muted-foreground uppercase tracking-widest">Очки сезона</div>
           <div className="flex items-center gap-3">
             <span className="text-6xl font-black font-mono italic text-accent leading-none">
-              {totalPoints}
+              <CountUp value={totalPoints} />
             </span>
             {lastRacePoints != null && lastRacePoints > 0 && (
               <div className="flex items-center gap-1 bg-[hsl(160_60%_10%)] text-[hsl(160_80%_55%)] text-sm font-bold font-mono px-2.5 py-1 rounded-full">

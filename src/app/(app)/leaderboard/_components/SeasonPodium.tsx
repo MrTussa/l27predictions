@@ -1,3 +1,5 @@
+import { CountUp } from '@/components/CountUp'
+import { Nickname } from '@/components/Nickname'
 import { Card } from '@/components/ui/card'
 import { Award, Medal, Trophy } from 'lucide-react'
 import Link from 'next/link'
@@ -39,7 +41,7 @@ export function SeasonPodium({ entries }: { entries: PodiumEntry[] }) {
   return (
     <Card variant="default" corners="cut-corner" className="relative overflow-hidden ">
       <div className="px-6">
-        <div className="mb-6 flex items-center justify-between gap-3">
+        <div className="mb-6  flex items-center justify-between gap-3">
           <h2 className="flex items-center gap-2.5 text-xl font-black  uppercase tracking-tight">
             <span className="inline-block h-0.75 w-3.5 bg-accent" />
             Подиум сезона
@@ -83,13 +85,13 @@ export function SeasonPodium({ entries }: { entries: PodiumEntry[] }) {
                       href={`/user/${entry.userId}`}
                       className="relative max-w-full truncate font-bold transition-colors hover:text-accent"
                     >
-                      {entry.nickname}
+                      <Nickname effect={entry.equippedNicknameEffect}>{entry.nickname}</Nickname>
                     </Link>
 
                     <div
                       className={`relative font-black italic leading-none tabular-nums text-accent ${cfg.pts}`}
                     >
-                      {entry.totalPoints}
+                      <CountUp value={entry.totalPoints} />
                     </div>
 
                     <div className="relative inline-flex items-center gap-1.5 font-mono text-[10px] uppercase tracking-wider text-muted-foreground">
