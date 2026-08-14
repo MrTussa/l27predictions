@@ -5,7 +5,7 @@ export default function PredictionsLoading() {
   return (
     <div className="min-h-screen">
       <div className="px-4 md:px-16 py-6">
-        <div className="max-w-[1800px] mx-auto">
+        <div className="max-w-450 mx-auto">
           <div className="grid grid-cols-1 xl:grid-cols-[1fr_400px] gap-8">
             {/* Podium секция */}
             <div className="p-1">
@@ -27,18 +27,17 @@ export default function PredictionsLoading() {
             </div>
 
             {/* Карточка результатов */}
-            <Card variant="gray" corners="cut-corner" className="p-1 sticky top-8">
-              <div className="px-4">
-                <Skeleton variant="title" className="w-40 h-6 mx-auto mb-4" />
-                <div className="space-y-4 mb-4">
-                  {/* Очки */}
-                  <div className="text-center">
-                    <Skeleton className="w-12 h-4 mx-auto mb-2" />
-                    <Skeleton className="w-20 h-12 mx-auto" />
+            <div className="flex flex-col gap-6">
+              <Card variant="gray" corners="cut-corner" className="p-1">
+                <div className="px-4">
+                  {/* Заголовок + очки в одну строку */}
+                  <div className="mb-4 flex items-center justify-between gap-3">
+                    <Skeleton variant="title" className="w-40 h-6" />
+                    <Skeleton className="w-16 h-7" />
                   </div>
 
                   {/* Мой прогноз */}
-                  <div>
+                  <div className="mb-4">
                     <Skeleton className="w-28 h-4 mb-3" />
                     {Array.from({ length: 3 }).map((_, i) => (
                       <div
@@ -50,12 +49,29 @@ export default function PredictionsLoading() {
                       </div>
                     ))}
                   </div>
-                </div>
 
-                {/* Кнопка */}
-                <Skeleton className="w-full h-10" />
-              </div>
-            </Card>
+                  {/* Кнопка */}
+                  <div className="min-h-36">
+                    <Skeleton className="w-full h-10" />
+                  </div>
+                </div>
+              </Card>
+
+              {/* Народный прогноз */}
+              <Card variant="gray" corners="cut-corner" className="p-1 min-h-70">
+                <div className="px-4">
+                  <div className="mb-4 flex items-center justify-between gap-3">
+                    <Skeleton variant="title" className="w-44 h-5" />
+                    <Skeleton className="w-24 h-3" />
+                  </div>
+                  <div className="space-y-2">
+                    {Array.from({ length: 3 }).map((_, i) => (
+                      <Skeleton key={i} className="w-full h-14 clip-path-cut-corner-sm" />
+                    ))}
+                  </div>
+                </div>
+              </Card>
+            </div>
           </div>
         </div>
       </div>

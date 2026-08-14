@@ -23,15 +23,22 @@ export default function LeaderboardLoading() {
             </div>
           </Card>
 
-          {/* Народный прогноз */}
-          <Card variant="default" corners="cut-corner" className="relative overflow-hidden">
-            <span className="absolute left-0 top-0 h-0.75 w-[calc(100%-18px)] bg-accent/40" />
-            <div className="px-6 pt-6 pb-2">
-              <Skeleton variant="title" className="w-44 h-6 mb-1.5" />
-              <Skeleton className="w-56 h-3 mb-5" />
-              <div className="space-y-2.5">
-                {Array.from({ length: 3 }).map((_, i) => (
-                  <Skeleton key={i} className="w-full h-14 clip-path-cut-corner-sm" />
+          {/* Рейтинг гонок */}
+          <Card variant="default" corners="cut-corner">
+            <div className="px-6 space-y-6">
+              <Skeleton variant="title" className="w-40 h-6" />
+              <div className="flex gap-4 overflow-hidden pb-4">
+                {Array.from({ length: 4 }).map((_, i) => (
+                  <div
+                    key={i}
+                    className="min-w-43.75 max-w-43.75 shrink-0 space-y-2 rounded border border-muted/30 p-3"
+                  >
+                    <Skeleton className="w-full h-20" />
+                    <Skeleton className="w-24 h-3" />
+                    <Skeleton className="w-16 h-3" />
+                    <Skeleton className="w-full h-2 rounded-full" />
+                    <Skeleton className="w-20 h-3" />
+                  </div>
                 ))}
               </div>
             </div>
@@ -50,27 +57,6 @@ export default function LeaderboardLoading() {
           </div>
         </Card>
       </div>
-
-      {/* Рейтинг гонок */}
-      <Card variant="default" corners="cut-corner">
-        <div className="px-6 py-6">
-          <Skeleton variant="title" className="w-40 h-6 mb-6" />
-          <div className="flex gap-4 overflow-hidden">
-            {Array.from({ length: 7 }).map((_, i) => (
-              <div
-                key={i}
-                className="min-w-43.75 max-w-43.75 shrink-0 space-y-2 rounded border border-muted/30 p-3"
-              >
-                <Skeleton className="w-full h-20" />
-                <Skeleton className="w-24 h-3" />
-                <Skeleton className="w-16 h-3" />
-                <Skeleton className="w-full h-2 rounded-full" />
-                <Skeleton className="w-20 h-3" />
-              </div>
-            ))}
-          </div>
-        </div>
-      </Card>
 
       {/* Таблица (LeaderboardTable) */}
       <div className="w-full flex justify-center">

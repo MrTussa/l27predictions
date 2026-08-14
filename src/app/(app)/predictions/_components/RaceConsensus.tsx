@@ -1,23 +1,22 @@
 import { Card } from '@/components/ui/card'
 import { Check, X } from 'lucide-react'
-import type { RaceConsensus as RaceConsensusData } from '../_lib/getLeaderboardData'
+import type { RaceConsensus as RaceConsensusData } from '../_lib/buildConsensus'
 
 export function RaceConsensus({ consensus }: { consensus: RaceConsensusData }) {
   return (
-    <Card variant="default" corners="cut-corner" className="relative overflow-hidden">
-      <div className="px-6">
-        <div className="mb-5">
-          <h2 className="flex items-center gap-2.5 text-xl font-black uppercase tracking-tight">
-            <span className="inline-block h-0.75 w-3.5 bg-accent" />
+    <Card variant="gray" corners="cut-corner" className="p-1">
+      <div className="px-4">
+        <div className="mb-4 flex items-center justify-between gap-3">
+          <h3 className="flex items-center gap-2 text-base font-black italic uppercase tracking-wide">
+            <span className="inline-block w-3.5 h-0.75 bg-accent" />
             Народный прогноз
-          </h2>
-          <p className="mt-1.5 font-mono text-[11px] uppercase tracking-[0.04em] text-muted-foreground">
-            {consensus.raceName} · учтено прогнозов:{' '}
-            <b className="text-foreground/80">{consensus.total}</b>
-          </p>
+          </h3>
+          <span className="font-mono text-[10px] uppercase tracking-[0.14em] text-muted-foreground">
+            Прогнозов: <b className="text-foreground/80">{consensus.total}</b>
+          </span>
         </div>
 
-        <div className="space-y-2.5">
+        <div className="space-y-2">
           {consensus.slots.map((slot) => {
             const team =
               slot.driver && typeof slot.driver.team === 'object' ? slot.driver.team : null
@@ -36,7 +35,7 @@ export function RaceConsensus({ consensus }: { consensus: RaceConsensusData }) {
                     style={{ width: `${slot.pct}%`, background: color }}
                   />
 
-                  <div className="relative z-10 flex items-center gap-3.5 px-4 py-3">
+                  <div className="relative z-10 flex items-center gap-3 px-4 py-2.5">
                     <div className="flex w-7 shrink-0 flex-col items-center">
                       <b className="text-2xl font-black italic leading-none tabular-nums text-accent">
                         P{slot.position}
@@ -48,7 +47,7 @@ export function RaceConsensus({ consensus }: { consensus: RaceConsensusData }) {
                         {slot.driver ? slot.driver.name : '—'}
                       </div>
                       {team?.name && (
-                        <div className="mt-0.5 font-mono text-[10px] uppercase tracking-wider text-muted-foreground">
+                        <div className="mt-0.5 truncate font-mono text-[10px] uppercase tracking-wider text-muted-foreground">
                           {team.name}
                         </div>
                       )}
