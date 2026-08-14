@@ -62,7 +62,7 @@ export function RaceRecap({ recap }: { recap: NonNullable<Race['recap']> }) {
         <div className="flex items-center justify-between gap-3 mb-4">
           <h3 className="flex items-center gap-2 text-base font-black italic uppercase tracking-wide">
             <span className="inline-block w-3.5 h-0.75 bg-accent" />
-            Гонка в цифрах
+            Статистика
           </h3>
           <span className="font-mono text-[10px] uppercase tracking-[0.14em] text-muted-foreground">
             {fastestDriver?.shortName}

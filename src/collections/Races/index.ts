@@ -186,7 +186,7 @@ export const Races: CollectionConfig = {
     {
       name: 'recap',
       type: 'group',
-      label: 'Гонка в цифрах',
+      label: 'Статистика',
       admin: {
         description: 'Заполняется автоматически при импорте из OpenF1',
       },
