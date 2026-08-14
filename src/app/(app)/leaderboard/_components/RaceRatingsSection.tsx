@@ -1,5 +1,7 @@
 import { Card } from '@/components/ui/card'
 import type { Race } from '@/payload-types'
+import Link from 'next/link'
+import { ScrollToEnd } from './ScrollToEnd'
 
 interface RaceRatingsSectionProps {
   races: Race[]
@@ -16,7 +18,7 @@ export function RaceRatingsSection({ races }: RaceRatingsSectionProps) {
           Рейтинг гонок
         </h2>
 
-        <div className="flex overflow-x-auto gap-4 pb-4 custom-scrollbar">
+        <ScrollToEnd className="flex overflow-x-auto gap-4 pb-4 custom-scrollbar">
           {races.map((race) => {
             const bad = race.rating?.ratingBad ?? 0
             const normal = race.rating?.ratingNormal ?? 0
@@ -28,9 +30,10 @@ export function RaceRatingsSection({ races }: RaceRatingsSectionProps) {
             const goodPct = (good / total) * 100
 
             return (
-              <div
+              <Link
                 key={race.id}
-                className="min-w-43.75 max-w-43.75 shrink-0 bg-muted/20 border border-muted/30 rounded p-3 space-y-2"
+                href={`/predictions?race=${race.id}`}
+                className="min-w-43.75 max-w-43.75 shrink-0 bg-muted/20 border border-muted/30 rounded p-3 space-y-2 transition-colors hover:border-accent/50 hover:bg-muted/40"
               >
                 {race.trackSVGPath && (
                   <svg
@@ -66,10 +69,10 @@ export function RaceRatingsSection({ races }: RaceRatingsSectionProps) {
                 </div>
 
                 <p className="text-xs text-muted-foreground">Всего: {total}</p>
-              </div>
+              </Link>
             )
           })}
-        </div>
+        </ScrollToEnd>
       </div>
     </Card>
   )
