@@ -6,6 +6,7 @@ import path from 'path'
 import { buildConfig } from 'payload'
 import { fileURLToPath } from 'url'
 
+import { isAdmin } from '@/access'
 import { submitEventResponse } from '@/api/events/submitEventResponse'
 import { submitRaceRating } from '@/api/race-ratings/submitRaceRating'
 import { shop } from '@/api/shop/shop'
@@ -20,6 +21,7 @@ import { SeasonStats } from '@/collections/SeasonStats'
 import { Teams } from '@/collections/Teams'
 import { Users } from '@/collections/Users'
 import { BroadcastSettings } from '@/globals/BroadcastSettings'
+import { importFinishedRaces } from '@/jobs/importFinishedRaces'
 
 const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
@@ -60,6 +62,19 @@ export default buildConfig({
       },
     },
   }),
+  jobs: {
+    tasks: [importFinishedRaces],
+    // `schedule` у задачи ставит job в очередь, autoRun — исполняет её.
+    // Нужны оба; работает на долгоживущем Node-процессе (`next start`).
+    autoRun: [{ cron: '*/5 * * * *', queue: 'openf1', limit: 3 }],
+    shouldAutoRun: () => process.env.DISABLE_JOBS !== 'true',
+    // Тик раз в 10 минут — записи выполненных job'ов не копим. Для отладки временно
+    // поставить false, тогда результат прогона виден в коллекции `payload-jobs`.
+    deleteJobOnComplete: true,
+    access: {
+      run: ({ req }) => isAdmin(req.user),
+    },
+  },
   endpoints: [
     {
       path: '/event-responses',

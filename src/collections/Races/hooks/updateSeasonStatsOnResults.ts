@@ -64,11 +64,16 @@ export const updateSeasonStatsOnResults: CollectionAfterChangeHook = async ({
       const { recalculateSeasonStats } = await import('@/utilities/recalculateSeasonStats')
       await recalculateSeasonStats(req.payload, userIds, doc.season, doc)
 
-      console.log(
+      req.payload.logger.info(
         `Updated season stats for ${userIds.length} users after race ${doc.name} results changed`,
       )
     } catch (error) {
-      console.error('Error updating season stats on race results change:', error)
+      // Результаты теперь может записать фоновая задача, за которой никто не смотрит,
+      // поэтому пишем в тот же лог, что и она, а не в stdout мимо логгера.
+      req.payload.logger.error(
+        { err: error },
+        `Error updating season stats after race ${doc.name} results changed`,
+      )
     }
   }
 
