@@ -27,6 +27,7 @@ const SYSTEM_PROMPT = `Ты пишешь тексты для шуточных к
 - badges — ровно 4 значка-ачивки по фактам сезона: icon из списка, name — 1–2 слова КАПСОМ до 20 символов, description — до 40 символов.
 - moments — по одному на каждый элемент moments из данных, с тем же id: label — 2–3 слова КАПСОМ до 26 символов (как «ПИЛОТ-НЕУДАЧНИК»), comment — подкол по факту, до 120 символов.
 - weaknesses — ровно 3 «слабости» по 1–3 слова, до 24 символов каждая.
+- conditionsComment — 1–2 предложения про погоду, стартовую решётку и оценки гонок игрока (см. weather, startingGrid, raceRatingsByPlayer), до 200 символов. Если этих данных нет — пошути про то, что игрок играет вслепую.
 - artifact — «фирменный артефакт» игрока: смешной предмет, до 70 символов.
 - specialMarks — «особые приметы» для суперлицензии: 2 коротких пункта через «; », со строчной буквы, до 100 символов.
 
@@ -66,6 +67,7 @@ const RECAP_SCHEMA = {
       },
     },
     weaknesses: { type: 'array', items: { type: 'string' } },
+    conditionsComment: { type: 'string' },
     artifact: { type: 'string' },
     specialMarks: { type: 'string' },
   },
@@ -77,6 +79,7 @@ const RECAP_SCHEMA = {
     'badges',
     'moments',
     'weaknesses',
+    'conditionsComment',
     'artifact',
     'specialMarks',
   ],
@@ -179,7 +182,7 @@ const QUOTE_PAIRS = [
   ['“', '”'],
 ]
 
-function clean(value: unknown, max: number): string | null {
+export function clean(value: unknown, max: number): string | null {
   if (typeof value !== 'string') return null
   let text = value.replace(/[*`]/g, '').replace(/\s+/g, ' ').trim()
   for (const [open, close] of QUOTE_PAIRS) {
@@ -191,7 +194,7 @@ function clean(value: unknown, max: number): string | null {
   return text.length > max ? `${text.slice(0, max - 1).trimEnd()}…` : text
 }
 
-const asRecords = (value: unknown) =>
+export const asRecords = (value: unknown) =>
   (Array.isArray(value) ? value : []).filter(
     (item): item is Record<string, unknown> => !!item && typeof item === 'object',
   )
@@ -241,18 +244,24 @@ export function sanitizeRecapTexts(
     tagline,
     favoriteComment: clean(data.favoriteComment, 200) ?? fallback.favoriteComment,
     nemesisComment: clean(data.nemesisComment, 200) ?? fallback.nemesisComment,
-    badges: [...badges, ...fallback.badges].slice(0, 4),
+    badges: [...badges, ...fallback.badges]
+      .filter((badge, i, all) => all.findIndex((b) => b.name === badge.name) === i)
+      .slice(0, 4),
     moments: { ...fallback.moments, ...moments },
     weaknesses: [...weaknesses, ...fallback.weaknesses].slice(0, 3),
+    conditionsComment: clean(data.conditionsComment, 220) ?? fallback.conditionsComment,
     artifact: clean(data.artifact, 90) ?? fallback.artifact,
     specialMarks: clean(data.specialMarks, 130) ?? fallback.specialMarks,
   }
 }
 
-export async function requestRecapTexts(
-  recap: SeasonRecap,
-  fallback: RecapTexts,
-): Promise<RecapTexts> {
+/** Запрос к OpenRouter со строгой JSON-схемой; возвращает разобранный JSON ответа */
+export async function callOpenRouter(options: {
+  system: string
+  user: string
+  schemaName: string
+  schema: object
+}): Promise<unknown> {
   const apiKey = process.env.OPENROUTER_API_KEY
   if (!apiKey) throw new Error('OPENROUTER_API_KEY не задан')
 
@@ -267,15 +276,12 @@ export async function requestRecapTexts(
     body: JSON.stringify({
       model: recapModel(),
       messages: [
-        { role: 'system', content: SYSTEM_PROMPT },
-        {
-          role: 'user',
-          content: `Данные игрока:\n${JSON.stringify(buildPromptFacts(recap), null, 2)}`,
-        },
+        { role: 'system', content: options.system },
+        { role: 'user', content: options.user },
       ],
       response_format: {
         type: 'json_schema',
-        json_schema: { name: 'season_recap', strict: true, schema: RECAP_SCHEMA },
+        json_schema: { name: options.schemaName, strict: true, schema: options.schema },
       },
       temperature: 0.9,
       max_tokens: 8000,
@@ -289,5 +295,18 @@ export async function requestRecapTexts(
   }
 
   const data = await response.json()
-  return sanitizeRecapTexts(parseModelJson(data?.choices?.[0]?.message?.content), recap, fallback)
+  return parseModelJson(data?.choices?.[0]?.message?.content)
+}
+
+export async function requestRecapTexts(
+  recap: SeasonRecap,
+  fallback: RecapTexts,
+): Promise<RecapTexts> {
+  const raw = await callOpenRouter({
+    system: SYSTEM_PROMPT,
+    user: `Данные игрока:\n${JSON.stringify(buildPromptFacts(recap), null, 2)}`,
+    schemaName: 'season_recap',
+    schema: RECAP_SCHEMA,
+  })
+  return sanitizeRecapTexts(raw, recap, fallback)
 }

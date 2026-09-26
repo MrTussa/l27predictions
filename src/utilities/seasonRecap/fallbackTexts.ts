@@ -147,6 +147,19 @@ function weaknesses(r: SeasonRecap): string[] {
   return [...pool.filter((item): item is string => !!item), ...fillers].slice(0, 3)
 }
 
+function conditionsComment(r: SeasonRecap): string {
+  if (r.weather && r.weather.wetAvg < r.weather.dryAvg) {
+    return `В дождь ${formatDecimal(r.weather.wetAvg)} за гонку против ${formatDecimal(r.weather.dryAvg)} в сухую — промежуточные тебе бы не помешали.`
+  }
+  if (r.grid && r.grid.qualiCopies >= 3) {
+    return `${r.grid.qualiCopies} раз переписал квалификацию. Смело, ничего не скажешь.`
+  }
+  if (r.grid && r.grid.comebackPicks > 0) {
+    return `Ставил на камбэки с P6 и дальше ${r.grid.comebackPicks} раз — до подиума доехали ${r.grid.comebackHits}.`
+  }
+  return 'Погоду не смотришь, решётку не читаешь — чистая интуиция.'
+}
+
 function artifact(r: SeasonRecap): string {
   if (r.missed >= 3) return 'Будильник, который не звонит в день гонки'
   if (r.zeroRaces >= 3) return 'Калькулятор, который умеет считать только до нуля'
@@ -183,6 +196,7 @@ export function buildFallbackTexts(recap: SeasonRecap): RecapTexts {
     badges: badges(recap, recapTitle),
     moments,
     weaknesses: weaknesses(recap),
+    conditionsComment: conditionsComment(recap),
     artifact: artifact(recap),
     specialMarks: specialMarks(recap),
   }

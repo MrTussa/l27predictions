@@ -19,6 +19,7 @@ import type { Metadata } from 'next'
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { Suspense, type ReactNode } from 'react'
+import { GeneratingMarker, GeneratingOverlay } from './_components/GeneratingOverlay'
 import { SectionTitle } from './_components/parts'
 import { RecapDashboard } from './_components/RecapDashboard'
 
@@ -67,7 +68,16 @@ export default async function SeasonRecapPage({ params }: Props) {
         )}
       </div>
 
-      <Suspense fallback={<RecapDashboard recap={recap} texts={null} />}>
+      <GeneratingOverlay />
+
+      <Suspense
+        fallback={
+          <>
+            <GeneratingMarker />
+            <RecapDashboard recap={recap} texts={null} />
+          </>
+        }
+      >
         <RecapWithTexts recap={recap} />
       </Suspense>
     </div>

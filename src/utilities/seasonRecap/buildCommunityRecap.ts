@@ -26,6 +26,17 @@ export type Nomination = {
   value: string
 }
 
+export type RatedRace = {
+  race: RecapRace
+  good: number
+  normal: number
+  bad: number
+  score: number
+}
+
+/** Поднять при изменении расчётов или промпта итогов сезона */
+export const COMMUNITY_VERSION = 1
+
 export type CommunityRecap = {
   season: number
   racesTotal: number
@@ -38,6 +49,15 @@ export type CommunityRecap = {
   easiestRace: { race: RecapRace; avg: number } | null
   /** Виртуальный игрок, который всегда ставил как большинство */
   crowd: { points: number; rank: number } | null
+  podium: { user: RecapUser; points: number; perfect: number }[]
+  /** Пилот с наибольшим числом подиумов в реальных гонках */
+  driverOfSeason: { driver: RecapDriver; podiums: number; wins: number } | null
+  /** Пилот, которого чаще всех ставили в прогнозы */
+  publicFavorite: { driver: RecapDriver; picks: number; sharePct: number } | null
+  /** Гонки по оценкам игроков: доля «хороших» минус доля «плохих» */
+  bestRatedRace: RatedRace | null
+  worstRatedRace: RatedRace | null
+  fingerprint: string
 }
 
 const round1 = (n: number) => Math.round(n * 10) / 10
@@ -241,6 +261,69 @@ export function buildCommunityRecap(input: CommunityInput): CommunityRecap {
   const easiest = sortedRaces[sortedRaces.length - 1]
   const totals = [...players.values()].map((entry) => entry.points)
 
+  const podium = [...players.entries()]
+    .sort(
+      (a, b) =>
+        b[1].points - a[1].points ||
+        input.players[a[0]].nickname.localeCompare(input.players[b[0]].nickname),
+    )
+    .slice(0, 3)
+    .map(([id, entry]) => ({
+      user: input.players[id],
+      points: entry.points,
+      perfect: entry.perfect,
+    }))
+
+  const podiumCounts = new Map<string, { podiums: number; wins: number }>()
+  for (const race of completed) {
+    for (const result of race.results) {
+      const entry = podiumCounts.get(result.driver) ?? { podiums: 0, wins: 0 }
+      entry.podiums++
+      if (result.position === 1) entry.wins++
+      podiumCounts.set(result.driver, entry)
+    }
+  }
+  const topDriver = [...podiumCounts.entries()]
+    .filter(([id]) => input.drivers[id])
+    .sort((a, b) => b[1].podiums - a[1].podiums || b[1].wins - a[1].wins)[0]
+
+  const pickCounts = new Map<string, number>()
+  let picksTotal = 0
+  for (const prediction of input.predictions) {
+    if (!known(prediction.user)) continue
+    for (const pick of prediction.picks) {
+      pickCounts.set(pick.driver, (pickCounts.get(pick.driver) ?? 0) + 1)
+      picksTotal++
+    }
+  }
+  const favorite = [...pickCounts.entries()]
+    .filter(([id]) => input.drivers[id])
+    .sort((a, b) => b[1] - a[1])[0]
+
+  const rated = races
+    .map((race) => {
+      const votes = race.votes ?? { good: 0, normal: 0, bad: 0 }
+      const total = votes.good + votes.normal + votes.bad
+      return {
+        race: toRace(race),
+        ...votes,
+        total,
+        score: total ? (votes.good - votes.bad) / total : 0,
+      }
+    })
+    .filter((row) => row.total >= 3)
+    .sort((a, b) => b.score - a.score || b.total - a.total)
+  const toRated = (row: (typeof rated)[number] | undefined): RatedRace | null =>
+    row
+      ? {
+          race: row.race,
+          good: row.good,
+          normal: row.normal,
+          bad: row.bad,
+          score: Math.round(row.score * 100),
+        }
+      : null
+
   return {
     season: input.season,
     racesTotal: races.length,
@@ -254,6 +337,29 @@ export function buildCommunityRecap(input: CommunityInput): CommunityRecap {
       easiest && easiest !== hardest
         ? { race: toRace(easiest.race), avg: round1(easiest.avg) }
         : null,
+    podium,
+    driverOfSeason: topDriver
+      ? {
+          driver: input.drivers[topDriver[0]],
+          podiums: topDriver[1].podiums,
+          wins: topDriver[1].wins,
+        }
+      : null,
+    publicFavorite: favorite
+      ? {
+          driver: input.drivers[favorite[0]],
+          picks: favorite[1],
+          sharePct: Math.round((favorite[1] / Math.max(1, picksTotal / 3)) * 100),
+        }
+      : null,
+    bestRatedRace: toRated(rated[0]),
+    worstRatedRace: rated.length > 1 ? toRated(rated[rated.length - 1]) : null,
+    fingerprint: [
+      `c${COMMUNITY_VERSION}`,
+      completed.length,
+      predictionsTotal,
+      podium.map((row) => `${row.user.id}=${row.points}`).join(','),
+    ].join(':'),
     crowd:
       raceAverages.length > 0
         ? { points: crowdPoints, rank: 1 + totals.filter((total) => total > crowdPoints).length }

@@ -262,6 +262,32 @@ describe('buildCommunityRecap', () => {
     expect(byKey('ghost')).toBeUndefined()
   })
 
+  it('собирает подиум, пилотов сезона и лучшие гонки по оценкам', () => {
+    expect(community.podium.map((row) => [row.user.id, row.points])).toEqual([
+      ['u2', 47],
+      ['u4', 37],
+      ['u3', 22],
+    ])
+    expect(community.driverOfSeason).toMatchObject({ driver: { id: 'nor' }, podiums: 4, wins: 1 })
+    expect(community.publicFavorite?.driver.id).toBe('nor')
+
+    const voted = buildCommunityRecap({
+      ...fullSeason,
+      players,
+      races: fullSeason.races.map((r, i) => ({
+        ...r,
+        votes: [
+          { good: 5, normal: 0, bad: 0 },
+          { good: 0, normal: 1, bad: 4 },
+          { good: 1, normal: 0, bad: 0 },
+          { good: 2, normal: 2, bad: 1 },
+        ][i],
+      })),
+    })
+    expect(voted.bestRatedRace).toMatchObject({ race: { id: 'r1' }, score: 100 })
+    expect(voted.worstRatedRace).toMatchObject({ race: { id: 'r2' }, score: -80 })
+  })
+
   it('находит самую сложную и самую лёгкую гонку', () => {
     expect(community.hardestRace).toMatchObject({ race: { id: 'r1' }, avg: 3.6 })
     expect(community.easiestRace).toMatchObject({ race: { id: 'r2' }, avg: 8.4 })

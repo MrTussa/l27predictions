@@ -17,6 +17,8 @@ export type RecapRaceInput = RecapRace & {
   grid: RecapPick[]
   /** Был ли дождь; null — погоду не импортировали */
   rainfall: boolean | null
+  /** Оценки гонки игроками (для итогов сезона) */
+  votes?: { good: number; normal: number; bad: number }
 }
 
 export type RaceRatingValue = 'bad' | 'normal' | 'good'
@@ -169,6 +171,7 @@ export type RecapTexts = {
   badges: RecapBadge[]
   moments: Record<string, { label: string; comment: string }>
   weaknesses: string[]
+  conditionsComment: string
   artifact: string
   specialMarks: string
 }

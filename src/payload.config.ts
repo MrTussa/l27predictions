@@ -9,6 +9,7 @@ import { fileURLToPath } from 'url'
 import { submitEventResponse } from '@/api/events/submitEventResponse'
 import { submitRaceRating } from '@/api/race-ratings/submitRaceRating'
 import { shop } from '@/api/shop/shop'
+import { CommunityRecaps } from '@/collections/CommunityRecaps'
 import { Drivers } from '@/collections/Drivers'
 import { EventResponses } from '@/collections/EventResponses'
 import { F1Events } from '@/collections/Events'
@@ -39,6 +40,7 @@ export default buildConfig({
     RaceRatings,
     SeasonStats,
     SeasonRecaps,
+    CommunityRecaps,
     F1Events,
     EventResponses,
     Media,

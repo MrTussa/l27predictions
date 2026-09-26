@@ -75,6 +75,7 @@ export interface Config {
     'race-ratings': RaceRating;
     'season-stats': SeasonStat;
     'season-recaps': SeasonRecapRecord;
+    'community-recaps': CommunityRecapRecord;
     events: Event;
     'event-responses': EventResponse;
     media: Media;
@@ -93,6 +94,7 @@ export interface Config {
     'race-ratings': RaceRatingsSelect<false> | RaceRatingsSelect<true>;
     'season-stats': SeasonStatsSelect<false> | SeasonStatsSelect<true>;
     'season-recaps': SeasonRecapsSelect<false> | SeasonRecapsSelect<true>;
+    'community-recaps': CommunityRecapsSelect<false> | CommunityRecapsSelect<true>;
     events: EventsSelect<false> | EventsSelect<true>;
     'event-responses': EventResponsesSelect<false> | EventResponsesSelect<true>;
     media: MediaSelect<false> | MediaSelect<true>;
@@ -452,6 +454,32 @@ export interface SeasonRecapRecord {
   createdAt: string;
 }
 /**
+ * Тексты общей страницы итогов сезона от нейросети. Можно поправить вручную; удалите запись, чтобы сгенерировать заново.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "community-recaps".
+ */
+export interface CommunityRecapRecord {
+  id: string;
+  season: number;
+  /**
+   * Когда статистика сезона меняется, тексты генерируются заново
+   */
+  fingerprint: string;
+  model?: string | null;
+  texts:
+    | {
+        [k: string]: unknown;
+      }
+    | unknown[]
+    | string
+    | number
+    | boolean
+    | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
  * Универсальные события: голосования, квизы, предсказания
  *
  * This interface was referenced by `Config`'s JSON-Schema
@@ -630,6 +658,10 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'season-recaps';
         value: string | SeasonRecapRecord;
+      } | null)
+    | ({
+        relationTo: 'community-recaps';
+        value: string | CommunityRecapRecord;
       } | null)
     | ({
         relationTo: 'events';
@@ -858,6 +890,18 @@ export interface SeasonStatsSelect<T extends boolean = true> {
  */
 export interface SeasonRecapsSelect<T extends boolean = true> {
   user?: T;
+  season?: T;
+  fingerprint?: T;
+  model?: T;
+  texts?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "community-recaps_select".
+ */
+export interface CommunityRecapsSelect<T extends boolean = true> {
   season?: T;
   fingerprint?: T;
   model?: T;

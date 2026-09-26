@@ -134,7 +134,7 @@ export function RecapDashboard({ recap, texts, licence }: Props) {
 
         <div className="flex flex-col gap-6 xl:order-3 xl:col-span-3">
           <Specializations recap={recap} />
-          <Conditions recap={recap} />
+          <Conditions recap={recap} texts={texts} />
           <Roast recap={recap} texts={texts} />
         </div>
       </div>
@@ -452,14 +452,17 @@ const RATING = {
   good: { label: 'Хорошая', color: '#00e050' },
 } as const
 
-function Conditions({ recap }: { recap: SeasonRecap }) {
+function Conditions({ recap, texts }: { recap: SeasonRecap; texts: RecapTexts | null }) {
   const { weather, grid, ratings } = recap
-  if (!weather && !grid && ratings.length === 0) return null
 
   return (
     <Card variant="default" corners="cut-corner">
       <div className="space-y-4 px-5">
         <SectionTitle>Погода и старт</SectionTitle>
+
+        <p className="border-l-2 border-sky-400 py-1 pl-3 text-sm italic text-foreground/85">
+          <AiText text={texts?.conditionsComment} lines={2} />
+        </p>
 
         {weather && (
           <div className="flex items-start gap-3">

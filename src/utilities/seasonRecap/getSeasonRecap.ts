@@ -43,6 +43,11 @@ export async function loadSeasonData(season: number) {
     results: toPicks(race.results),
     grid: toPicks(race.startingGrid),
     rainfall: race.recap?.weather?.rainfall ?? null,
+    votes: {
+      good: race.rating?.ratingGood ?? 0,
+      normal: race.rating?.ratingNormal ?? 0,
+      bad: race.rating?.ratingBad ?? 0,
+    },
   }))
 
   const predictions = await getSeasonPicks(raceInputs.map((race) => race.id))
