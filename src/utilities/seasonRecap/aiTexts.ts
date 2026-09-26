@@ -1,7 +1,7 @@
 import { BADGE_ICONS, type BadgeIcon, type RecapTexts, type SeasonRecap } from './types'
 
 const OPENROUTER_URL = 'https://openrouter.ai/api/v1/chat/completions'
-export const DEFAULT_RECAP_MODEL = 'anthropic/claude-sonnet-5'
+export const DEFAULT_RECAP_MODEL = 'anthropic/claude-haiku-4.5'
 
 export const recapModel = () => process.env.OPENROUTER_MODEL || DEFAULT_RECAP_MODEL
 
