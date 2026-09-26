@@ -33,82 +33,78 @@ export function renderLicenceImage(
   )
 }
 
-const INK = '#111a33'
-const MUTED = '#5b6687'
-const RED = '#c8102e'
 const ACCENT = '#FFDF2C'
+const F1_RED = '#E10600'
+const DARK = '#15151E'
+const PANEL = '#1F1F2B'
+const GREY = '#9B9BAA'
+
+// Стиль ТВ-графики F1: тёмный фон, красные акценты, наклонный жирный текст.
+// Курсива у Geist нет, поэтому наклон — через skewX.
+const slant = { transform: 'skewX(-10deg)' } as const
 
 const page = {
   width: '100%',
   height: '100%',
   display: 'flex',
-  padding: 28,
   fontFamily: 'Geist',
-  background:
-    'radial-gradient(circle at 12% 0%, rgba(255,223,44,0.35), transparent 45%), radial-gradient(circle at 95% 100%, rgba(225,6,0,0.35), transparent 45%), #0a0a0a',
+  color: '#fff',
+  background: `linear-gradient(135deg, #1b1b26 0%, ${DARK} 55%, #0e0e14 100%)`,
 } as const
 
-const card = {
-  flex: 1,
-  display: 'flex',
-  flexDirection: 'column',
-  position: 'relative',
-  borderRadius: 28,
-  padding: '24px 34px',
-  color: INK,
-  background: 'linear-gradient(120deg, #f7f4ea 0%, #e8eef7 48%, #f6e8ef 100%)',
-  boxShadow: '0 0 40px rgba(255,223,44,0.25)',
-} as const
-
-/** Штрихкод из id пользователя — чисто декоративный, но у каждого свой */
-function Barcode({ id }: { id: string }) {
-  const bars = id
-    .replace(/[^0-9a-f]/gi, '')
-    .slice(-20)
-    .split('')
-    .map((char) => parseInt(char, 16))
+/** Клетчатый флаг — две строки квадратов */
+function Checkered({ columns, size = 9 }: { columns: number; size?: number }) {
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
-      <div style={{ display: 'flex', height: 40, alignItems: 'stretch' }}>
-        {bars.map((value, i) => (
-          <div
-            key={i}
-            style={{
-              width: 2 + (value % 3),
-              marginRight: 1 + ((value >> 2) % 3),
-              background: INK,
-            }}
-          />
-        ))}
-      </div>
-      <div style={{ fontFamily: 'Geist Mono', fontSize: 11, color: MUTED, letterSpacing: 1 }}>
-        {id.slice(-16).toUpperCase()}
-      </div>
+    <div style={{ display: 'flex', flexDirection: 'column' }}>
+      {[0, 1].map((row) => (
+        <div key={row} style={{ display: 'flex' }}>
+          {Array.from({ length: columns }).map((_, i) => (
+            <div
+              key={i}
+              style={{
+                width: size,
+                height: size,
+                background: (i + row) % 2 === 0 ? '#fff' : 'transparent',
+              }}
+            />
+          ))}
+        </div>
+      ))}
     </div>
   )
 }
 
-function Field({
-  n,
-  label,
-  value,
-  width,
-}: {
-  n: number
-  label: string
-  value: string
-  width: string
-}) {
+/** Строка «таймингтауэра»: метка слева, значение справа */
+function TowerRow({ label, value, color }: { label: string; value: string; color?: string }) {
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', width, paddingRight: 16 }}>
-      <div style={{ fontSize: 13, color: MUTED, letterSpacing: 1.5, textTransform: 'uppercase' }}>
-        {`${n}. ${label}`}
+    <div
+      style={{
+        display: 'flex',
+        alignItems: 'center',
+        height: 46,
+        background: PANEL,
+        borderLeft: `6px solid ${color ?? F1_RED}`,
+        marginBottom: 6,
+      }}
+    >
+      <div
+        style={{
+          width: 210,
+          paddingLeft: 16,
+          fontSize: 14,
+          fontWeight: 700,
+          letterSpacing: 2,
+          color: GREY,
+        }}
+      >
+        {label}
       </div>
       <div
         style={{
-          fontSize: 25,
-          fontWeight: 700,
-          marginTop: 2,
+          flex: 1,
+          paddingRight: 16,
+          fontSize: 24,
+          fontWeight: 900,
           whiteSpace: 'nowrap',
           overflow: 'hidden',
           textOverflow: 'ellipsis',
@@ -128,201 +124,259 @@ export function LicenceImage({ recap, texts }: { recap: SeasonRecap; texts: Reca
   const accuracy = recap.radar.find((axis) => axis.key === 'accuracy')?.value ?? 0
   const penalty = recap.penaltyPoints
   const suspended = penalty >= 12
-  const initial = recap.user.nickname.slice(0, 1).toUpperCase()
+  const userColor = recap.user.chartColor
+  const favorite = recap.favorite?.driver
+  const best = recap.topRaces[0]
 
   return (
     <div style={page}>
-      <div style={card}>
+      {/* Косые «скоростные» полосы на фоне */}
+      {[0, 1, 2].map((i) => (
+        <div
+          key={i}
+          style={{
+            position: 'absolute',
+            top: -100,
+            right: 120 + i * 70,
+            width: 26 - i * 7,
+            height: 900,
+            background: i === 0 ? F1_RED : 'rgba(255,255,255,0.06)',
+            opacity: i === 0 ? 0.9 : 1,
+            transform: 'rotate(20deg)',
+          }}
+        />
+      ))}
+
+      <div style={{ display: 'flex', flexDirection: 'column', flex: 1, position: 'relative' }}>
+        <div style={{ display: 'flex', height: 8, background: F1_RED }} />
+
         {/* Шапка */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: 20 }}>
+        <div style={{ display: 'flex', alignItems: 'center', padding: '22px 40px 0', gap: 22 }}>
           <div
             style={{
-              width: 70,
-              height: 70,
-              borderRadius: 35,
+              ...slant,
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              background: '#0f1220',
-              border: `4px solid ${ACCENT}`,
-              color: ACCENT,
-              fontSize: 24,
+              width: 96,
+              height: 60,
+              background: F1_RED,
+              fontSize: 32,
               fontWeight: 900,
             }}
           >
             L27
           </div>
           <div style={{ display: 'flex', flexDirection: 'column', flex: 1 }}>
-            <div style={{ fontSize: 38, fontWeight: 900, letterSpacing: 1 }}>
-              СУПЕРЛИЦЕНЗИЯ ПРОГНОЗИСТА
+            <div
+              style={{ ...slant, fontSize: 46, fontWeight: 900, letterSpacing: 1, lineHeight: 1 }}
+            >
+              СУПЕРЛИЦЕНЗИЯ
             </div>
-            <div style={{ fontSize: 15, color: MUTED, letterSpacing: 1.5 }}>
-              L27 · ИНСПЕКЦИЯ БЕЗОПАСНОСТИ ПРОГНОЗНОГО ДВИЖЕНИЯ
-            </div>
-          </div>
-          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end' }}>
             <div
               style={{
-                fontFamily: 'Geist Mono',
-                fontSize: 28,
+                ...slant,
+                fontSize: 17,
                 fontWeight: 700,
-                color: RED,
                 letterSpacing: 4,
+                color: F1_RED,
+                marginTop: 6,
               }}
             >
-              {`SL ${number.slice(0, 4)} ${number.slice(4)}`}
+              {`ПРОГНОЗИСТА · ЧЕМПИОНАТ L27 · СЕЗОН ${recap.season}`}
             </div>
-            <div style={{ fontFamily: 'Geist Mono', fontSize: 14, color: MUTED }}>
-              {`серия F1-${recap.season}`}
+          </div>
+          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 8 }}>
+            <Checkered columns={14} />
+            <div
+              style={{ fontFamily: 'Geist Mono', fontSize: 20, fontWeight: 700, letterSpacing: 3 }}
+            >
+              {`SL ${number.slice(0, 4)} ${number.slice(4)}`}
             </div>
           </div>
         </div>
 
-        <div style={{ display: 'flex', height: 2, background: '#c9d1e3', margin: '16px 0 18px' }} />
-
-        {/* Фото и поля */}
-        <div style={{ display: 'flex', flex: 1 }}>
+        {/* Основной блок */}
+        <div style={{ display: 'flex', padding: '24px 40px 0', gap: 30, flex: 1 }}>
+          {/* Карточка «пилота» */}
           <div
-            style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', width: 200 }}
+            style={{
+              display: 'flex',
+              flexDirection: 'column',
+              width: 360,
+              marginBottom: 22,
+              background: PANEL,
+              borderTop: `6px solid ${userColor}`,
+              padding: '18px 24px',
+            }}
           >
-            <div
-              style={{
-                width: 180,
-                height: 190,
-                borderRadius: 18,
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                position: 'relative',
-                background: `linear-gradient(160deg, ${recap.user.chartColor} 0%, #10131c 85%)`,
-                color: 'rgba(255,255,255,0.92)',
-                fontSize: 120,
-                fontWeight: 900,
-              }}
-            >
-              {initial}
+            <div style={{ display: 'flex', alignItems: 'flex-end', gap: 12 }}>
+              <div
+                style={{
+                  ...slant,
+                  fontSize: 104,
+                  fontWeight: 900,
+                  lineHeight: 0.9,
+                  color: recap.rank === 1 ? ACCENT : '#fff',
+                }}
+              >
+                {recap.rank ? `P${recap.rank}` : '—'}
+              </div>
+              <div style={{ fontSize: 18, fontWeight: 700, color: GREY, marginBottom: 8 }}>
+                {`из ${recap.playersTotal}`}
+              </div>
             </div>
             <div
               style={{
-                marginTop: 12,
-                padding: '4px 14px',
-                border: `2px solid ${INK}`,
-                borderRadius: 10,
-                fontSize: 16,
-                fontWeight: 700,
-              }}
-            >
-              {recap.rank ? `КЛАСС: P${recap.rank}` : 'КЛАСС: —'}
-            </div>
-            <div
-              style={{
-                marginTop: 10,
-                fontSize: 24,
+                ...slant,
+                marginTop: 16,
+                fontSize: 34,
                 fontWeight: 900,
-                color: '#2a3a8c',
-                transform: 'rotate(-5deg)',
+                textTransform: 'uppercase',
+                whiteSpace: 'nowrap',
+                overflow: 'hidden',
+                textOverflow: 'ellipsis',
               }}
             >
               {recap.user.nickname}
             </div>
+            <div
+              style={{
+                display: 'flex',
+                height: 4,
+                width: 70,
+                background: userColor,
+                margin: '8px 0',
+              }}
+            />
+            <div style={{ fontSize: 13, fontWeight: 700, letterSpacing: 2, color: GREY }}>
+              ПОЗЫВНОЙ
+            </div>
+            <div
+              style={{ ...slant, fontSize: 24, fontWeight: 900, color: F1_RED, lineHeight: 1.15 }}
+            >
+              {texts.title}
+            </div>
+            <div style={{ display: 'flex', flex: 1 }} />
+            {best && (
+              <div style={{ display: 'flex', flexDirection: 'column' }}>
+                <div style={{ fontSize: 13, fontWeight: 700, letterSpacing: 2, color: GREY }}>
+                  ЛУЧШАЯ ГОНКА
+                </div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginTop: 2 }}>
+                  <div
+                    style={{
+                      fontSize: 20,
+                      fontWeight: 700,
+                      whiteSpace: 'nowrap',
+                      overflow: 'hidden',
+                      textOverflow: 'ellipsis',
+                      maxWidth: 230,
+                    }}
+                  >
+                    {best.race.name}
+                  </div>
+                  <div
+                    style={{
+                      ...slant,
+                      padding: '2px 8px',
+                      background: ACCENT,
+                      color: DARK,
+                      fontSize: 18,
+                      fontWeight: 900,
+                    }}
+                  >
+                    {`+${best.points}`}
+                  </div>
+                </div>
+              </div>
+            )}
+            <div style={{ fontSize: 15, fontWeight: 700, color: GREY, marginTop: 10 }}>
+              {`ЛУЧШАЯ СЕРИЯ: ${recap.bestStreak} ${plural(recap.bestStreak, ['ГОНКА', 'ГОНКИ', 'ГОНОК'])} ПОДРЯД`}
+            </div>
           </div>
 
-          <div
-            style={{ display: 'flex', flexDirection: 'column', flex: 1, paddingLeft: 28, gap: 14 }}
-          >
-            <div style={{ display: 'flex' }}>
-              <Field n={1} label="Никнейм" value={recap.user.nickname} width="34%" />
-              <Field n={2} label="Позывной" value={texts.title} width="66%" />
-            </div>
-            <div style={{ display: 'flex' }}>
-              <Field n={3} label="Сезон" value={String(recap.season)} width="34%" />
-              <Field
-                n={4}
-                label="Место в чемпионате"
-                value={recap.rank ? `${recap.rank} из ${recap.playersTotal}` : '—'}
-                width="33%"
-              />
-              <Field
-                n={5}
-                label="Очки"
-                value={`${recap.points} ${plural(recap.points, ['очко', 'очка', 'очков'])}`}
-                width="33%"
-              />
-            </div>
-            <div style={{ display: 'flex' }}>
-              <Field
-                n={6}
-                label="Стаж"
-                value={`${recap.predictions} из ${recap.racesCompleted} ${plural(recap.racesCompleted, ['гонки', 'гонок', 'гонок'])}`}
-                width="34%"
-              />
-              <Field
-                n={7}
-                label="Любимый пилот"
-                value={recap.favorite ? recap.favorite.driver.name : 'не завёл'}
-                width="33%"
-              />
-              <Field n={8} label="Точность" value={`${accuracy}% подиумов`} width="33%" />
-            </div>
-            <div style={{ display: 'flex', flexDirection: 'column', paddingRight: 220 }}>
-              <div style={{ fontSize: 13, color: MUTED, letterSpacing: 1.5 }}>
-                9. ОСОБЫЕ ПРИМЕТЫ
+          {/* Таймингтауэр */}
+          <div style={{ display: 'flex', flexDirection: 'column', flex: 1 }}>
+            <TowerRow
+              label="ОЧКИ"
+              value={`${recap.points} ${plural(recap.points, ['очко', 'очка', 'очков'])}`}
+            />
+            <TowerRow
+              label="СТАЖ"
+              value={`${recap.predictions} из ${recap.racesCompleted} ${plural(recap.racesCompleted, ['гонки', 'гонок', 'гонок'])}`}
+            />
+            <TowerRow label="ТОЧНОСТЬ" value={`${accuracy}% подиумов`} />
+            <TowerRow
+              label="ЛЮБИМЫЙ ПИЛОТ"
+              value={favorite ? favorite.name : 'не завёл'}
+              color={favorite?.teamColor}
+            />
+            <TowerRow label="ИДЕАЛЬНЫЕ" value={String(recap.perfect)} color={ACCENT} />
+            <div style={{ display: 'flex', flexDirection: 'column', marginTop: 6 }}>
+              <div style={{ fontSize: 13, fontWeight: 700, letterSpacing: 2, color: GREY }}>
+                ОСОБЫЕ ПРИМЕТЫ
               </div>
-              <div style={{ fontSize: 21, fontWeight: 700, marginTop: 2, lineHeight: 1.25 }}>
+              <div style={{ fontSize: 19, fontWeight: 700, marginTop: 3, lineHeight: 1.25 }}>
                 {texts.specialMarks}
               </div>
             </div>
           </div>
         </div>
 
-        {/* Категории и штрихкод */}
-        <div style={{ display: 'flex', alignItems: 'flex-end', gap: 28, marginTop: 14 }}>
-          <Barcode id={recap.user.id} />
-          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, width: 600 }}>
+        {/* Низ: допуски и штрафные баллы */}
+        <div
+          style={{
+            display: 'flex',
+            alignItems: 'flex-end',
+            justifyContent: 'space-between',
+            padding: '0 40px 26px',
+          }}
+        >
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, width: 700 }}>
             {recap.categories.map((category) => (
               <div
                 key={category.code}
                 style={{
+                  ...slant,
                   display: 'flex',
-                  padding: '0 12px',
-                  height: 32,
                   alignItems: 'center',
-                  justifyContent: 'center',
-                  borderRadius: 8,
-                  border: category.earned ? `2px solid ${INK}` : '2px dashed #a3abc0',
-                  color: category.earned ? INK : '#a3abc0',
-                  fontSize: 13,
-                  fontWeight: 700,
+                  height: 28,
+                  padding: '0 12px',
+                  fontSize: 12,
+                  fontWeight: 900,
+                  letterSpacing: 1,
                   textTransform: 'uppercase',
+                  background: category.earned ? '#fff' : 'transparent',
+                  color: category.earned ? DARK : '#5c5c6e',
+                  border: category.earned ? '2px solid #fff' : '2px solid #3a3a4a',
                 }}
               >
-                {`${category.code}. ${category.label}`}
+                {`${category.code} · ${category.label}`}
               </div>
             ))}
           </div>
-        </div>
-
-        {/* Штамп со штрафными баллами */}
-        <div
-          style={{
-            position: 'absolute',
-            right: 36,
-            bottom: 30,
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-            padding: '8px 18px',
-            border: `4px solid ${RED}`,
-            borderRadius: 16,
-            color: RED,
-            transform: 'rotate(-7deg)',
-            background: 'rgba(255,255,255,0.35)',
-          }}
-        >
-          <div style={{ fontSize: 44, fontWeight: 900, lineHeight: 1 }}>{`${penalty} / 12`}</div>
-          <div style={{ fontSize: 14, fontWeight: 700, letterSpacing: 1 }}>ШТРАФНЫХ БАЛЛОВ</div>
-          <div style={{ fontSize: 12, letterSpacing: 1 }}>
-            {suspended ? 'ЛИЦЕНЗИЯ ПРИОСТАНОВЛЕНА' : `ДО ЛИШЕНИЯ: ${12 - penalty}`}
+          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 6 }}>
+            <div style={{ fontSize: 13, fontWeight: 700, letterSpacing: 2, color: GREY }}>
+              {suspended
+                ? 'ЛИЦЕНЗИЯ ПРИОСТАНОВЛЕНА'
+                : `ШТРАФНЫЕ БАЛЛЫ · ДО ДИСКВАЛИФИКАЦИИ ${12 - penalty}`}
+            </div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+              {Array.from({ length: 12 }).map((_, i) => (
+                <div
+                  key={i}
+                  style={{
+                    width: 14,
+                    height: 26,
+                    background: i < penalty ? F1_RED : '#2c2c3a',
+                  }}
+                />
+              ))}
+              <div style={{ ...slant, fontSize: 30, fontWeight: 900, marginLeft: 10 }}>
+                {`${penalty}/12`}
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -342,11 +396,12 @@ export function RecapTeaserImage({ season }: { season: number | null }) {
           color: '#fff',
         }}
       >
-        <div style={{ fontSize: 30, fontWeight: 700, color: ACCENT, letterSpacing: 4 }}>L27</div>
-        <div style={{ fontSize: 64, fontWeight: 900 }}>
+        <div style={{ fontSize: 30, fontWeight: 900, color: F1_RED, letterSpacing: 4 }}>L27</div>
+        <div style={{ ...slant, fontSize: 64, fontWeight: 900 }}>
           {season ? `ИТОГИ СЕЗОНА ${season}` : 'ИТОГИ СЕЗОНА'}
         </div>
-        <div style={{ fontSize: 26, color: '#a3abc0' }}>Чемпионат прогнозов Формулы 1</div>
+        <Checkered columns={24} />
+        <div style={{ fontSize: 26, color: GREY }}>Чемпионат прогнозов Формулы 1</div>
       </div>
     </div>
   )
