@@ -14,7 +14,7 @@ import type {
 } from './types'
 
 /** Поднять при изменении расчётов или промпта — тексты перегенерируются */
-export const RECAP_VERSION = 2
+export const RECAP_VERSION = 3
 
 const MAX_MOMENTS = 5
 /** Точное попадание считается «против толпы», если так поставили не больше 25% игроков */
@@ -24,7 +24,7 @@ const CONTRARIAN_MIN_PREDICTIONS = 4
 const pct = (part: number, whole: number) => (whole > 0 ? Math.round((part / whole) * 100) : 0)
 const round1 = (n: number) => Math.round(n * 10) / 10
 
-const toRace = ({ id, name, round, trackSVGPath }: RecapRaceInput): RecapRace => ({
+export const toRace = ({ id, name, round, trackSVGPath }: RecapRaceInput): RecapRace => ({
   id,
   name,
   round,
@@ -306,6 +306,61 @@ export function buildSeasonRecap(input: RecapInput): SeasonRecap {
 
   const crowdSharePct = pct(crowdPicks, totalPicks)
 
+  // Дождь против сухой гонки
+  const wet = played.filter((entry) => entry.race.rainfall === true)
+  const dry = played.filter((entry) => entry.race.rainfall === false)
+  const averagePoints = (list: typeof played) =>
+    round1(list.reduce((sum, entry) => sum + entry.points, 0) / list.length)
+  const weather =
+    wet.length > 0 && dry.length > 0
+      ? { wetRaces: wet.length, wetAvg: averagePoints(wet), dryAvg: averagePoints(dry) }
+      : null
+
+  // Выборы относительно стартовой решётки
+  let racesWithGrid = 0
+  let gridSum = 0
+  let gridCount = 0
+  let comebackPicks = 0
+  let comebackHits = 0
+  let qualiCopies = 0
+  for (const { race, picks } of played) {
+    if (race.grid.length === 0) continue
+    racesWithGrid++
+    const gridPosition = new Map(race.grid.map((slot) => [slot.driver, slot.position]))
+    const onPodium = new Set(race.results.map((result) => result.driver))
+    const frontRow = new Set(race.grid.filter((slot) => slot.position <= 3).map((s) => s.driver))
+    if (picks.every((pick) => frontRow.has(pick.driver))) qualiCopies++
+    for (const pick of picks) {
+      const position = gridPosition.get(pick.driver)
+      if (position === undefined) continue
+      gridSum += position
+      gridCount++
+      if (position >= 6) {
+        comebackPicks++
+        if (onPodium.has(pick.driver)) comebackHits++
+      }
+    }
+  }
+  const grid =
+    racesWithGrid > 0
+      ? {
+          racesWithGrid,
+          avgGridPosition: gridCount > 0 ? round1(gridSum / gridCount) : 0,
+          comebackPicks,
+          comebackHits,
+          qualiCopies,
+        }
+      : null
+
+  const pointsByRace = new Map(played.map((entry) => [entry.race.id, entry.points]))
+  const ratings = completed
+    .filter((race) => input.ratings[race.id])
+    .map((race) => ({
+      race: toRace(race),
+      rating: input.ratings[race.id],
+      points: pointsByRace.get(race.id) ?? null,
+    }))
+
   return {
     season: input.season,
     user: input.user,
@@ -355,6 +410,9 @@ export function buildSeasonRecap(input: RecapInput): SeasonRecap {
       { code: 'H', label: 'Топ-10', earned: rank !== null && rank <= 10 },
     ],
     penaltyPoints: Math.min(12, missed + zeroRaces),
+    weather,
+    grid,
+    ratings,
     fingerprint: [
       `v${RECAP_VERSION}`,
       completed.length,

@@ -5,6 +5,7 @@ import {
   requestRecapTexts,
   sanitizeRecapTexts,
 } from '@/utilities/seasonRecap/aiTexts'
+import { buildCommunityRecap } from '@/utilities/seasonRecap/buildCommunityRecap'
 import { buildSeasonRecap } from '@/utilities/seasonRecap/buildSeasonRecap'
 import { buildFallbackTexts } from '@/utilities/seasonRecap/fallbackTexts'
 import type { RecapDriver, RecapInput, RecapPrediction } from '@/utilities/seasonRecap/types'
@@ -32,12 +33,19 @@ const drivers = Object.fromEntries(
 )
 
 const podium = (...ids: string[]) => ids.map((id, i) => ({ position: i + 1, driver: id }))
-const race = (id: string, round: number, results: string[] = []) => ({
+const race = (
+  id: string,
+  round: number,
+  results: string[] = [],
+  extra: { grid?: string[]; rainfall?: boolean } = {},
+) => ({
   id,
   name: `Гран-при ${id}`,
   round,
   trackSVGPath: null,
   results: podium(...results),
+  grid: podium(...(extra.grid ?? [])),
+  rainfall: extra.rainfall ?? null,
 })
 const pred = (user: string, raceId: string, ...ids: string[]): RecapPrediction => ({
   user,
@@ -52,17 +60,25 @@ const input = (overrides: Partial<RecapInput>): RecapInput => ({
   races: [],
   predictions: [],
   drivers,
+  ratings: {},
   ...overrides,
 })
 
 // Сезон в процессе: идеальный подиум, пропуск и гонка без очков
 const midSeason = input({
   races: [
-    race('r1', 1, ['ver', 'nor', 'lec']),
+    race('r1', 1, ['ver', 'nor', 'lec'], {
+      rainfall: true,
+      grid: ['ver', 'nor', 'lec', 'pia', 'ham', 'rus'],
+    }),
     race('r2', 2, ['nor', 'pia', 'ver']),
-    race('r3', 3, ['lec', 'ham', 'rus']),
+    race('r3', 3, ['lec', 'ham', 'rus'], {
+      rainfall: false,
+      grid: ['lec', 'ham', 'rus', 'ver', 'nor', 'pia'],
+    }),
     race('r4', 4),
   ],
+  ratings: { r1: 'good', r2: 'bad', r4: 'normal' },
   predictions: [
     pred('me', 'r1', 'ver', 'nor', 'lec'),
     pred('me', 'r3', 'ver', 'nor', 'pia'),
@@ -142,7 +158,7 @@ describe('buildSeasonRecap', () => {
       [3, 1, 2],
     ])
     expect(recap.penaltyPoints).toBe(2)
-    expect(recap.fingerprint).toBe('v2:3:15:2:2:0')
+    expect(recap.fingerprint).toBe('v3:3:15:2:2:0')
   })
 
   it('собирает моменты для «Посмотри на себя» с фактами', () => {
@@ -193,6 +209,66 @@ describe('buildSeasonRecap', () => {
     expect(recap.predictions).toBe(0)
     expect(recap.favorite).toBeNull()
     expect(recap.moments).toEqual([])
+  })
+})
+
+describe('погода, решётка и оценки', () => {
+  it('сравнивает очки в дождь и в сухую', () => {
+    expect(buildSeasonRecap(midSeason).weather).toEqual({ wetRaces: 1, wetAvg: 15, dryAvg: 0 })
+  })
+
+  it('считает выборы относительно стартовой решётки', () => {
+    expect(buildSeasonRecap(midSeason).grid).toEqual({
+      racesWithGrid: 2,
+      avgGridPosition: 3.5,
+      comebackPicks: 1,
+      comebackHits: 0,
+      qualiCopies: 1,
+    })
+  })
+
+  it('ставит оценки гонок рядом с очками, незавершённые пропускает', () => {
+    expect(buildSeasonRecap(midSeason).ratings.map((r) => [r.race.id, r.rating, r.points])).toEqual(
+      [
+        ['r1', 'good', 15],
+        ['r2', 'bad', null],
+      ],
+    )
+  })
+
+  it('без погоды и решётки блоки пустые', () => {
+    const recap = buildSeasonRecap(fullSeason)
+    expect(recap.weather).toBeNull()
+    expect(recap.grid).toBeNull()
+    expect(recap.ratings).toEqual([])
+  })
+})
+
+describe('buildCommunityRecap', () => {
+  const players = Object.fromEntries(
+    ['me', 'u2', 'u3', 'u4', 'u5'].map((id) => [
+      id,
+      { id, nickname: `nick_${id}`, chartColor: '#fff', equippedNicknameEffect: null },
+    ]),
+  )
+  const community = buildCommunityRecap({ ...fullSeason, players })
+  const byKey = (key: string) => community.nominations.find((n) => n.key === key)
+
+  it('раздаёт номинации по статистике', () => {
+    expect(byKey('champion')).toMatchObject({ user: { id: 'u2' }, value: '47 очков' })
+    expect(byKey('sniper')).toMatchObject({ user: { id: 'u2' }, value: '3 идеальных' })
+    expect(byKey('bold')).toMatchObject({ user: { id: 'me' } })
+    expect(byKey('bold')?.value).toContain('ALB P3')
+    expect(byKey('ghost')).toBeUndefined()
+  })
+
+  it('находит самую сложную и самую лёгкую гонку', () => {
+    expect(community.hardestRace).toMatchObject({ race: { id: 'r1' }, avg: 3.6 })
+    expect(community.easiestRace).toMatchObject({ race: { id: 'r2' }, avg: 8.4 })
+    expect(community.playersTotal).toBe(5)
+    expect(community.predictionsTotal).toBe(20)
+    expect(community.isSeasonComplete).toBe(true)
+    expect(community.crowd?.rank).toBeGreaterThan(0)
   })
 })
 

@@ -11,7 +11,15 @@ export type RecapRace = {
   trackSVGPath: string | null
 }
 
-export type RecapRaceInput = RecapRace & { results: RecapPick[] }
+export type RecapRaceInput = RecapRace & {
+  results: RecapPick[]
+  /** Стартовая решётка из OpenF1; пустая, если не импортировали */
+  grid: RecapPick[]
+  /** Был ли дождь; null — погоду не импортировали */
+  rainfall: boolean | null
+}
+
+export type RaceRatingValue = 'bad' | 'normal' | 'good'
 
 export type RecapDriver = {
   id: string
@@ -38,6 +46,8 @@ export type RecapInput = {
   /** Прогнозы всех игроков на гонки сезона */
   predictions: RecapPrediction[]
   drivers: Record<string, RecapDriver>
+  /** Оценки гонок игроком: id гонки → оценка */
+  ratings: Record<string, RaceRatingValue>
 }
 
 export type DriverTally = {
@@ -109,6 +119,20 @@ export type SeasonRecap = {
   categories: LicenceCategory[]
   /** Штрафные баллы суперлицензии: пропуски + гонки без очков, максимум 12 */
   penaltyPoints: number
+  /** Средние очки в дождь и в сухую; null — нет гонок одного из типов */
+  weather: { wetRaces: number; wetAvg: number; dryAvg: number } | null
+  /** Выборы относительно стартовой решётки; null — решётку не импортировали */
+  grid: {
+    racesWithGrid: number
+    avgGridPosition: number
+    /** Ставки на пилотов, стартовавших с P6 и дальше */
+    comebackPicks: number
+    comebackHits: number
+    /** Прогнозы, где тройка совпала с первыми тремя на старте */
+    qualiCopies: number
+  } | null
+  /** Оценки завершённых гонок рядом с очками за них */
+  ratings: { race: RecapRace; rating: RaceRatingValue; points: number | null }[]
   /** Меняется вместе со статистикой — по нему понимаем, что тексты устарели */
   fingerprint: string
 }

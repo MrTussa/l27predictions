@@ -52,6 +52,13 @@ export default async function SeasonRecapPage({ params }: Props) {
           <IconChevronLeft className="size-4" />
           Профиль
         </Link>
+        <Link
+          href={`/recap/${recap.season}`}
+          prefetch={false}
+          className="font-mono text-xs uppercase tracking-widest text-accent transition-colors hover:text-foreground"
+        >
+          Номинации сезона →
+        </Link>
         {isPreview && (
           <span className="border border-accent/50 px-3 py-1 font-mono text-[10px] uppercase tracking-widest text-accent">
             Предпросмотр для админов · откроется после финала ({recap.racesCompleted}/

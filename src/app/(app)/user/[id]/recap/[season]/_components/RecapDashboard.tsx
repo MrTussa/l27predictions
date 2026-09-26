@@ -9,6 +9,7 @@ import {
   IconCloudRain,
   IconCrown,
   IconDice5,
+  IconFlag,
   IconFlame,
   IconGhost2,
   IconHeart,
@@ -133,6 +134,7 @@ export function RecapDashboard({ recap, texts, licence }: Props) {
 
         <div className="flex flex-col gap-6 xl:order-3 xl:col-span-3">
           <Specializations recap={recap} />
+          <Conditions recap={recap} />
           <Roast recap={recap} texts={texts} />
         </div>
       </div>
@@ -437,6 +439,83 @@ function Roast({ recap, texts }: { recap: SeasonRecap; texts: RecapTexts | null 
                 </div>
               )
             })}
+          </div>
+        )}
+      </div>
+    </Card>
+  )
+}
+
+const RATING = {
+  bad: { label: 'Плохая', color: '#ff4d4d' },
+  normal: { label: 'Нормальная', color: '#ffcc00' },
+  good: { label: 'Хорошая', color: '#00e050' },
+} as const
+
+function Conditions({ recap }: { recap: SeasonRecap }) {
+  const { weather, grid, ratings } = recap
+  if (!weather && !grid && ratings.length === 0) return null
+
+  return (
+    <Card variant="default" corners="cut-corner">
+      <div className="space-y-4 px-5">
+        <SectionTitle>Погода и старт</SectionTitle>
+
+        {weather && (
+          <div className="flex items-start gap-3">
+            <IconCloudRain className="mt-0.5 size-5 shrink-0 text-sky-400" />
+            <div className="text-sm">
+              <div className="font-bold">
+                В дождь {formatDecimal(weather.wetAvg)} за гонку, в сухую —{' '}
+                {formatDecimal(weather.dryAvg)}
+              </div>
+              <div className="text-xs text-muted-foreground">
+                {weather.wetRaces}{' '}
+                {plural(weather.wetRaces, ['мокрая гонка', 'мокрые гонки', 'мокрых гонок'])} в
+                сезоне
+              </div>
+            </div>
+          </div>
+        )}
+
+        {grid && (
+          <div className="flex items-start gap-3">
+            <IconFlag className="mt-0.5 size-5 shrink-0 text-accent" />
+            <div className="space-y-1 text-sm">
+              <div className="font-bold">
+                Твои пилоты в среднем стартуют с P{formatDecimal(grid.avgGridPosition)}
+              </div>
+              <div className="text-xs text-muted-foreground">
+                Камбэки: {grid.comebackPicks}{' '}
+                {plural(grid.comebackPicks, ['ставка', 'ставки', 'ставок'])} на старт с P6 и дальше,
+                до подиума доехали {grid.comebackHits}
+              </div>
+              <div className="text-xs text-muted-foreground">
+                Переписал квалификацию: {grid.qualiCopies} из {grid.racesWithGrid}
+              </div>
+            </div>
+          </div>
+        )}
+
+        {ratings.length > 0 && (
+          <div className="space-y-1.5">
+            <div className="font-mono text-[10px] uppercase tracking-[0.14em] text-muted-foreground">
+              Твои оценки гонок
+            </div>
+            {ratings.slice(0, 6).map(({ race, rating, points }) => (
+              <div key={race.id} className="flex items-center gap-2 text-sm">
+                <span
+                  className="w-24 shrink-0 border-l-[3px] pl-2 font-mono text-[10px] font-bold uppercase"
+                  style={{ borderColor: RATING[rating].color, color: RATING[rating].color }}
+                >
+                  {RATING[rating].label}
+                </span>
+                <span className="min-w-0 flex-1 truncate">{race.name}</span>
+                <span className="shrink-0 font-mono text-xs font-black text-accent">
+                  {points === null ? '—' : `${points} оч.`}
+                </span>
+              </div>
+            ))}
           </div>
         )}
       </div>

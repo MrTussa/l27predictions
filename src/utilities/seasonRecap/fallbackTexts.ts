@@ -139,6 +139,8 @@ function weaknesses(r: SeasonRecap): string[] {
     r.nemesis ? `Вера в ${r.nemesis.driver.shortName}` : null,
     r.crowdSharePct >= 60 ? 'Народный прогноз' : null,
     r.missed >= 2 ? 'Дедлайны' : null,
+    r.weather && r.weather.wetAvg < r.weather.dryAvg * 0.6 ? 'Дождь' : null,
+    r.grid && r.grid.qualiCopies >= 3 ? 'Своё мнение' : null,
     share(r.exactHits, r.totalPicks) < 0.2 ? 'Точные позиции' : null,
   ]
   const fillers = ['Стартовая решётка', 'Дождевая резина', 'Интуиция']
