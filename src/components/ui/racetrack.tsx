@@ -1,7 +1,7 @@
 'use client'
 
 import { Canvas, extend, useFrame, useThree } from '@react-three/fiber'
-import { memo, useEffect, useMemo, useRef } from 'react'
+import { memo, useEffect, useMemo, useRef, useState } from 'react'
 import * as THREE from 'three'
 // @ts-expect-error ts can't find components in /examples
 import { SVGLoader } from 'three/examples/jsm/loaders/SVGLoader'
@@ -232,9 +232,31 @@ export default function RaceTrackVisualization({
   useBloom = true,
   className,
 }: RaceTrackVisualizationProps) {
+  // При навигации Next (cacheComponents) прячет прошлую страницу в <Activity mode="hidden">:
+  // React размонтирует эффекты, r3f через unmountComponentAtNode планирует forceContextLoss
+  // с задержкой 500 мс, а на возврате тот же <canvas> показывается снова — и уборка убивает
+  // уже живой контекст. Новый key на повторном показе даёт свежий canvas, уборка добивает старый.
+  const [mountId, setMountId] = useState(0)
+  const mounted = useRef(false)
+  const container = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    if (!mounted.current) {
+      mounted.current = true
+      return
+    }
+    setMountId((id) => id + 1)
+  }, [])
+
   return (
-    <div className={className} style={{ backgroundColor }}>
+    <div className={className} style={{ backgroundColor }} ref={container}>
       <Canvas
+        key={mountId}
+        // Без явного источника r3f вешает события на parentNode канваса, которого при
+        // пересоздании ещё нет. Приведение типа — r3f не допускает null в ref, хотя до
+        // монтирования там всегда null.
+        // Важный фикс иначе canvas потеряет контекст и отрендерится белый прямоугольник
+        eventSource={container as React.RefObject<HTMLElement>}
         frameloop="demand"
         camera={{
           position: [0, -6, 6],
