@@ -74,6 +74,7 @@ export interface Config {
     predictions: Prediction;
     'race-ratings': RaceRating;
     'season-stats': SeasonStat;
+    'season-recaps': SeasonRecapRecord;
     events: Event;
     'event-responses': EventResponse;
     media: Media;
@@ -91,6 +92,7 @@ export interface Config {
     predictions: PredictionsSelect<false> | PredictionsSelect<true>;
     'race-ratings': RaceRatingsSelect<false> | RaceRatingsSelect<true>;
     'season-stats': SeasonStatsSelect<false> | SeasonStatsSelect<true>;
+    'season-recaps': SeasonRecapsSelect<false> | SeasonRecapsSelect<true>;
     events: EventsSelect<false> | EventsSelect<true>;
     'event-responses': EventResponsesSelect<false> | EventResponsesSelect<true>;
     media: MediaSelect<false> | MediaSelect<true>;
@@ -423,6 +425,33 @@ export interface SeasonStat {
   createdAt: string;
 }
 /**
+ * Тексты «Итогов сезона» от нейросети. Их можно поправить вручную; удалите запись, чтобы сгенерировать заново.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "season-recaps".
+ */
+export interface SeasonRecapRecord {
+  id: string;
+  user: string | User;
+  season: number;
+  /**
+   * Когда статистика игрока меняется, тексты генерируются заново
+   */
+  fingerprint: string;
+  model?: string | null;
+  texts:
+    | {
+        [k: string]: unknown;
+      }
+    | unknown[]
+    | string
+    | number
+    | boolean
+    | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
  * Универсальные события: голосования, квизы, предсказания
  *
  * This interface was referenced by `Config`'s JSON-Schema
@@ -597,6 +626,10 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'season-stats';
         value: string | SeasonStat;
+      } | null)
+    | ({
+        relationTo: 'season-recaps';
+        value: string | SeasonRecapRecord;
       } | null)
     | ({
         relationTo: 'events';
@@ -816,6 +849,19 @@ export interface SeasonStatsSelect<T extends boolean = true> {
         id?: T;
       };
   lastCalculated?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "season-recaps_select".
+ */
+export interface SeasonRecapsSelect<T extends boolean = true> {
+  user?: T;
+  season?: T;
+  fingerprint?: T;
+  model?: T;
+  texts?: T;
   updatedAt?: T;
   createdAt?: T;
 }

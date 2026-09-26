@@ -4,6 +4,7 @@ import { cacheLife, cacheTag } from 'next/cache'
 import { getPayload } from 'payload'
 import { cache } from 'react'
 import { getServerSideUser } from './getServerSideUser'
+import { normalizeID } from './normalizeID'
 
 const payload = await getPayload({ config: configPromise })
 
@@ -184,6 +185,29 @@ export async function getRacePicks(raceId: string) {
   return docs
 }
 
+// Все прогнозы на гонки сезона в компактном виде — для итогов сезона
+export async function getSeasonPicks(raceIds: string[]) {
+  'use cache'
+  cacheTag('predictions')
+  cacheLife('hours')
+  if (raceIds.length === 0) return []
+  const { docs } = await payload.find({
+    collection: 'predictions',
+    where: { race: { in: raceIds } },
+    depth: 0,
+    pagination: false,
+    select: { user: true, race: true, predictions: true },
+  })
+  return docs.map((doc) => ({
+    user: normalizeID(doc.user),
+    race: normalizeID(doc.race),
+    picks: doc.predictions.map((pick) => ({
+      position: pick.position,
+      driver: normalizeID(pick.driver),
+    })),
+  }))
+}
+
 // SEASON STATS
 
 const seasonStatsPopulate = {
@@ -298,6 +322,20 @@ export async function getDrivers(options?: {
     limit: 100,
   })
 
+  return docs
+}
+
+export async function getDriversByIds(ids: string[]) {
+  'use cache'
+  cacheTag('drivers', 'teams')
+  cacheLife('hours')
+  if (ids.length === 0) return []
+  const { docs } = await payload.find({
+    collection: 'drivers',
+    where: { id: { in: ids } },
+    depth: 1,
+    pagination: false,
+  })
   return docs
 }
 

@@ -16,6 +16,7 @@ import { Media } from '@/collections/Media'
 import { Predictions } from '@/collections/Predictions'
 import { RaceRatings } from '@/collections/RaceRatings'
 import { Races } from '@/collections/Races'
+import { SeasonRecaps } from '@/collections/SeasonRecaps'
 import { SeasonStats } from '@/collections/SeasonStats'
 import { Teams } from '@/collections/Teams'
 import { Users } from '@/collections/Users'
@@ -37,6 +38,7 @@ export default buildConfig({
     Predictions,
     RaceRatings,
     SeasonStats,
+    SeasonRecaps,
     F1Events,
     EventResponses,
     Media,

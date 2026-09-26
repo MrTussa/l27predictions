@@ -1,4 +1,5 @@
 import { Nickname } from '@/components/Nickname'
+import { SeasonRecapBanner } from '@/components/SeasonRecapBanner'
 import { UserStats } from '@/components/UserStats'
 import { getServerSideUser } from '@/utilities/getServerSideUser'
 import { getTimezone } from '@/utilities/getTimezone'
@@ -7,7 +8,7 @@ import { getProfileData, getUserPublicProfile } from '@/utilities/queries'
 import { IconBrandTelegram, IconCoins } from '@tabler/icons-react'
 import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
-
+import { Suspense } from 'react'
 
 type Props = {
   params: Promise<{ id: string }>
@@ -57,6 +58,9 @@ export default async function UserProfilePage({ params }: Props) {
             <span className="text-xl text-muted-foreground">{publicUser.name}</span>
           )}
         </div>
+        <Suspense fallback={null}>
+          <SeasonRecapBanner userId={id} viewer={currentAuth.user} className="py-4" />
+        </Suspense>
         <UserStats
           user={publicUser}
           data={profileData}

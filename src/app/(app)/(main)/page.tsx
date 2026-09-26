@@ -1,7 +1,9 @@
+import { SeasonRecapBanner } from '@/components/SeasonRecapBanner'
 import { getServerSideUser } from '@/utilities/getServerSideUser'
 import { getTimezone } from '@/utilities/getTimezone'
 import { mergeOpenGraph } from '@/utilities/mergeOpenGraph'
 import type { Metadata } from 'next'
+import { Suspense } from 'react'
 import { CurrentRaceCard } from './_components/CurrentRaceCard'
 import { PreviousRaceCard } from './_components/PreviousRaceCard'
 import { UserInfoCard } from './_components/UserInfoCard'
@@ -23,6 +25,16 @@ export default async function HomePage() {
   return (
     <div className="px-4 md:px-16 py-6 min-h-[calc(100vh-100px)]">
       <h1 className="sr-only">L27 — чемпионат прогнозов Формулы 1</h1>
+      {currentUser && (
+        <Suspense fallback={null}>
+          <SeasonRecapBanner
+            userId={currentUser.id}
+            viewer={currentUser}
+            previewForAdmins={false}
+            className="mb-6"
+          />
+        </Suspense>
+      )}
       <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6">
         {/* Пользователь */}
         <section className="order-2 xl:order-1">
