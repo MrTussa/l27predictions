@@ -99,9 +99,10 @@ export const Predictions: CollectionConfig = {
           }
         }
 
-        // Окно прогнозов. Админ правит в любой момент.
+        // Окно прогнозов. Админ правит в любой момент. Серверные вызовы без пользователя
+        // (пересчёт очков после ввода результатов) не проверяем: анонимам доступ закрыт выше.
         const raceId = normalizeID(data?.race ?? originalDoc?.race)
-        if (raceId && !isAdmin(req.user)) {
+        if (raceId && req.user && !isAdmin(req.user)) {
           const race = await req.payload.findByID({ collection: 'races', id: raceId })
           if (!canMakePrediction(race)) {
             throw new Error('Окно прогнозов для этой гонки закрыто')
