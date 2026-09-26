@@ -1,59 +1,97 @@
 import { Nickname } from '@/components/Nickname'
 import { Button } from '@/components/ui/button'
-import { Card } from '@/components/ui/card'
 import { formatDecimal, plural } from '@/utilities/plural'
 import type { CommunityRecap, RatedRace } from '@/utilities/seasonRecap/buildCommunityRecap'
 import type { CommunityTexts } from '@/utilities/seasonRecap/communityTexts'
 import type { RecapDriver, RecapRace } from '@/utilities/seasonRecap/types'
-import {
-  IconAnchor,
-  IconAward,
-  IconBrain,
-  IconCrown,
-  IconFlame,
-  IconGhost2,
-  IconHourglass,
-  IconMedal,
-  IconStar,
-  IconTarget,
-  IconThumbDown,
-  IconThumbUp,
-  IconTrophy,
-  IconUsers,
-  type Icon,
-} from '@tabler/icons-react'
 import Link from 'next/link'
-import {
-  AiText,
-  Chip,
-  Pill,
-  SectionTitle,
-} from '../../../user/[id]/recap/[season]/_components/parts'
+import type { CSSProperties, ReactNode } from 'react'
+import { AiText } from '../../../user/[id]/recap/[season]/_components/parts'
 
-const NOMINATION_ICON: Record<string, Icon> = {
-  champion: IconCrown,
-  sniper: IconTarget,
-  ironman: IconFlame,
-  fan: IconAnchor,
-  zeros: IconGhost2,
-  ghost: IconHourglass,
-  bold: IconBrain,
+// Язык ТВ-графики F1: тёмные плашки, красные полосы, наклонный жирный текст,
+// строки таймингтауэра и «командное радио» для текстов нейросети.
+
+const F1_RED = '#E10600'
+const PODIUM_COLORS = ['#FFDF2C', '#C2C9D2', '#CD6B2C']
+// Ступени подиума: центр выше, по краям ниже
+const PODIUM_STEP = ['sm:h-44', 'sm:h-32', 'sm:h-24']
+const PODIUM_ORDER = ['sm:order-2', 'sm:order-1', 'sm:order-3']
+
+function Checkered({ className = '' }: { className?: string }) {
+  return (
+    <div
+      aria-hidden="true"
+      className={`h-3 ${className}`}
+      style={{
+        backgroundImage:
+          'linear-gradient(45deg, #fff 25%, transparent 25%, transparent 75%, #fff 75%), linear-gradient(45deg, #fff 25%, transparent 25%, transparent 75%, #fff 75%)',
+        backgroundSize: '12px 12px',
+        backgroundPosition: '0 0, 6px 6px',
+      }}
+    />
+  )
 }
 
-const PODIUM = [
-  { icon: IconTrophy, color: '#FFDF2C', order: 'sm:order-2', pad: 'sm:pt-8' },
-  { icon: IconMedal, color: '#C2C9D2', order: 'sm:order-1', pad: 'sm:pt-5' },
-  { icon: IconAward, color: '#CD6B2C', order: 'sm:order-3', pad: 'sm:pt-4' },
-] as const
-
-function Comment({ text, color = 'var(--accent)' }: { text?: string; color?: string }) {
+/** Заголовок раздела как плашка трансляции: красный скошенный номер + название */
+function Heading({
+  index,
+  children,
+  aside,
+}: {
+  index: string
+  children: ReactNode
+  aside?: string
+}) {
   return (
-    <p
-      className="border-l-2 py-1 pl-3 text-sm italic text-foreground/85"
-      style={{ borderColor: color }}
-    >
-      <AiText text={text} lines={2} />
-    </p>
+    <div className="mb-4 flex items-end justify-between gap-3 border-b border-white/10 pb-2">
+      <div className="flex items-center gap-3">
+        <span
+          className="-skew-x-12 px-2 py-0.5 font-mono text-sm font-black text-white"
+          style={{ background: F1_RED }}
+        >
+          {index}
+        </span>
+        <h2 className="-skew-x-6 text-2xl font-black uppercase italic tracking-tight">
+          {children}
+        </h2>
+      </div>
+      {aside && (
+        <span className="hidden font-mono text-[10px] uppercase tracking-[0.2em] text-muted-foreground sm:block">
+          {aside}
+        </span>
+      )}
+    </div>
+  )
+}
+
+/** Текст нейросети в виде «командного радио» из трансляций */
+function Radio({
+  text,
+  from = 'Паддок L27',
+  color = F1_RED,
+}: {
+  text?: string
+  from?: string
+  color?: string
+}) {
+  return (
+    <div className="flex max-w-3xl overflow-hidden border border-white/10 bg-black/60">
+      <div className="w-1.5 shrink-0" style={{ background: color }} />
+      <div className="flex-1 px-4 py-3">
+        <div className="mb-1 flex items-center gap-2 font-mono text-[10px] font-bold uppercase tracking-[0.2em]">
+          <span className="flex items-end gap-0.5" aria-hidden="true">
+            {[6, 10, 7, 12].map((h, i) => (
+              <span key={i} className="w-0.5 bg-white/70" style={{ height: h }} />
+            ))}
+          </span>
+          <span className="text-white">Team radio</span>
+          <span className="text-muted-foreground">· {from}</span>
+        </div>
+        <p className="text-sm font-semibold italic leading-snug text-white/90 sm:text-base">
+          <AiText text={text ? `«${text}»` : undefined} lines={2} />
+        </p>
+      </div>
+    </div>
   )
 }
 
@@ -65,301 +103,373 @@ type Props = {
 
 export function CommunityView({ recap, texts, viewerId }: Props) {
   const season = recap.season
+  const userLink = (id: string) => `/user/${id}/recap/${season}`
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-12">
       {/* Шапка */}
-      <Card variant="yellow-glow" corners="cut-corner" className="p-0.5">
-        <div className="flex flex-col gap-4 px-5 lg:flex-row lg:items-center lg:justify-between">
-          <div className="space-y-3 lg:max-w-3xl">
-            <div className="font-mono text-[10px] uppercase tracking-[0.16em] text-muted-foreground">
-              Чемпионат прогнозов L27 · итоги сезона {season}
-            </div>
-            <h1 className="text-3xl font-black uppercase italic leading-tight tracking-wide sm:text-5xl">
-              <AiText text={texts?.headline} />
-            </h1>
-            <p className="text-sm text-muted-foreground sm:text-base">
-              <AiText text={texts?.intro} lines={3} />
-            </p>
-            <div className="flex flex-wrap gap-2 pt-1">
-              <Chip>
-                <IconUsers className="text-sky-400" />
-                {recap.playersTotal} {plural(recap.playersTotal, ['игрок', 'игрока', 'игроков'])}
-              </Chip>
-              <Chip>
-                <IconTrophy className="text-accent" />
-                {recap.racesCompleted} {plural(recap.racesCompleted, ['гонка', 'гонки', 'гонок'])}
-              </Chip>
-              <Chip>
-                <IconTarget className="text-green-400" />
-                {recap.predictionsTotal}{' '}
-                {plural(recap.predictionsTotal, ['прогноз', 'прогноза', 'прогнозов'])}
-              </Chip>
-            </div>
+      <header className="relative overflow-hidden border border-white/10 bg-[#15151E]">
+        <div className="h-2" style={{ background: F1_RED }} />
+        <span
+          aria-hidden="true"
+          className="pointer-events-none absolute -right-6 -top-10 select-none text-[220px] font-black italic leading-none text-transparent sm:text-[300px]"
+          style={{ WebkitTextStroke: '2px rgba(255,255,255,0.07)' } as CSSProperties}
+        >
+          {String(season).slice(2)}
+        </span>
+        <div
+          aria-hidden="true"
+          className="pointer-events-none absolute -top-10 right-40 hidden h-[500px] w-6 rotate-[20deg] sm:block"
+          style={{ background: F1_RED, opacity: 0.85 }}
+        />
+        <div className="relative space-y-5 px-6 py-8 sm:px-10">
+          <div className="flex flex-wrap items-center gap-3">
+            <span
+              className="-skew-x-12 px-3 py-1 text-sm font-black text-white"
+              style={{ background: F1_RED }}
+            >
+              L27
+            </span>
+            <span className="font-mono text-xs uppercase tracking-[0.25em] text-muted-foreground">
+              Итоги сезона {season} · {recap.racesCompleted}{' '}
+              {plural(recap.racesCompleted, ['гонка', 'гонки', 'гонок'])}
+            </span>
           </div>
-          {viewerId && (
-            <Button asChild className="shrink-0">
-              <Link href={`/user/${viewerId}/recap/${season}`} prefetch={false}>
-                Мои итоги
-              </Link>
-            </Button>
-          )}
+          <h1 className="max-w-4xl -skew-x-6 text-4xl font-black uppercase italic leading-[0.95] tracking-tight sm:text-6xl">
+            <AiText text={texts?.headline} />
+          </h1>
+          <p className="max-w-2xl text-base text-white/75">
+            <AiText text={texts?.intro} lines={3} />
+          </p>
+          <div className="flex flex-wrap items-end gap-8 pt-2">
+            {[
+              [recap.playersTotal, plural(recap.playersTotal, ['игрок', 'игрока', 'игроков'])],
+              [
+                recap.predictionsTotal,
+                plural(recap.predictionsTotal, ['прогноз', 'прогноза', 'прогнозов']),
+              ],
+              [recap.racesCompleted, plural(recap.racesCompleted, ['гонка', 'гонки', 'гонок'])],
+            ].map(([value, label]) => (
+              <div key={String(label)}>
+                <div className="-skew-x-6 text-4xl font-black italic tabular-nums">{value}</div>
+                <div className="font-mono text-[10px] uppercase tracking-[0.2em] text-muted-foreground">
+                  {label}
+                </div>
+              </div>
+            ))}
+            {viewerId && (
+              <Button asChild className="ml-auto">
+                <Link href={userLink(viewerId)} prefetch={false}>
+                  Мои итоги
+                </Link>
+              </Button>
+            )}
+          </div>
         </div>
-      </Card>
+        <Checkered className="opacity-20" />
+      </header>
 
-      {/* Подиум игроков */}
+      {/* Подиум */}
       {recap.podium.length > 0 && (
         <section>
-          <SectionTitle aside="по очкам за гонки">Подиум сезона</SectionTitle>
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-3 sm:items-end">
-            {recap.podium.map((row, i) => {
-              const cfg = PODIUM[i]
-              const PlaceIcon = cfg.icon
-              return (
-                <div key={row.user.id} className={cfg.order}>
-                  <Card corners="cut-corner" accentColor={cfg.color} accentPosition="bottom">
-                    <div
-                      className={`relative flex flex-col items-center gap-2 overflow-hidden px-4 pb-4 text-center ${cfg.pad}`}
-                    >
-                      <span className="pointer-events-none absolute -top-4 right-2 select-none text-[120px] font-black italic leading-none text-white/5">
-                        {i + 1}
-                      </span>
-                      <PlaceIcon className="size-8" style={{ color: cfg.color }} />
-                      <Link
-                        href={`/user/${row.user.id}/recap/${season}`}
-                        prefetch={false}
-                        className="max-w-full truncate text-2xl font-black uppercase transition-colors hover:text-accent"
-                      >
-                        <Nickname effect={row.user.equippedNicknameEffect}>
-                          {row.user.nickname}
-                        </Nickname>
-                      </Link>
-                      <div
-                        className="text-4xl font-black italic tabular-nums"
-                        style={{ color: cfg.color }}
-                      >
-                        {row.points}
-                      </div>
-                      <div className="font-mono text-[10px] uppercase tracking-wider text-muted-foreground">
-                        {plural(row.points, ['очко', 'очка', 'очков'])} · идеальных: {row.perfect}
-                      </div>
-                    </div>
-                  </Card>
+          <Heading index="01" aside="очки за гонки">
+            Подиум сезона
+          </Heading>
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-3 sm:items-end">
+            {recap.podium.map((row, i) => (
+              <div key={row.user.id} className={`flex flex-col ${PODIUM_ORDER[i]}`}>
+                <div className="mb-3 px-2 text-center sm:px-0">
+                  <Link
+                    href={userLink(row.user.id)}
+                    prefetch={false}
+                    className="block truncate text-xl font-black uppercase transition-colors hover:text-accent sm:text-2xl"
+                  >
+                    <Nickname effect={row.user.equippedNicknameEffect}>
+                      {row.user.nickname}
+                    </Nickname>
+                  </Link>
+                  <div className="font-mono text-xs uppercase tracking-widest text-muted-foreground">
+                    {row.points} {plural(row.points, ['очко', 'очка', 'очков'])} · идеальных{' '}
+                    {row.perfect}
+                  </div>
                 </div>
-              )
-            })}
+                <div
+                  className={`relative flex h-20 items-start justify-center overflow-hidden pt-2 ${PODIUM_STEP[i]}`}
+                  style={{
+                    background: `linear-gradient(180deg, ${PODIUM_COLORS[i]} 0%, color-mix(in srgb, ${PODIUM_COLORS[i]} 35%, #15151E) 100%)`,
+                  }}
+                >
+                  <span className="-skew-x-12 text-6xl font-black italic leading-none text-black/80">
+                    {i + 1}
+                  </span>
+                  <div
+                    className="absolute inset-x-0 bottom-0 h-1.5"
+                    style={{ background: row.user.chartColor }}
+                  />
+                </div>
+              </div>
+            ))}
           </div>
-          <div className="mt-4">
-            <Comment text={texts?.podiumComment} />
+          <div className="mt-5">
+            <Radio text={texts?.podiumComment} color={PODIUM_COLORS[0]} />
           </div>
         </section>
       )}
 
-      {/* Номинации */}
+      {/* Номинации — строки таймингтауэра */}
       <section>
-        <SectionTitle aside="по итогам сезона">Номинации</SectionTitle>
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
-          {recap.nominations.map((nomination) => {
-            const NominationIcon = NOMINATION_ICON[nomination.key] ?? IconTrophy
-            return (
-              <Card key={nomination.key} variant="default" corners="cut-corner">
-                <div className="flex h-full flex-col gap-3 px-5">
-                  <div className="flex items-center gap-3">
-                    <div className="clip-path-cut-corner-xs flex size-10 shrink-0 items-center justify-center bg-accent/10 text-accent">
-                      <NominationIcon className="size-6" />
-                    </div>
-                    <div>
-                      <div className="text-sm font-black uppercase tracking-wide">
-                        {nomination.title}
-                      </div>
-                      <div className="text-xs text-muted-foreground">{nomination.description}</div>
-                    </div>
-                  </div>
-                  <Link
-                    href={`/user/${nomination.user.id}/recap/${season}`}
-                    prefetch={false}
-                    className="truncate text-2xl font-black uppercase transition-colors hover:text-accent"
-                  >
-                    <Nickname effect={nomination.user.equippedNicknameEffect}>
-                      {nomination.user.nickname}
-                    </Nickname>
-                  </Link>
-                  <div className="font-mono text-xs font-bold uppercase tracking-wider text-accent">
-                    {nomination.value}
-                  </div>
-                  <p className="mt-auto text-xs italic text-muted-foreground">
-                    <AiText text={texts?.nominations[nomination.key]} lines={2} />
-                  </p>
+        <Heading index="02" aside="по итогам сезона">
+          Номинации
+        </Heading>
+        <div className="divide-y divide-white/5 border border-white/10 bg-[#15151E]">
+          {recap.nominations.map((nomination, i) => (
+            <div
+              key={nomination.key}
+              className="grid grid-cols-[3rem_1fr] gap-x-4 gap-y-1 px-4 py-4 transition-colors hover:bg-white/[0.03] md:grid-cols-[3rem_16rem_14rem_1fr] md:items-center"
+            >
+              <span className="row-span-2 -skew-x-12 self-start text-3xl font-black italic tabular-nums text-white/25 md:row-span-1 md:self-center">
+                {String(i + 1).padStart(2, '0')}
+              </span>
+              <div>
+                <div
+                  className="font-black uppercase tracking-wide"
+                  style={{ color: i === 0 ? '#FFDF2C' : undefined }}
+                >
+                  {nomination.title}
                 </div>
-              </Card>
-            )
-          })}
+                <div className="text-xs text-muted-foreground">{nomination.description}</div>
+              </div>
+              <div className="min-w-0">
+                <Link
+                  href={userLink(nomination.user.id)}
+                  prefetch={false}
+                  className="flex items-center gap-2 truncate text-lg font-black uppercase transition-colors hover:text-accent"
+                >
+                  <span
+                    className="h-5 w-1 shrink-0"
+                    style={{ background: nomination.user.chartColor }}
+                  />
+                  <Nickname effect={nomination.user.equippedNicknameEffect}>
+                    {nomination.user.nickname}
+                  </Nickname>
+                </Link>
+                <div className="font-mono text-[11px] uppercase tracking-wider text-accent">
+                  {nomination.value}
+                </div>
+              </div>
+              <p className="col-start-2 text-sm italic text-white/70 md:col-start-auto">
+                <AiText text={texts?.nominations[nomination.key]} lines={2} />
+              </p>
+            </div>
+          ))}
         </div>
       </section>
 
       {/* Пилоты */}
       {(recap.driverOfSeason || recap.publicFavorite) && (
         <section>
-          <SectionTitle>Пилоты сезона</SectionTitle>
+          <Heading index="03">Пилоты сезона</Heading>
           <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
             {recap.driverOfSeason && (
-              <DriverCard
+              <DriverPlate
                 label="Пилот сезона"
                 driver={recap.driverOfSeason.driver}
-                stat={`${recap.driverOfSeason.podiums} ${plural(recap.driverOfSeason.podiums, ['подиум', 'подиума', 'подиумов'])} · ${recap.driverOfSeason.wins} ${plural(recap.driverOfSeason.wins, ['победа', 'победы', 'побед'])}`}
+                big={recap.driverOfSeason.podiums}
+                bigLabel={plural(recap.driverOfSeason.podiums, ['подиум', 'подиума', 'подиумов'])}
+                small={`${recap.driverOfSeason.wins} ${plural(recap.driverOfSeason.wins, ['победа', 'победы', 'побед'])}`}
               />
             )}
             {recap.publicFavorite && (
-              <DriverCard
+              <DriverPlate
                 label="Любимец публики"
                 driver={recap.publicFavorite.driver}
-                stat={`в ${recap.publicFavorite.sharePct}% прогнозов`}
+                big={`${recap.publicFavorite.sharePct}%`}
+                bigLabel="прогнозов"
+                small={`${recap.publicFavorite.picks} ${plural(recap.publicFavorite.picks, ['выбор', 'выбора', 'выборов'])}`}
               />
             )}
           </div>
-          <div className="mt-4">
-            <Comment text={texts?.driverComment} />
+          <div className="mt-5">
+            <Radio
+              text={texts?.driverComment}
+              color={recap.driverOfSeason?.driver.teamColor ?? F1_RED}
+            />
           </div>
         </section>
       )}
 
       {/* Гонки */}
       <section>
-        <SectionTitle>Гонки сезона</SectionTitle>
-        <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-4">
+        <Heading index="04">Гонки сезона</Heading>
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
           {recap.hardestRace && (
-            <RaceCard
+            <TrackPlate
               label="Где ошиблись все"
               race={recap.hardestRace.race}
-              stat={`${formatDecimal(recap.hardestRace.avg)} очка за прогноз`}
-              color="#ff4d4d"
+              value={formatDecimal(recap.hardestRace.avg)}
+              unit="очка за прогноз"
+              color="#ff3b3b"
             />
           )}
           {recap.easiestRace && (
-            <RaceCard
+            <TrackPlate
               label="Самая угадываемая"
               race={recap.easiestRace.race}
-              stat={`${formatDecimal(recap.easiestRace.avg)} очка за прогноз`}
-              color="#00e050"
+              value={formatDecimal(recap.easiestRace.avg)}
+              unit="очка за прогноз"
+              color="#00d26a"
             />
           )}
           {recap.bestRatedRace && (
-            <RaceCard
+            <TrackPlate
               label="Лучшая по оценкам"
               race={recap.bestRatedRace.race}
-              stat={votes(recap.bestRatedRace)}
+              value={`+${recap.bestRatedRace.score}`}
+              unit={votes(recap.bestRatedRace)}
               color="#FFDF2C"
-              icon={<IconThumbUp className="size-4" />}
             />
           )}
           {recap.worstRatedRace && (
-            <RaceCard
+            <TrackPlate
               label="Худшая по оценкам"
               race={recap.worstRatedRace.race}
-              stat={votes(recap.worstRatedRace)}
+              value={String(recap.worstRatedRace.score)}
+              unit={votes(recap.worstRatedRace)}
               color="#8b8b9a"
-              icon={<IconThumbDown className="size-4" />}
             />
           )}
         </div>
-        <div className="mt-4">
-          <Comment text={texts?.racesComment} />
+        <div className="mt-5">
+          <Radio text={texts?.racesComment} />
         </div>
       </section>
 
       {/* Народный игрок */}
       {recap.crowd && (
-        <Card corners="cut-corner" accentColor="#FFDF2C">
-          <div className="flex flex-col gap-3 px-5 md:flex-row md:items-center md:gap-8">
-            <div className="shrink-0 space-y-1">
-              <div className="flex items-center gap-2 font-mono text-[10px] uppercase tracking-[0.14em] text-muted-foreground">
-                <IconStar className="size-4 text-accent" />
-                Народный игрок
+        <section>
+          <Heading index="05">Народный игрок</Heading>
+          <div className="flex flex-col gap-5 border border-white/10 bg-[#15151E] p-5 md:flex-row md:items-center">
+            <div className="shrink-0">
+              <div className="flex items-baseline gap-3">
+                <span className="-skew-x-12 text-6xl font-black italic tabular-nums text-accent">
+                  P{recap.crowd.rank}
+                </span>
+                <span className="text-2xl font-black italic tabular-nums">
+                  {recap.crowd.points} {plural(recap.crowd.points, ['очко', 'очка', 'очков'])}
+                </span>
               </div>
-              <div className="text-2xl font-black uppercase italic">
-                {recap.crowd.points} {plural(recap.crowd.points, ['очко', 'очка', 'очков'])} · P
-                {recap.crowd.rank}
-              </div>
-              <div className="text-xs text-muted-foreground">
+              <div className="font-mono text-[10px] uppercase tracking-[0.2em] text-muted-foreground">
                 если каждую гонку ставить как большинство
               </div>
             </div>
             <div className="flex-1">
-              <Comment text={texts?.crowdComment} />
+              <Radio text={texts?.crowdComment} from="Народ" color="#FFDF2C" />
             </div>
           </div>
-        </Card>
+        </section>
       )}
+
+      <Checkered className="opacity-30" />
     </div>
   )
 }
 
-const votes = (row: RatedRace) => `👍 ${row.good} · 😐 ${row.normal} · 👎 ${row.bad}`
+const votes = (row: RatedRace) => `${row.good} хор. · ${row.normal} норм. · ${row.bad} плох.`
 
-function DriverCard({ label, driver, stat }: { label: string; driver: RecapDriver; stat: string }) {
+function DriverPlate({
+  label,
+  driver,
+  big,
+  bigLabel,
+  small,
+}: {
+  label: string
+  driver: RecapDriver
+  big: ReactNode
+  bigLabel: string
+  small: string
+}) {
   return (
-    <Card corners="cut-corner" accentColor={driver.teamColor}>
-      <div className="flex items-center gap-4 px-5">
-        <div
-          className="clip-path-cut-corner-sm flex h-20 w-24 shrink-0 items-center justify-center text-3xl font-black italic"
-          style={{
-            color: driver.teamColor,
-            background: `radial-gradient(circle at 50% 35%, color-mix(in srgb, ${driver.teamColor} 45%, transparent), #0b0b0b 75%)`,
-          }}
-        >
-          {driver.shortName}
+    <div
+      className="relative flex overflow-hidden border border-white/10"
+      style={{
+        background: `linear-gradient(100deg, color-mix(in srgb, ${driver.teamColor} 35%, #15151E) 0%, #15151E 60%)`,
+      }}
+    >
+      <div className="w-2 shrink-0" style={{ background: driver.teamColor }} />
+      <span
+        aria-hidden="true"
+        className="pointer-events-none absolute -bottom-6 right-3 select-none text-8xl font-black italic leading-none text-white/[0.06]"
+      >
+        {driver.shortName}
+      </span>
+      <div className="relative flex min-w-0 flex-1 flex-col gap-3 p-5 sm:flex-row sm:items-center sm:justify-between sm:gap-4">
+        <div className="min-w-0">
+          <div
+            className="font-mono text-[10px] font-bold uppercase tracking-[0.2em]"
+            style={{ color: driver.teamColor }}
+          >
+            {label}
+          </div>
+          <div className="-skew-x-6 truncate text-2xl font-black uppercase italic leading-tight sm:text-3xl">
+            {driver.name}
+          </div>
+          <div className="font-mono text-xs uppercase tracking-widest text-muted-foreground">
+            {driver.teamName ?? '—'} · {small}
+          </div>
         </div>
-        <div className="min-w-0 space-y-1">
-          <Pill color={driver.teamColor}>{label}</Pill>
-          <div className="truncate text-xl font-black uppercase">{driver.name}</div>
-          <div className="font-mono text-xs uppercase tracking-wider text-muted-foreground">
-            {driver.teamName ? `${driver.teamName} · ` : ''}
-            {stat}
+        <div className="shrink-0 sm:text-right">
+          <div className="-skew-x-12 text-5xl font-black italic tabular-nums leading-none">
+            {big}
+          </div>
+          <div className="font-mono text-[10px] uppercase tracking-[0.2em] text-muted-foreground">
+            {bigLabel}
           </div>
         </div>
       </div>
-    </Card>
+    </div>
   )
 }
 
-function RaceCard({
+function TrackPlate({
   label,
   race,
-  stat,
+  value,
+  unit,
   color,
-  icon,
 }: {
   label: string
   race: RecapRace
-  stat: string
+  value: string
+  unit: string
   color: string
-  icon?: React.ReactNode
 }) {
   return (
-    <Card corners="cut-corner" accentColor={color}>
-      <div className="flex items-center gap-4 px-5">
-        {race.trackSVGPath && (
-          <svg
-            viewBox="144 144 512 512"
-            className="size-16 shrink-0"
-            fill={color}
-            aria-hidden="true"
-          >
-            <path d={race.trackSVGPath} />
-          </svg>
-        )}
-        <div className="min-w-0 space-y-1">
-          <div
-            className="flex items-center gap-1.5 font-mono text-[10px] uppercase tracking-[0.14em]"
-            style={{ color }}
-          >
-            {icon}
-            {label}
-          </div>
-          <div className="font-black uppercase leading-tight">{race.name}</div>
-          <div className="text-xs text-muted-foreground">{stat}</div>
+    <div className="relative overflow-hidden border border-white/10 bg-[#15151E] p-4">
+      <div className="absolute inset-x-0 top-0 h-1" style={{ background: color }} />
+      {race.trackSVGPath && (
+        <svg
+          viewBox="144 144 512 512"
+          aria-hidden="true"
+          className="pointer-events-none absolute -right-4 -top-2 size-36 opacity-25"
+          fill={color}
+        >
+          <path d={race.trackSVGPath} />
+        </svg>
+      )}
+      <div className="relative space-y-2">
+        <div
+          className="font-mono text-[10px] font-bold uppercase tracking-[0.2em]"
+          style={{ color }}
+        >
+          {label}
+        </div>
+        <div className="max-w-[75%] font-black uppercase leading-tight">{race.name}</div>
+        <div className="-skew-x-12 pt-2 text-4xl font-black italic tabular-nums">{value}</div>
+        <div className="font-mono text-[10px] uppercase tracking-wider text-muted-foreground">
+          {unit}
         </div>
       </div>
-    </Card>
+    </div>
   )
 }
