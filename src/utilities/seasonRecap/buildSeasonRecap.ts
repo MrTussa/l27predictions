@@ -14,7 +14,7 @@ import type {
 } from './types'
 
 /** Поднять при изменении расчётов или промпта — тексты перегенерируются */
-export const RECAP_VERSION = 1
+export const RECAP_VERSION = 2
 
 const MAX_MOMENTS = 5
 /** Точное попадание считается «против толпы», если так поставили не больше 25% игроков */

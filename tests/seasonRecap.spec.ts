@@ -142,7 +142,7 @@ describe('buildSeasonRecap', () => {
       [3, 1, 2],
     ])
     expect(recap.penaltyPoints).toBe(2)
-    expect(recap.fingerprint).toBe('v1:3:15:2:2:0')
+    expect(recap.fingerprint).toBe('v2:3:15:2:2:0')
   })
 
   it('собирает моменты для «Посмотри на себя» с фактами', () => {
