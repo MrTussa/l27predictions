@@ -3,19 +3,20 @@ import type { Metadata } from 'next'
 import { RenderParams } from '@/components/RenderParams'
 
 import { LoginForm } from '@/components/forms/LoginForm'
+import { getServerSideUser } from '@/utilities/getServerSideUser'
 import { mergeOpenGraph } from '@/utilities/mergeOpenGraph'
-import configPromise from '@payload-config'
-import { headers as getHeaders } from 'next/headers'
+import { safeRedirect } from '@/utilities/safeRedirect'
 import { redirect } from 'next/navigation'
-import { getPayload } from 'payload'
 
-export default async function Login() {
-  const headers = await getHeaders()
-  const payload = await getPayload({ config: configPromise })
-  const { user } = await payload.auth({ headers })
+type Props = { searchParams: Promise<{ redirect?: string }> }
+
+export default async function Login({ searchParams }: Props) {
+  const [{ user }, params] = await Promise.all([getServerSideUser(), searchParams])
 
   if (user) {
-    redirect(`/account?warning=${encodeURIComponent('Вы уже авторизованны.')}`)
+    redirect(
+      safeRedirect(params.redirect, `/account?warning=${encodeURIComponent('Вы уже авторизованы.')}`),
+    )
   }
 
   return (

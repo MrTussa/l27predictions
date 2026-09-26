@@ -2,6 +2,7 @@ import type { CollectionConfig } from 'payload'
 
 import { adminOnly, publicAccess } from '@/access'
 import { updateSeasonStatsOnResults } from './hooks/updateSeasonStatsOnResults'
+import { revalidateOnChange, revalidateOnDelete } from '@/utilities/cacheTags'
 
 export const Races: CollectionConfig = {
   slug: 'races',
@@ -264,7 +265,8 @@ export const Races: CollectionConfig = {
     },
   ],
   hooks: {
-    afterChange: [updateSeasonStatsOnResults],
+    afterChange: [updateSeasonStatsOnResults, revalidateOnChange('races')],
+    afterDelete: [revalidateOnDelete('races')],
     beforeValidate: [
       ({ data }) => {
         // Дата закрытия прогнозов должна быть раньше даты гонки

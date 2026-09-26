@@ -103,10 +103,13 @@ export const PredictionDrawer: React.FC<Props> = ({
                     const selectedPosition = isSelected ? podiumIndex + 1 : null
 
                     return (
-                      <div
+                      <button
+                        type="button"
                         onClick={() => handleDriverClick(driver.id)}
                         key={driver.id}
-                        className={`relative transition-opacity ${isSelected ? 'opacity-50' : ''}`}
+                        aria-label={`${driver.name} на ${activeId + 1}-е место`}
+                        aria-pressed={isSelected}
+                        className={`relative text-left transition-opacity ${isSelected ? 'opacity-50' : ''}`}
                       >
                         <DriverCardBase
                           driver={driver}
@@ -115,7 +118,7 @@ export const PredictionDrawer: React.FC<Props> = ({
                           showGlow={!isSelected}
                           size="sm"
                         />
-                      </div>
+                      </button>
                     )
                   })}
                 </div>

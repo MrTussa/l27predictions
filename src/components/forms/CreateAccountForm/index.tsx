@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { useAuth } from '@/providers/Auth'
+import { safeRedirect } from '@/utilities/safeRedirect'
 import Link from 'next/link'
 import { useRouter, useSearchParams } from 'next/navigation'
 import React, { useCallback, useRef, useState } from 'react'
@@ -26,11 +27,10 @@ export const CreateAccountForm: React.FC = () => {
   const allParams = searchParams.toString() ? `?${searchParams.toString()}` : ''
   const { login } = useAuth()
   const router = useRouter()
-  const [loading, setLoading] = useState(false)
   const [error, setError] = useState<null | string>(null)
 
   const {
-    formState: { errors },
+    formState: { errors, isSubmitting },
     handleSubmit,
     register,
     watch,
@@ -56,24 +56,19 @@ export const CreateAccountForm: React.FC = () => {
       })
 
       if (!response.ok) {
-        const message = response.statusText || 'Проблема в создании аккаунта.'
-        setError(message)
+        const body = await response.json().catch(() => null)
+        setError(body?.errors?.[0]?.message || 'Проблема в создании аккаунта.')
         return
       }
 
       const redirect = searchParams.get('redirect')
 
-      const timer = setTimeout(() => {
-        setLoading(true)
-      }, 1000)
-
       try {
         await login(data)
-        clearTimeout(timer)
-        if (redirect) router.push(redirect)
-        else router.push(`/account?success=${encodeURIComponent('Аккаунт успешно создан')}`)
+        router.push(
+          safeRedirect(redirect, `/account?success=${encodeURIComponent('Аккаунт успешно создан')}`),
+        )
       } catch (_) {
-        clearTimeout(timer)
         setError('Ошибка проверки ваших данных. Пожалуйста, повторите попытку.')
       }
     },
@@ -114,6 +109,7 @@ export const CreateAccountForm: React.FC = () => {
             id="email"
             {...register('email', { required: 'Email обязателен.' })}
             type="email"
+            autoComplete="email"
             placeholder="your@email.com"
           />
           {errors.email && <FormError message={errors.email.message} />}
@@ -140,6 +136,7 @@ export const CreateAccountForm: React.FC = () => {
               value={chartColor}
               onChange={(e) => setValue('chartColor', e.target.value)}
               type="text"
+              aria-label="Цвет в формате HEX"
               placeholder="#FFDF2C"
               className="flex-1"
               maxLength={7}
@@ -177,6 +174,7 @@ export const CreateAccountForm: React.FC = () => {
             id="password"
             {...register('password', { required: 'Пароль обязателен.' })}
             type="password"
+            autoComplete="new-password"
           />
           {errors.password && <FormError message={errors.password.message} />}
         </FormItem>
@@ -192,12 +190,13 @@ export const CreateAccountForm: React.FC = () => {
               validate: (value) => value === password.current || 'Пароли не совпадают',
             })}
             type="password"
+            autoComplete="new-password"
           />
           {errors.passwordConfirm && <FormError message={errors.passwordConfirm.message} />}
         </FormItem>
       </div>
-      <Button disabled={loading} type="submit" variant="default" className="w-full">
-        {loading ? 'Создаем аккаунт...' : 'Создать аккаунт'}
+      <Button disabled={isSubmitting} type="submit" variant="default" className="w-full">
+        {isSubmitting ? 'Создаем аккаунт...' : 'Создать аккаунт'}
       </Button>
 
       <div className="prose dark:prose-invert mt-8">

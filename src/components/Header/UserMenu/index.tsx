@@ -12,9 +12,17 @@ import {
 import { useAuth } from '@/providers/Auth'
 import { IconUser } from '@tabler/icons-react'
 import Link from 'next/link'
+import { useRouter } from 'next/navigation'
 
 export const UserMenu: React.FC = () => {
   const { user, logout } = useAuth()
+  const router = useRouter()
+
+  const handleLogout = async () => {
+    await logout()
+    router.push('/login')
+    router.refresh()
+  }
 
   if (!user) {
     return (
@@ -41,7 +49,10 @@ export const UserMenu: React.FC = () => {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <button className="inline-flex items-center justify-center gap-2 px-4 h-8 text-xs font-bold uppercase tracking-wider text-muted-foreground hover:text-accent hover:bg-accent/10 hover:border hover:border-accent transition-colors cursor-pointer ">
+        <button
+          aria-label={`Меню пользователя ${user.nickname}`}
+          className="inline-flex items-center justify-center gap-2 px-4 h-8 text-xs font-bold uppercase tracking-wider text-muted-foreground hover:text-accent hover:bg-accent/10 hover:border hover:border-accent transition-colors cursor-pointer "
+        >
           <IconUser className="w-4 h-4" />
           <span className="hidden md:inline">{user.nickname}</span>
         </button>
@@ -60,14 +71,14 @@ export const UserMenu: React.FC = () => {
           </Link>
         </DropdownMenuItem>
         <DropdownMenuItem asChild>
-          <Link href="/account#predictions" className="cursor-pointer">
+          <Link href="/predictions" className="cursor-pointer">
             Мои прогнозы
           </Link>
         </DropdownMenuItem>
         <DropdownMenuSeparator />
         <DropdownMenuItem
           className="cursor-pointer text-destructive focus:text-destructive"
-          onClick={() => logout()}
+          onClick={handleLogout}
         >
           Выйти
         </DropdownMenuItem>

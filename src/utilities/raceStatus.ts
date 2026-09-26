@@ -2,7 +2,9 @@ import type { Race } from '@/payload-types'
 
 export type RaceStatus = 'upcoming' | 'open' | 'closed' | 'completed'
 
-export function getRaceStatus(race: Race): RaceStatus {
+type RaceDates = Pick<Race, 'results' | 'predictionOpenDate' | 'predictionCloseDate'>
+
+export function getRaceStatus(race: RaceDates): RaceStatus {
   const now = new Date()
 
   if (race.results && race.results.length > 0) return 'completed'
@@ -13,10 +15,10 @@ export function getRaceStatus(race: Race): RaceStatus {
   return 'upcoming'
 }
 
-export function canMakePrediction(race: Race): boolean {
+export function canMakePrediction(race: RaceDates): boolean {
   return getRaceStatus(race) === 'open'
 }
 
-export function isRaceCompleted(race: Race): boolean {
+export function isRaceCompleted(race: RaceDates): boolean {
   return getRaceStatus(race) === 'completed'
 }

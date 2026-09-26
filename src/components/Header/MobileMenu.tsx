@@ -13,7 +13,7 @@ import { useAuth } from '@/providers/Auth'
 import { cn } from '@/utilities/cn'
 import { IconMenu2 } from '@tabler/icons-react'
 import Link from 'next/link'
-import { usePathname, useSearchParams } from 'next/navigation'
+import { usePathname, useRouter, useSearchParams } from 'next/navigation'
 import { useEffect, useState } from 'react'
 
 interface MenuItem {
@@ -32,7 +32,14 @@ export function MobileMenu({ menu }: Props) {
 
   const pathname = usePathname()
   const searchParams = useSearchParams()
+  const router = useRouter()
   const [isOpen, setIsOpen] = useState(false)
+
+  const handleLogout = async () => {
+    await logout()
+    router.push('/login')
+    router.refresh()
+  }
 
   useEffect(() => {
     const handleResize = () => {
@@ -50,7 +57,9 @@ export function MobileMenu({ menu }: Props) {
 
   return (
     <Sheet onOpenChange={setIsOpen} open={isOpen}>
-      <SheetTrigger className="relative flex h-11 w-11 items-center justify-center rounded-md border text-muted-foreground hover:text-accent transition-colors">
+      <SheetTrigger
+        aria-label="Открыть меню"
+        className="relative flex h-11 w-11 items-center justify-center rounded-md border text-muted-foreground hover:text-accent transition-colors">
         <IconMenu2 className="h-4" />
       </SheetTrigger>
 
@@ -62,13 +71,17 @@ export function MobileMenu({ menu }: Props) {
 
         <div className="py-4">
           <ul className="flex w-full flex-col gap-2">
-            {menu.map((item) => (
+            {menu.map((item) => {
+              const isActive = pathname.startsWith(item.href)
+              return (
               <li key={item.href} className="relative">
                 <Link
                   href={item.href}
+                  aria-current={isActive ? 'page' : undefined}
                   className={cn(
                     'flex items-center py-2 text-sm font-bold uppercase tracking-wider text-muted-foreground hover:text-accent transition-colors',
                     {
+                      'text-accent': isActive,
                       'text-green-500 hover:text-green-400': !!item.isLive,
                     },
                   )}
@@ -81,7 +94,8 @@ export function MobileMenu({ menu }: Props) {
                   ) : null}
                 </Link>
               </li>
-            ))}
+              )
+            })}
           </ul>
         </div>
 
@@ -99,7 +113,7 @@ export function MobileMenu({ menu }: Props) {
                 </Link>
               </li>
               <li className="mt-6">
-                <Button variant="destructive" className="w-full" onClick={() => logout()}>
+                <Button variant="destructive" className="w-full" onClick={handleLogout}>
                   Выйти
                 </Button>
               </li>

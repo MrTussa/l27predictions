@@ -65,14 +65,14 @@ export function usePodiumPrediction({
         },
       )
 
-      const body = await response.json()
+      const body = await response.json().catch(() => null)
 
       if (!response.ok) {
         throw new Error(body?.errors?.[0]?.message || 'Ошибка при сохранении прогноза')
       }
 
       toast.success(existingPrediction ? 'Прогноз успешно обновлен!' : 'Прогноз успешно сохранен!')
-      router.push('/predictions')
+      router.push(`/predictions?race=${race.id}`)
     } catch (error) {
       console.error('Submission error:', error)
       toast.error(error instanceof Error ? error.message : 'Не удалось сохранить прогноз')

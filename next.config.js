@@ -22,6 +22,7 @@ const nextConfig = {
     ],
   },
   reactStrictMode: true,
+  cacheComponents: true,
   experimental: {
     optimizePackageImports: ['three', 'recharts', 'lucide-react', '@tabler/icons-react'],
   },
@@ -39,9 +40,7 @@ const nextConfig = {
       {
         // SVG-логотипы команд и флаги — статичные ресурсы, кэшируем на год
         source: '/api/media/file/:path*',
-        headers: [
-          { key: 'Cache-Control', value: 'public, max-age=86400' },
-        ],
+        headers: [{ key: 'Cache-Control', value: 'public, max-age=86400' }],
       },
     ]
   },

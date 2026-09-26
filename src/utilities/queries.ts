@@ -1,7 +1,6 @@
-'use server'
-
 import type { Prediction, SeasonStat, User } from '@/payload-types'
 import configPromise from '@payload-config'
+import { cacheLife, cacheTag } from 'next/cache'
 import { getPayload } from 'payload'
 import { cache } from 'react'
 import { getServerSideUser } from './getServerSideUser'
@@ -10,9 +9,18 @@ const payload = await getPayload({ config: configPromise })
 
 const currentYear = new Date().getFullYear()
 
+const publicUserPopulate = {
+  nickname: true,
+  chartColor: true,
+  equippedNicknameEffect: true,
+} as const
+
 // RACES
 
 export async function getRaces(options?: { year?: number | null; depth?: number }) {
+  'use cache'
+  cacheTag('races')
+  cacheLife('hours')
   const { year = null, depth = 1 } = options || {}
   const races = await payload.find({
     collection: 'races',
@@ -29,13 +37,42 @@ export async function getRaces(options?: { year?: number | null; depth?: number 
   return races.docs || []
 }
 
-export const getRaceById = cache(async (raceId: string) => {
+// Лёгкий список для карусели и выбора гонки по умолчанию
+export async function getRaceList(year?: number) {
+  'use cache'
+  cacheTag('races')
+  cacheLife('hours')
+  const { docs } = await payload.find({
+    collection: 'races',
+    where: { season: { equals: year ?? currentYear } },
+    sort: 'round',
+    depth: 0,
+    pagination: false,
+    select: {
+      name: true,
+      round: true,
+      season: true,
+      trackSVGPath: true,
+      raceDate: true,
+      predictionOpenDate: true,
+      predictionCloseDate: true,
+      results: true,
+      rating: true,
+    },
+  })
+  return docs
+}
+
+export async function getRaceById(raceId: string) {
+  'use cache'
+  cacheTag('races')
+  cacheLife('hours')
   return payload.findByID({
     collection: 'races',
     id: raceId,
     depth: 2,
   })
-})
+}
 
 export async function getUserRacesRating(userId: string) {
   const result = await payload.find({
@@ -49,31 +86,6 @@ export async function getUserRacesRating(userId: string) {
 }
 
 // PREDICTIONS
-
-export async function getAllPredictions(options?: {
-  raceId?: string
-  raceIds?: string[]
-  limit?: number
-  depth?: number
-}) {
-  const { raceId, raceIds, limit = 10000, depth = 2 } = options || {}
-
-  const where: { race?: { equals: string } | { in: string[] } } = {}
-  if (raceId) {
-    where.race = { equals: raceId }
-  } else if (raceIds) {
-    where.race = { in: raceIds }
-  }
-
-  const { docs } = await payload.find({
-    collection: 'predictions',
-    where: Object.keys(where).length > 0 ? where : undefined,
-    limit,
-    depth,
-  })
-
-  return docs
-}
 
 export async function getUserPredictions(
   userId: string,
@@ -98,6 +110,9 @@ export async function getPredictionsForRace(
   raceId: string,
   options?: { limit?: number; sort?: string; depth?: number },
 ) {
+  'use cache'
+  cacheTag('predictions')
+  cacheLife('hours')
   const { limit = 100, sort = '-createdAt', depth = 1 } = options || {}
 
   const { docs } = await payload.find({
@@ -108,26 +123,78 @@ export async function getPredictionsForRace(
     sort,
     limit,
     depth,
+    select: { user: true },
+    populate: { users: publicUserPopulate },
   })
 
   return docs
 }
 
-export async function getUserPredictionForRace(userId: string, raceId: string) {
+export async function countPredictionsForRace(raceId: string) {
+  'use cache'
+  cacheTag('predictions')
+  cacheLife('hours')
+  const { totalDocs } = await payload.count({
+    collection: 'predictions',
+    where: { race: { equals: raceId } },
+  })
+  return totalDocs
+}
+
+export async function getTopPredictionsForRace(raceId: string, limit: number) {
+  'use cache'
+  cacheTag('predictions')
+  cacheLife('hours')
+  const { docs } = await payload.find({
+    collection: 'predictions',
+    where: { race: { equals: raceId } },
+    sort: '-points',
+    limit,
+    depth: 1,
+    select: { user: true, points: true },
+    populate: { users: publicUserPopulate },
+  })
+  return docs
+}
+
+export async function getUserPredictionForRace(userId: string, raceId: string, depth = 0) {
   const { docs } = await payload.find({
     collection: 'predictions',
     where: {
       and: [{ user: { equals: userId } }, { race: { equals: raceId } }],
     },
     limit: 1,
+    depth,
   })
 
   return docs[0] || null
 }
 
+export async function getRacePicks(raceId: string) {
+  'use cache'
+  cacheTag('predictions')
+  cacheLife('hours')
+  const { docs } = await payload.find({
+    collection: 'predictions',
+    where: { race: { equals: raceId } },
+    depth: 0,
+    pagination: false,
+    select: { predictions: true },
+  })
+  return docs
+}
+
 // SEASON STATS
 
-export const getUserSeasonStats = cache(async (userId: string, year?: number, depth?: number) => {
+const seasonStatsPopulate = {
+  races: { name: true, round: true },
+  users: publicUserPopulate,
+} as const
+
+export async function getUserSeasonStats(userId: string, year?: number, depth?: number) {
+  'use cache'
+  cacheTag('season-stats')
+  cacheLife('hours')
   const { docs } = await payload.find({
     collection: 'season-stats',
     where: {
@@ -135,43 +202,70 @@ export const getUserSeasonStats = cache(async (userId: string, year?: number, de
     },
     limit: 1,
     depth: depth ?? 1,
+    populate: seasonStatsPopulate,
   })
 
   return docs[0] || null
-})
+}
 
-export const getAllSeasonStats = cache(
-  async (options?: { year?: number; sort?: string; limit?: number; depth?: number }) => {
-    const { year, sort = '-totalPoints', limit = 1000, depth = 1 } = options || {}
+export async function getAllSeasonStats(options?: {
+  year?: number
+  sort?: string
+  limit?: number
+  depth?: number
+}) {
+  'use cache'
+  cacheTag('season-stats')
+  cacheLife('hours')
+  const { year, sort = '-totalPoints', limit = 1000, depth = 1 } = options || {}
 
-    const { docs } = await payload.find({
-      collection: 'season-stats',
-      where: {
-        season: { equals: year ?? currentYear },
-      },
-      sort,
-      limit,
-      depth,
-    })
+  const { docs } = await payload.find({
+    collection: 'season-stats',
+    where: {
+      season: { equals: year ?? currentYear },
+    },
+    sort,
+    limit,
+    depth,
+    populate: seasonStatsPopulate,
+  })
 
-    return docs
-  },
-)
+  return docs
+}
+
+export async function countSeasonStats(year?: number) {
+  'use cache'
+  cacheTag('season-stats')
+  cacheLife('hours')
+  const { totalDocs } = await payload.count({
+    collection: 'season-stats',
+    where: { season: { equals: year ?? currentYear } },
+  })
+  return totalDocs
+}
 
 export async function getUserRank(
   userId: string,
   year?: number,
 ): Promise<{ rank: number | null; total: number }> {
-  const allStats = await getAllSeasonStats({ year, sort: '-totalPoints' })
-  const userStatIndex = allStats.findIndex((s) => {
-    const statUser = typeof s.user === 'object' ? s.user : null
-    return statUser?.id === userId
+  const season = year ?? currentYear
+  const [stats, total] = await Promise.all([
+    getUserSeasonStats(userId, year),
+    countSeasonStats(season),
+  ])
+  if (!stats) return { rank: null, total }
+
+  const { totalDocs: ahead } = await payload.count({
+    collection: 'season-stats',
+    where: {
+      and: [
+        { season: { equals: season } },
+        { totalPoints: { greater_than: stats.totalPoints ?? 0 } },
+      ],
+    },
   })
 
-  return {
-    rank: userStatIndex >= 0 ? userStatIndex + 1 : null,
-    total: allStats.length,
-  }
+  return { rank: ahead + 1, total }
 }
 
 // DRIVERS & TEAMS
@@ -182,6 +276,9 @@ export async function getDrivers(options?: {
   depth?: number
   sort?: string
 }) {
+  'use cache'
+  cacheTag('drivers')
+  cacheLife('hours')
   const { season, activeOnly = true, depth = 1, sort = 'team' } = options || {}
 
   type WhereCondition = { season?: { equals: number } } | { isActive?: { equals: boolean } }
@@ -205,6 +302,9 @@ export async function getDrivers(options?: {
 }
 
 export async function getTeams(options?: { activeOnly?: boolean; depth?: number }) {
+  'use cache'
+  cacheTag('teams')
+  cacheLife('hours')
   const { activeOnly = true, depth = 0 } = options || {}
 
   const { docs } = await payload.find({
@@ -221,6 +321,9 @@ export async function getTeams(options?: { activeOnly?: boolean; depth?: number 
 // EVENTS
 
 export async function getEvents(status?: string[]) {
+  'use cache'
+  cacheTag('events')
+  cacheLife('hours')
   const { docs } = await payload.find({
     collection: 'events',
     where: status ? { status: { in: status } } : undefined,
@@ -232,9 +335,13 @@ export async function getEvents(status?: string[]) {
 }
 
 export async function getEventById(eventId: string) {
+  'use cache'
+  cacheTag('events')
+  cacheLife('hours')
   return payload.findByID({
     collection: 'events',
     id: eventId,
+    overrideAccess: false,
   })
 }
 
@@ -276,9 +383,9 @@ export async function getProfileData(userId: string): Promise<ProfileData> {
   const currentYear = new Date().getFullYear()
 
   const [userStats, rankData, userPredictions] = await Promise.all([
-    getUserSeasonStats(userId, currentYear, 2),
+    getUserSeasonStats(userId, currentYear, 1),
     getUserRank(userId, currentYear),
-    getUserPredictions(userId, { depth: 2 }),
+    getUserPredictions(userId, { depth: 1 }),
   ])
 
   return {
@@ -299,7 +406,7 @@ export type PublicUser = Pick<
   | 'equippedNicknameEffect'
 >
 
-export async function getUserPublicProfile(userId: string): Promise<PublicUser | null> {
+export const getUserPublicProfile = cache(async (userId: string): Promise<PublicUser | null> => {
   try {
     const user = await payload.findByID({
       collection: 'users',
@@ -329,31 +436,50 @@ export async function getUserPublicProfile(userId: string): Promise<PublicUser |
   } catch {
     return null
   }
-}
+})
 
 // HEADER
+
+export async function getBroadcastSettings() {
+  'use cache'
+  cacheTag('broadcast')
+  cacheLife('hours')
+  return payload.findGlobal({ slug: 'broadcast-settings' })
+}
+
+async function getOpenEventIds() {
+  'use cache'
+  cacheTag('events')
+  cacheLife('hours')
+  const { docs } = await payload.find({
+    collection: 'events',
+    where: { status: { equals: 'open' } },
+    select: { status: true },
+    limit: 50,
+    depth: 0,
+  })
+  return docs.map((e) => e.id)
+}
 
 export const getHeaderData = cache(
   async (): Promise<{
     isLive: boolean
     unvotedEventsCount: number
   }> => {
-    const [broadcastSettings, openEvents, { user }] = await Promise.all([
-      payload.findGlobal({ slug: 'broadcast-settings' }),
-      getEvents(['open']),
+    const [broadcastSettings, openIds, { user }] = await Promise.all([
+      getBroadcastSettings(),
+      getOpenEventIds(),
       getServerSideUser(),
     ])
+    const isLive = broadcastSettings.isLive ?? false
 
-    if (!user) return { isLive: broadcastSettings.isLive ?? false, unvotedEventsCount: 0 }
+    if (!user || openIds.length === 0) return { isLive, unvotedEventsCount: 0 }
 
-    const userResponses = await getUserEventResponses(user.id)
-    const respondedIds = new Set(
-      userResponses.map((r) => (typeof r.event === 'object' ? r.event.id : r.event)),
-    )
+    const { totalDocs: answered } = await payload.count({
+      collection: 'event-responses',
+      where: { and: [{ user: { equals: user.id } }, { event: { in: openIds } }] },
+    })
 
-    return {
-      isLive: broadcastSettings.isLive ?? false,
-      unvotedEventsCount: openEvents.filter((e) => !respondedIds.has(e.id)).length,
-    }
+    return { isLive, unvotedEventsCount: openIds.length - answered }
   },
 )

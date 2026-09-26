@@ -1,9 +1,13 @@
 import type { GlobalConfig } from 'payload'
 
 import { adminOnly } from '@/access'
+import { revalidateGlobalOnChange } from '@/utilities/cacheTags'
 
 export const BroadcastSettings: GlobalConfig = {
   slug: 'broadcast-settings',
+  hooks: {
+    afterChange: [revalidateGlobalOnChange('broadcast')],
+  },
   label: 'Настройки трансляции',
   access: {
     read: () => true,

@@ -5,19 +5,36 @@ import { Card } from '@/components/ui/card'
 import type { Race } from '@/payload-types'
 import { IconChevronLeft, IconChevronRight } from '@tabler/icons-react'
 import dynamic from 'next/dynamic'
-import { useLayoutEffect, useRef } from 'react'
+import { useRouter } from 'next/navigation'
+import { useLayoutEffect, useRef, useState, useTransition } from 'react'
 
 const RaceTrackVisualization = dynamic(() => import('@/components/ui/racetrack'), { ssr: false })
 
+type CarouselRace = Pick<Race, 'id' | 'name' | 'round' | 'trackSVGPath'>
+
 interface RaceCarouselProps {
-  races: Race[]
-  selectedRace: Race
-  onRaceSelect: (race: Race) => void
+  races: CarouselRace[]
+  selectedRaceId: string
 }
 
-export function RaceCarousel({ races, selectedRace, onRaceSelect }: RaceCarouselProps) {
+export function RaceCarousel({ races, selectedRaceId }: RaceCarouselProps) {
+  const router = useRouter()
+  const [isPending, startTransition] = useTransition()
   const scrollContainerRef = useRef<HTMLDivElement>(null)
   const selectedCardRef = useRef<HTMLButtonElement>(null)
+
+  const [activeId, setActiveId] = useState(selectedRaceId)
+  const [prevSelectedId, setPrevSelectedId] = useState(selectedRaceId)
+  if (prevSelectedId !== selectedRaceId) {
+    setPrevSelectedId(selectedRaceId)
+    setActiveId(selectedRaceId)
+  }
+  const selectedRace = races.find((r) => r.id === activeId) ?? races[0]
+
+  const onRaceSelect = (race: CarouselRace) => {
+    setActiveId(race.id)
+    startTransition(() => router.replace(`/predictions?race=${race.id}`, { scroll: false }))
+  }
 
   // Центрирование выбранной гонки
   useLayoutEffect(() => {
@@ -49,13 +66,14 @@ export function RaceCarousel({ races, selectedRace, onRaceSelect }: RaceCarousel
   const currentIndex = races.findIndex((r) => r.id === selectedRace.id)
 
   return (
-    <div className="relative py-8 overflow-hidden">
+    <div className="relative py-8 overflow-hidden" aria-busy={isPending}>
       <Button
         variant="outline"
         size="icon"
         className="absolute left-4 top-1/2 -translate-y-1/2 z-10"
         onClick={() => scrollToRace('left')}
         disabled={currentIndex === 0}
+        aria-label="Предыдущая гонка"
       >
         <IconChevronLeft className="w-6 h-6" />
       </Button>
@@ -73,6 +91,7 @@ export function RaceCarousel({ races, selectedRace, onRaceSelect }: RaceCarousel
               key={race.id}
               ref={isSelected ? selectedCardRef : null}
               onClick={() => onRaceSelect(race)}
+              aria-current={isSelected ? 'true' : undefined}
               className={`shrink-0 cursor-pointer transition-all ${
                 isSelected ? 'scale-110' : 'scale-90 opacity-50 hover:opacity-75'
               }`}
@@ -123,6 +142,7 @@ export function RaceCarousel({ races, selectedRace, onRaceSelect }: RaceCarousel
         className="absolute right-4 top-1/2 -translate-y-1/2 z-10"
         onClick={() => scrollToRace('right')}
         disabled={currentIndex === races.length - 1}
+        aria-label="Следующая гонка"
       >
         <IconChevronRight className="w-6 h-6" />
       </Button>

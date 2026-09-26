@@ -23,6 +23,9 @@ export const EventResponses: CollectionConfig = {
     {
       fields: ['user', 'event'],
     },
+    {
+      fields: ['event'],
+    },
   ],
   fields: [
     {

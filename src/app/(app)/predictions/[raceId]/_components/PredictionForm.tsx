@@ -11,13 +11,18 @@ import {
   DragEndEvent,
   DragOverlay,
   DragStartEvent,
+  KeyboardSensor,
   MouseSensor,
   pointerWithin,
   TouchSensor,
   useSensor,
   useSensors,
 } from '@dnd-kit/core'
-import { rectSortingStrategy, SortableContext } from '@dnd-kit/sortable'
+import {
+  rectSortingStrategy,
+  SortableContext,
+  sortableKeyboardCoordinates,
+} from '@dnd-kit/sortable'
 import { PodiumDndSlot } from './PodiumDndSlot'
 import { SavePredictionButton } from './PodiumSlot'
 import { usePodiumPrediction } from './usePodiumPrediction'
@@ -52,7 +57,16 @@ export const PredictionForm: React.FC<Props> = ({
         tolerance: 8,
       },
     }),
+    useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates }),
   )
+
+  const handleDriverClick = (driverId: string) => {
+    const emptyIndex = podium.indexOf(null)
+    if (emptyIndex === -1) return
+    const newPodium = [...podium]
+    newPodium[emptyIndex] = driverId
+    setPodium(newPodium)
+  }
 
   const collisionDetectionStrategy: CollisionDetection = (args) => {
     const pointerCollisions = pointerWithin(args)
@@ -204,6 +218,11 @@ export const PredictionForm: React.FC<Props> = ({
                         driver={driver}
                         draggable
                         disabled={!isPredictionOpen || filledSlotsCount >= 3}
+                        onClick={
+                          isPredictionOpen && filledSlotsCount < 3
+                            ? () => handleDriverClick(driver.id)
+                            : undefined
+                        }
                       />
                     ))}
                   </div>

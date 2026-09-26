@@ -200,6 +200,7 @@ export const EventForm: React.FC<Props> = ({ event, drivers = [], teams = [] }) 
                       type="button"
                       variant={answer?.selectedAnswer === 'yes' ? 'default' : 'outline'}
                       onClick={() => handleYesNoChange(questionIndex, 'yes')}
+                      aria-pressed={answer?.selectedAnswer === 'yes'}
                       className="flex-1"
                     >
                       Да
@@ -208,6 +209,7 @@ export const EventForm: React.FC<Props> = ({ event, drivers = [], teams = [] }) 
                       type="button"
                       variant={answer?.selectedAnswer === 'no' ? 'default' : 'outline'}
                       onClick={() => handleYesNoChange(questionIndex, 'no')}
+                      aria-pressed={answer?.selectedAnswer === 'no'}
                       className="flex-1"
                     >
                       Нет
@@ -215,20 +217,27 @@ export const EventForm: React.FC<Props> = ({ event, drivers = [], teams = [] }) 
                   </div>
                 )}
 
-                {question.questionType === 'single-choice' &&
-                  question.options?.map((option, optionIndex) => (
-                    <div
-                      key={optionIndex}
-                      className={`p-3 rounded-md border cursor-pointer transition-colors ${
-                        answer?.selectedOptions?.[0]?.optionIndex === optionIndex
-                          ? 'border-accent bg-accent/10'
-                          : 'border-border hover:bg-muted/20'
-                      }`}
-                      onClick={() => handleSingleChoiceChange(questionIndex, optionIndex)}
-                    >
-                      <Label className="cursor-pointer">{option.optionText}</Label>
-                    </div>
-                  ))}
+                {question.questionType === 'single-choice' && (
+                  <div role="radiogroup" aria-label={question.questionText} className="space-y-2">
+                    {question.options?.map((option, optionIndex) => {
+                      const checked = answer?.selectedOptions?.[0]?.optionIndex === optionIndex
+                      return (
+                        <button
+                          type="button"
+                          role="radio"
+                          aria-checked={checked}
+                          key={optionIndex}
+                          className={`block w-full text-left text-sm font-medium p-3 rounded-md border cursor-pointer transition-colors ${
+                            checked ? 'border-accent bg-accent/10' : 'border-border hover:bg-muted/20'
+                          }`}
+                          onClick={() => handleSingleChoiceChange(questionIndex, optionIndex)}
+                        >
+                          {option.optionText}
+                        </button>
+                      )
+                    })}
+                  </div>
+                )}
 
                 {question.questionType === 'multiple-choice' &&
                   question.options?.map((option, optionIndex) => {

@@ -1,5 +1,6 @@
-import { adminOnly, publicAccess } from '@/access'
+import { adminOnly, adminOnlyFieldAccess, publicAccess } from '@/access'
 import type { CollectionConfig } from 'payload'
+import { revalidateOnChange, revalidateOnDelete } from '@/utilities/cacheTags'
 
 /**
  * Коллекция универсальных событий
@@ -146,6 +147,7 @@ export const F1Events: CollectionConfig = {
             {
               name: 'isCorrect',
               type: 'checkbox',
+              access: { read: adminOnlyFieldAccess },
               defaultValue: false,
               label: 'Правильный ответ',
               admin: {
@@ -157,6 +159,7 @@ export const F1Events: CollectionConfig = {
         {
           name: 'correctAnswer',
           type: 'select',
+          access: { read: adminOnlyFieldAccess },
           label: 'Правильный ответ (Да/Нет)',
           options: [
             { label: 'Да', value: 'yes' },
@@ -172,6 +175,7 @@ export const F1Events: CollectionConfig = {
         {
           name: 'correctDriver',
           type: 'relationship',
+          access: { read: adminOnlyFieldAccess },
           relationTo: 'drivers',
           label: 'Правильный пилот',
           admin: {
@@ -184,6 +188,7 @@ export const F1Events: CollectionConfig = {
         {
           name: 'correctTeam',
           type: 'relationship',
+          access: { read: adminOnlyFieldAccess },
           relationTo: 'teams',
           label: 'Правильная команда',
           admin: {
@@ -265,7 +270,9 @@ export const F1Events: CollectionConfig = {
         return data
       },
     ],
+    afterDelete: [revalidateOnDelete('events')],
     afterChange: [
+      revalidateOnChange('events'),
       async ({ doc, req, operation, previousDoc }) => {
         if (
           operation === 'update' &&

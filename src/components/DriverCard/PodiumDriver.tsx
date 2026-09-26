@@ -27,6 +27,7 @@ export function PodiumDriver({ position, driver }: PodiumDriverProps) {
     <DriverCardBase
       driver={driver}
       height={height}
+      priority={position === 1}
       topRightContent={position}
       topLeftContent={
         position === 1 ? <IconTrophy className="w-10 h-10 text-accent" fill="#FFDF2C" /> : null

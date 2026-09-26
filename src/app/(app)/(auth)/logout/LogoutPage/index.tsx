@@ -14,9 +14,9 @@ export const LogoutPage: React.FC = () => {
     const performLogout = async () => {
       try {
         await logout()
-        setSuccess('Logged out successfully.')
+        setSuccess('Вы вышли из аккаунта')
       } catch (_) {
-        setError('You are already logged out.')
+        setError('Вы уже вышли из аккаунта')
       }
     }
 
@@ -33,7 +33,7 @@ export const LogoutPage: React.FC = () => {
               <Link href="/login">Войти</Link>
             </Button>
             <Button asChild variant={'outline'}>
-              <Link href="/login">На Главную</Link>
+              <Link href="/">На главную</Link>
             </Button>
           </div>
         </div>

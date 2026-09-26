@@ -1,12 +1,11 @@
 import { mergeOpenGraph } from '@/utilities/mergeOpenGraph'
-import configPromise from '@payload-config'
 import type { Metadata } from 'next'
 import { headers } from 'next/headers'
 import { userAgent } from 'next/server'
-import { getPayload } from 'payload'
 
 import { isAdmin } from '@/access'
 import { getServerSideUser } from '@/utilities/getServerSideUser'
+import { getBroadcastSettings } from '@/utilities/queries'
 
 import { BroadcastLayout } from './_components/BroadcastLayout'
 
@@ -16,7 +15,6 @@ export const metadata: Metadata = {
   openGraph: mergeOpenGraph({ title: 'Трансляция', url: '/broadcast' }),
 }
 
-export const dynamic = 'force-dynamic'
 
 export default async function BroadcastPage() {
   const headersList = await headers()
@@ -25,9 +23,7 @@ export default async function BroadcastPage() {
   const isMobile =
     device.type === 'mobile' || device.type === 'tablet' || /iPhone|iPad|iPod|Android/i.test(ua)
 
-  const payload = await getPayload({ config: configPromise })
-  const settings = await payload.findGlobal({ slug: 'broadcast-settings' })
-  const { user } = await getServerSideUser()
+  const [settings, { user }] = await Promise.all([getBroadcastSettings(), getServerSideUser()])
   return (
     <div>
       <div className="container px-4 md:px-16 py-4">

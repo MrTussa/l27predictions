@@ -21,6 +21,9 @@ export const RaceRatings: CollectionConfig = {
       fields: ['user', 'race'],
       unique: true,
     },
+    {
+      fields: ['race'],
+    },
   ],
   fields: [
     {

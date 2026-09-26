@@ -19,7 +19,7 @@ interface ChartDataPoint {
 }
 
 interface PointsEvolutionChartProps {
-  races: Race[]
+  races: Pick<Race, 'id' | 'name' | 'round'>[]
   usersProgress: UserProgressData[]
 }
 

@@ -1,5 +1,6 @@
 'use client'
 
+import { useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
 
 function parts(target: number, now: number) {
@@ -37,16 +38,23 @@ const Colon = () => (
 export const Countdown: React.FC<{ targetDate: string }> = ({ targetDate }) => {
   const target = new Date(targetDate).getTime()
   const [now, setNow] = useState<number>(() => Date.now())
+  const router = useRouter()
+  const isOver = now >= target
 
   useEffect(() => {
+    if (isOver) return
     const id = setInterval(() => setNow(Date.now()), 1000)
     return () => clearInterval(id)
-  }, [])
+  }, [isOver])
+
+  useEffect(() => {
+    if (isOver) router.refresh()
+  }, [isOver, router])
 
   const { days, hours, minutes, seconds } = parts(target, now)
 
   return (
-    <div className="flex flex-row">
+    <div className="flex flex-row" role="timer" aria-label="До закрытия прогнозов">
       <Digit value={days} label="дни" />
       <Colon />
       <Digit value={hours} label="часы" />

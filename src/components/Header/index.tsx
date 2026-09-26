@@ -49,6 +49,7 @@ export function Header({ isLive, unvotedEventsCount }: HeaderProps) {
                 <li key={item.href} className="relative">
                   <Link
                     href={item.href}
+                    aria-current={pathname.startsWith(item.href) ? 'page' : undefined}
                     className={cn(
                       'relative p-0 pt-2 pb-6 text-xs font-bold uppercase tracking-widest text-muted-foreground hover:text-accent transition-colors navLink',
                       {

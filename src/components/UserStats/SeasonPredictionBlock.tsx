@@ -22,7 +22,7 @@ export async function SeasonPredictionBlock({
     where: {
       and: [{ eventType: { equals: 'season-prediction' } }, { season: { equals: season } }],
     },
-    depth: 1,
+    depth: 0,
     pagination: false,
     limit: 1,
   })
@@ -123,6 +123,7 @@ export async function SeasonPredictionBlock({
                           src={photo.url}
                           alt={driver?.name || 'Driver'}
                           fill
+                          sizes="40px"
                           className="object-cover object-top"
                         />
                       </div>

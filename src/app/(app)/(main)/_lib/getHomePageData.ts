@@ -1,9 +1,10 @@
 import type { Race, SeasonStat, Team, User } from '@/payload-types'
 import {
-  getAllPredictions,
-  getAllSeasonStats,
+  countPredictionsForRace,
+  countSeasonStats,
   getRaces,
   getTeams,
+  getTopPredictionsForRace,
   getUserRank,
   getUserSeasonStats,
 } from '@/utilities/queries'
@@ -22,24 +23,32 @@ export type HomePageData = {
   totalUsersInLeaderboard: number
 }
 
+async function getUserBlock(userId?: string) {
+  if (!userId) {
+    return { userSeasonStats: null, userRank: null, totalUsersInLeaderboard: await countSeasonStats() }
+  }
+  const [userSeasonStats, { rank, total }] = await Promise.all([
+    getUserSeasonStats(userId),
+    getUserRank(userId),
+  ])
+  return { userSeasonStats, userRank: rank, totalUsersInLeaderboard: total }
+}
+
 export async function getHomePageData(userId?: string): Promise<HomePageData> {
-  const [races, allPredictions, teams] = await Promise.all([
+  const [races, teams, userBlock] = await Promise.all([
     getRaces(),
-    getAllPredictions(),
     getTeams({ activeOnly: false, depth: 1 }),
+    getUserBlock(userId),
   ])
 
   const openRace = races.find((race) => canMakePrediction(race)) || null
   const completedRaces = races.filter((race) => isRaceCompleted(race))
   const previousRace = completedRaces[completedRaces.length - 1] || null
 
-  let votedCount = 0
-  if (openRace) {
-    votedCount = allPredictions.filter((pred) => {
-      const race = typeof pred.race === 'object' ? pred.race : null
-      return race && race.id === openRace.id
-    }).length
-  }
+  const [votedCount, topPredictions] = await Promise.all([
+    openRace ? countPredictionsForRace(openRace.id) : 0,
+    previousRace ? getTopPredictionsForRace(previousRace.id, 3) : [],
+  ])
 
   let previousRaceData: HomePageData['previousRaceData'] = null
   if (previousRace) {
@@ -53,38 +62,13 @@ export async function getHomePageData(userId?: string): Promise<HomePageData> {
         }
       }) || []
 
-    const racePredictions = allPredictions.filter((pred) => {
-      const race = typeof pred.race === 'object' ? pred.race : null
-      return race && race.id === previousRace.id
-    })
-
-    const topPredictors = racePredictions
-      .sort((a, b) => (b.points || 0) - (a.points || 0))
-      .slice(0, 3)
-      .map((pred, index) => ({
-        position: index + 1,
-        user: (typeof pred.user === 'object' ? pred.user : {}) as User,
-        points: pred.points || 0,
-      }))
+    const topPredictors = topPredictions.map((pred, index) => ({
+      position: index + 1,
+      user: (typeof pred.user === 'object' ? pred.user : {}) as User,
+      points: pred.points || 0,
+    }))
 
     previousRaceData = { topDrivers, topPredictors }
-  }
-
-  let userSeasonStats: SeasonStat | null = null
-  let userRank: number | null = null
-  let totalUsersInLeaderboard = 0
-
-  if (userId) {
-    const [stats, rankData] = await Promise.all([
-      getUserSeasonStats(userId),
-      getUserRank(userId),
-    ])
-    userSeasonStats = stats
-    userRank = rankData.rank
-    totalUsersInLeaderboard = rankData.total
-  } else {
-    const allStats = await getAllSeasonStats()
-    totalUsersInLeaderboard = allStats.length
   }
 
   return {
@@ -92,8 +76,6 @@ export async function getHomePageData(userId?: string): Promise<HomePageData> {
     previousRace,
     previousRaceData,
     votedCount,
-    userSeasonStats,
-    userRank,
-    totalUsersInLeaderboard,
+    ...userBlock,
   }
 }

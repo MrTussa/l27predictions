@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { useAuth } from '@/providers/Auth'
+import { safeRedirect } from '@/utilities/safeRedirect'
 import Link from 'next/link'
 import { useRouter, useSearchParams } from 'next/navigation'
 import React, { useCallback, useRef } from 'react'
@@ -26,7 +27,7 @@ export const LoginForm: React.FC = () => {
   const [error, setError] = React.useState<null | string>(null)
 
   const {
-    formState: { errors, isLoading },
+    formState: { errors, isSubmitting },
     handleSubmit,
     register,
   } = useForm<FormData>()
@@ -35,8 +36,7 @@ export const LoginForm: React.FC = () => {
     async (data: FormData) => {
       try {
         await login(data)
-        if (redirect?.current) router.push(redirect.current)
-        else router.push('/account')
+        router.push(safeRedirect(redirect.current, '/account'))
       } catch (_) {
         setError('Неверный email или пароль. Попробуйте еще раз.')
       }
@@ -53,6 +53,7 @@ export const LoginForm: React.FC = () => {
           <Input
             id="email"
             type="email"
+            autoComplete="email"
             placeholder="your@email.com"
             {...register('email', { required: 'Email обязателен.' })}
           />
@@ -64,6 +65,7 @@ export const LoginForm: React.FC = () => {
           <Input
             id="password"
             type="password"
+            autoComplete="current-password"
             {...register('password', { required: 'Введите пароль.' })}
           />
           {errors.password && <FormError message={errors.password.message} />}
@@ -81,8 +83,8 @@ export const LoginForm: React.FC = () => {
         <Button asChild variant="outline" size="lg" className="flex-1">
           <Link href={`/create-account${allParams}`}>Создать аккаунт</Link>
         </Button>
-        <Button className="flex-1" disabled={isLoading} size="lg" type="submit" variant="default">
-          {isLoading ? 'Вход...' : 'Войти'}
+        <Button className="flex-1" disabled={isSubmitting} size="lg" type="submit" variant="default">
+          {isSubmitting ? 'Вход...' : 'Войти'}
         </Button>
       </div>
     </form>

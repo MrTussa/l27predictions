@@ -1,3 +1,4 @@
+import { RenderParams } from '@/components/RenderParams'
 import { getServerSideUser } from '@/utilities/getServerSideUser'
 import { getEvents, getUserEventResponses } from '@/utilities/queries'
 import { mergeOpenGraph } from '@/utilities/mergeOpenGraph'
@@ -10,17 +11,18 @@ export const metadata: Metadata = {
   openGraph: mergeOpenGraph({ title: 'События', url: '/events' }),
 }
 
-export const dynamic = 'force-dynamic'
 
 export default async function EventsPage() {
-  const { user } = await getServerSideUser()
-
-  const events = await getEvents(['open', 'closed', 'completed'])
+  const [{ user }, events] = await Promise.all([
+    getServerSideUser(),
+    getEvents(['open', 'closed', 'completed']),
+  ])
 
   const userResponses = user ? await getUserEventResponses(user.id) : []
 
   return (
     <div className="container mx-auto px-4 md:px-16 py-6">
+      <RenderParams />
       <div className="mb-8">
         <h1 className="text-4xl font-bold uppercase tracking-tight mb-2">События</h1>
         <p className="text-muted-foreground">

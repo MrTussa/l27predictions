@@ -1,9 +1,14 @@
 import type { CollectionConfig } from 'payload'
 
 import { adminOnly, publicAccess } from '@/access'
+import { revalidateOnChange, revalidateOnDelete } from '@/utilities/cacheTags'
 
 export const Teams: CollectionConfig = {
   slug: 'teams',
+  hooks: {
+    afterChange: [revalidateOnChange('teams', 'drivers', 'races')],
+    afterDelete: [revalidateOnDelete('teams', 'drivers', 'races')],
+  },
   access: {
     create: adminOnly,
     delete: adminOnly,

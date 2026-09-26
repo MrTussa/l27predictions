@@ -1,5 +1,5 @@
 import type { Metadata } from 'next'
-import type { ReactNode } from 'react'
+import { Suspense, type ReactNode } from 'react'
 
 import { AdminBar } from '@/components/AdminBar'
 import Footer from '@/components/Footer'
@@ -8,17 +8,18 @@ import { ClarityAnalytics } from '@/components/metrics/ClarityAnalytics'
 import { TimezoneDetector } from '@/components/TimezoneDetector'
 import BgStage from '@/components/ui/background'
 import { Providers } from '@/providers'
-import { getHeaderData } from '@/utilities/queries'
 import { getServerSideUser } from '@/utilities/getServerSideUser'
+import { getHeaderData } from '@/utilities/queries'
 import localFont from 'next/font/local'
+import './globals.css'
 
 const titillium = localFont({
   src: [
-    { path: '../../fonts/titillium/TitilliumWeb-Regular.ttf',    weight: '400', style: 'normal' },
-    { path: '../../fonts/titillium/TitilliumWeb-SemiBold.ttf',   weight: '600', style: 'normal' },
-    { path: '../../fonts/titillium/TitilliumWeb-Bold.ttf',       weight: '700', style: 'normal' },
+    { path: '../../fonts/titillium/TitilliumWeb-Regular.ttf', weight: '400', style: 'normal' },
+    { path: '../../fonts/titillium/TitilliumWeb-SemiBold.ttf', weight: '600', style: 'normal' },
+    { path: '../../fonts/titillium/TitilliumWeb-Bold.ttf', weight: '700', style: 'normal' },
     { path: '../../fonts/titillium/TitilliumWeb-BoldItalic.ttf', weight: '700', style: 'italic' },
-    { path: '../../fonts/titillium/TitilliumWeb-Black.ttf',      weight: '900', style: 'normal' },
+    { path: '../../fonts/titillium/TitilliumWeb-Black.ttf', weight: '900', style: 'normal' },
   ],
   variable: '--font-geist-sans',
 })
@@ -27,7 +28,6 @@ const jetbrains = localFont({
   src: '../../fonts/jetBrainsMono/JetBrainsMono-VariableFont_wght.ttf',
   variable: '--font-geist-mono',
 })
-import './globals.css'
 
 export const metadata: Metadata = {
   metadataBase: new URL(process.env.NEXT_PUBLIC_SERVER_URL || 'http://localhost:3000'),
@@ -41,12 +41,23 @@ export const metadata: Metadata = {
   },
 }
 
-export default async function RootLayout({ children }: { children: ReactNode }) {
+async function UserShell({ children }: { children: ReactNode }) {
   const [{ isLive, unvotedEventsCount }, { user }] = await Promise.all([
     getHeaderData(),
     getServerSideUser(),
   ])
 
+  return (
+    <Providers initialUser={user}>
+      <AdminBar />
+      <Header isLive={isLive} unvotedEventsCount={unvotedEventsCount} />
+      <main className="canvas min-h-[70dvh]">{children}</main>
+      <Footer />
+    </Providers>
+  )
+}
+
+export default function RootLayout({ children }: { children: ReactNode }) {
   return (
     <html
       className={[titillium.variable, jetbrains.variable, 'dark'].filter(Boolean).join(' ')}
@@ -61,13 +72,10 @@ export default async function RootLayout({ children }: { children: ReactNode }) 
       <body>
         <ClarityAnalytics projectId={process.env.CLARITY_ID!} />
         <TimezoneDetector />
-        <Providers initialUser={user}>
-          <AdminBar />
-          <BgStage />
-          <Header isLive={isLive} unvotedEventsCount={unvotedEventsCount} />
-          <main className="canvas min-h-[70dvh]">{children}</main>
-          <Footer />
-        </Providers>
+        <BgStage />
+        <Suspense fallback={<div className="min-h-dvh" aria-busy="true" />}>
+          <UserShell>{children}</UserShell>
+        </Suspense>
       </body>
     </html>
   )

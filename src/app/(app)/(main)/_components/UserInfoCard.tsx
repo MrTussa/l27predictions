@@ -28,7 +28,7 @@ export function UserInfoCard({ user, seasonStats, userRank, totalUsers }: UserIn
               </p>
             </div>
             <Button asChild>
-              <Link href="/login">Войти</Link>
+              <Link href="/login?redirect=%2F">Войти</Link>
             </Button>
           </div>
         </div>

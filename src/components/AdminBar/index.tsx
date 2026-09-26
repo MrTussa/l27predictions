@@ -1,8 +1,12 @@
 'use client'
 
 import { useAuth } from '@/providers/Auth'
-import { PayloadAdminBar } from '@payloadcms/admin-bar'
+import dynamic from 'next/dynamic'
 import React from 'react'
+
+const PayloadAdminBar = dynamic(() =>
+  import('@payloadcms/admin-bar').then((m) => m.PayloadAdminBar),
+)
 
 const Title: React.FC = () => <span>Админка</span>
 

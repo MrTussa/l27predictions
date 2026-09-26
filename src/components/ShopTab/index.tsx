@@ -6,11 +6,13 @@ import { Card } from '@/components/ui/card'
 import { useAuth } from '@/providers/Auth'
 import { COSMETICS } from '@/utilities/cosmetics'
 import { IconCheck, IconCoins } from '@tabler/icons-react'
+import { useRouter } from 'next/navigation'
 import { useState } from 'react'
 import { toast } from 'sonner'
 
 export const ShopTab: React.FC = () => {
   const { user, setUser } = useAuth()
+  const router = useRouter()
   const [pending, setPending] = useState<string | null>(null)
 
   if (!user) return null
@@ -32,6 +34,7 @@ export const ShopTab: React.FC = () => {
       const json = await res.json()
       if (!res.ok) throw new Error(json.message || 'Ошибка')
       setUser(json.user)
+      router.refresh()
       if (action === 'buy') toast.success('Покупка совершена!')
     } catch (e) {
       toast.error(e instanceof Error ? e.message : 'Не удалось выполнить действие')

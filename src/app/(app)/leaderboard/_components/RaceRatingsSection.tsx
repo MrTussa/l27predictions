@@ -4,7 +4,7 @@ import Link from 'next/link'
 import { ScrollToEnd } from './ScrollToEnd'
 
 interface RaceRatingsSectionProps {
-  races: Race[]
+  races: Pick<Race, 'id' | 'name' | 'round' | 'trackSVGPath' | 'rating'>[]
 }
 
 export function RaceRatingsSection({ races }: RaceRatingsSectionProps) {

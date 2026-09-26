@@ -70,7 +70,7 @@ export function PredictionCard({ position, name, team, variant, size }: Predicti
         <span className="font-medium truncate min-w-0 flex-1">{name}</span>
         {logo?.url && (
           <div className="absolute w-24 h-4/5 right-[5%]">
-            <Image src={logo.url} alt={logo.alt} fill className="object-fill" />
+            <Image src={logo.url} alt={logo.alt} fill sizes="96px" className="object-fill" />
           </div>
         )}
       </div>

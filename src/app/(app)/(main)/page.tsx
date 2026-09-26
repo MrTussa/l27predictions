@@ -22,6 +22,7 @@ export default async function HomePage() {
 
   return (
     <div className="px-4 md:px-16 py-6 min-h-[calc(100vh-100px)]">
+      <h1 className="sr-only">L27 — чемпионат прогнозов Формулы 1</h1>
       <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6">
         {/* Пользователь */}
         <section className="order-2 xl:order-1">
@@ -47,6 +48,12 @@ export default async function HomePage() {
             <PreviousRaceCard race={previousRace} {...previousRaceData} timeZone={timeZone} />
           </section>
         )}
+
+        {!openRace && !previousRace && (
+          <section className="order-1 md:col-span-2 xl:col-span-3 flex items-center justify-center p-8 text-center text-muted-foreground">
+            Сезон ещё не начался — приём прогнозов откроется перед первой гонкой
+          </section>
+        )}
       </div>
     </div>
   )
@@ -57,5 +64,3 @@ export const metadata: Metadata = {
   description: 'Чемпионат по прогнозам Формулы 1 — делайте прогнозы и соревнуйтесь с друзьями',
   openGraph: mergeOpenGraph({ url: '/' }),
 }
-
-export const dynamic = 'force-dynamic'

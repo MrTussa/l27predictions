@@ -11,7 +11,9 @@ export default async function AccountLayout({ children }: { children: ReactNode 
   const { user } = await getServerSideUser()
 
   if (!user) {
-    redirect(`/login?warning=${encodeURIComponent('Войдите, чтобы получить доступ к аккаунту')}`)
+    redirect(
+      `/login?redirect=%2Faccount&warning=${encodeURIComponent('Войдите, чтобы получить доступ к аккаунту')}`,
+    )
   }
 
   const telegram = user.telegramUsername?.replaceAll(/@/g, '')
@@ -26,7 +28,7 @@ export default async function AccountLayout({ children }: { children: ReactNode 
             <Nickname effect={user.equippedNicknameEffect}>{user.nickname || user.email}</Nickname>
           </h1>
           <span className="flex items-center text-xl text-accent">
-            <IconCoins />
+            <IconCoins aria-label="Pit Coins" />
             {user.pitCoins}
           </span>
         </div>
@@ -35,7 +37,12 @@ export default async function AccountLayout({ children }: { children: ReactNode 
           {telegram && (
             <span className="flex items-center gap-2">
               <IconBrandTelegram className="text-muted-foreground" />
-              <a className="text-xl text-muted-foreground" href={`https://t.me/${telegram}`}>
+              <a
+                className="text-xl text-muted-foreground"
+                href={`https://t.me/${telegram}`}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
                 {user.telegramUsername}
               </a>
             </span>
@@ -48,7 +55,7 @@ export default async function AccountLayout({ children }: { children: ReactNode 
             <AccountNav className="flex w-full flex-row justify-between overflow-y-auto custom-scrollbar" />
           </nav>
 
-          <main>{children}</main>
+          <div>{children}</div>
         </div>
       </div>
     </div>

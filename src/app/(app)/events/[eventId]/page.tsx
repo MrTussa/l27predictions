@@ -2,11 +2,10 @@ import { getServerSideUser } from '@/utilities/getServerSideUser'
 import { mergeOpenGraph } from '@/utilities/mergeOpenGraph'
 import { getDrivers, getEventById, getTeams, getUserEventResponse } from '@/utilities/queries'
 import type { Metadata } from 'next'
-import { redirect } from 'next/navigation'
+import { notFound, redirect } from 'next/navigation'
 import { EventForm } from './_components/EventForm'
 import { EventHeader } from './_components/EventHeader'
 
-export const dynamic = 'force-dynamic'
 
 type Props = {
   params: Promise<{
@@ -31,28 +30,32 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
 export default async function EventDetailPage({ params }: Props) {
   const { eventId } = await params
-  const { user } = await getServerSideUser()
+  const [{ user }, event] = await Promise.all([
+    getServerSideUser(),
+    getEventById(eventId).catch(() => null),
+  ])
 
   if (!user) {
-    redirect('/login')
+    redirect(`/login?redirect=${encodeURIComponent(`/events/${eventId}`)}`)
   }
 
-  const event = await getEventById(eventId)
-
-  if (!event) {
-    redirect('/events')
+  if (!event || event.status === 'draft') {
+    notFound()
   }
 
-  const existingResponse = await getUserEventResponse(user.id, eventId)
-
-  if (event.status !== 'open' || existingResponse) {
-    redirect('/events')
+  if (event.status !== 'open') {
+    redirect(`/events?warning=${encodeURIComponent('Приём ответов на это событие закрыт')}`)
   }
 
-  const [drivers, teams] = await Promise.all([
+  const [existingResponse, drivers, teams] = await Promise.all([
+    getUserEventResponse(user.id, eventId),
     getDrivers({ activeOnly: true, sort: 'name' }),
     getTeams({ activeOnly: true }),
   ])
+
+  if (existingResponse) {
+    redirect(`/events?warning=${encodeURIComponent('Вы уже ответили на это событие')}`)
+  }
 
   return (
     <div className="container mx-auto px-4 md:px-16 py-6 max-w-3xl">

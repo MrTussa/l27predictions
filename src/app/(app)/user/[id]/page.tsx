@@ -8,7 +8,6 @@ import { IconBrandTelegram, IconCoins } from '@tabler/icons-react'
 import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
 
-export const dynamic = 'force-dynamic'
 
 type Props = {
   params: Promise<{ id: string }>

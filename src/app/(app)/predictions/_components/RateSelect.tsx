@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import { toast } from 'sonner'
 
 type RatingValue = 'bad' | 'normal' | 'good'
@@ -12,6 +12,7 @@ type Props = {
 
 const OPTIONS: {
   value: RatingValue
+  label: string
   color: string
   glowColor: string
   shadowColor: string
@@ -20,6 +21,7 @@ const OPTIONS: {
 }[] = [
   {
     value: 'bad',
+    label: 'Плохая гонка',
     color: '#ff0000',
     glowColor: 'rgba(255, 0, 0, 0.6)',
     shadowColor: 'rgba(255, 0, 0, 0.3)',
@@ -28,6 +30,7 @@ const OPTIONS: {
   },
   {
     value: 'normal',
+    label: 'Нормальная гонка',
     color: '#ffcc00',
     glowColor: 'rgba(255, 204, 0, 0.6)',
     shadowColor: 'rgba(255, 204, 0, 0.3)',
@@ -36,6 +39,7 @@ const OPTIONS: {
   },
   {
     value: 'good',
+    label: 'Хорошая гонка',
     color: '#00ff44',
     glowColor: 'rgba(0, 255, 68, 0.6)',
     shadowColor: 'rgba(0, 255, 68, 0.3)',
@@ -49,23 +53,24 @@ export const RateSelect: React.FC<Props> = ({ raceId, initialRating }) => {
   const [loading, setLoading] = useState<boolean>(false)
   const [hoveredIndex, setHoveredIndex] = useState<number | null>(null)
 
-  useEffect(() => {
-    if (initialRating) setRate(initialRating)
-  }, [initialRating])
-
   const handleChange = async (value: RatingValue) => {
     if (value === rate || loading) return
+    const previous = rate
     setRate(value)
     setLoading(true)
 
     try {
-      await fetch('/api/update-race-ratings', {
+      const res = await fetch('/api/update-race-ratings', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
         body: JSON.stringify({ raceId, rating: value }),
       })
+      if (!res.ok) throw new Error()
       toast.success(`Оценка сохранена!`)
+    } catch {
+      setRate(previous)
+      toast.error('Не удалось сохранить оценку, попробуйте ещё раз')
     } finally {
       setLoading(false)
     }
@@ -93,6 +98,9 @@ export const RateSelect: React.FC<Props> = ({ raceId, initialRating }) => {
               onMouseEnter={() => setHoveredIndex(i)}
               onMouseLeave={() => setHoveredIndex(null)}
               disabled={loading}
+              aria-label={opt.label}
+              aria-pressed={isActive}
+              className="focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
               style={{
                 position: 'relative',
                 width: '64px',
@@ -100,7 +108,6 @@ export const RateSelect: React.FC<Props> = ({ raceId, initialRating }) => {
                 borderRadius: '50%',
                 border: `2px solid ${isActive ? opt.color + '44' : opt.idleBorder}`,
                 cursor: loading ? 'not-allowed' : 'pointer',
-                outline: 'none',
                 padding: 0,
                 background: '#111',
                 boxShadow: isActive

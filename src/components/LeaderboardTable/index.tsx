@@ -13,11 +13,19 @@ import {
 import { Nickname } from '@/components/Nickname'
 import type { LeaderboardEntry } from '@/app/(app)/leaderboard/_lib/getLeaderboardData'
 import { IconArrowsUpDown, IconAward, IconMedal, IconTrophy } from '@tabler/icons-react'
-import { motion } from 'motion/react'
 import Link from 'next/link'
 import { useMemo, useState } from 'react'
 
 const PER_PAGE = 15
+
+const SORT_COLUMNS: { key: SortKey; label: string; wrap?: boolean }[] = [
+  { key: 'totalPoints', label: 'Баллы' },
+  { key: 'totalPredictions', label: 'Прогнозов' },
+  { key: 'perfectPredictions', label: 'Идеальных' },
+  { key: 'averagePoints', label: 'Средний балл', wrap: true },
+  { key: 'currentStreak', label: 'Стрик' },
+  { key: 'bestStreak', label: 'Лучший стрик', wrap: true },
+]
 
 type SortKey =
   | 'totalPoints'
@@ -32,6 +40,7 @@ export const LeaderboardTable: React.FC<{ entries: LeaderboardEntry[] }> = ({ en
   const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('desc')
   const [currentPage, setCurentPage] = useState(1)
   const totalPages = Math.max(1, Math.ceil(entries.length / PER_PAGE))
+  const rankById = new Map(entries.map((e, i) => [e.id, i + 1]))
 
   const handleSort = (key: SortKey) => {
     if (sortKey === key) {
@@ -121,85 +130,38 @@ export const LeaderboardTable: React.FC<{ entries: LeaderboardEntry[] }> = ({ en
           <TableRow className="bg-muted/50">
             <TableHead className="w-16 text-center">#</TableHead>
             <TableHead>Участник</TableHead>
-            <TableHead className="text-right">
-              <Button
-                variant="ghost"
-                size="sm"
-                className="h-auto p-0 hover:bg-transparent"
-                onClick={() => handleSort('totalPoints')}
+            {SORT_COLUMNS.map(({ key, label, wrap }) => (
+              <TableHead
+                key={key}
+                className="text-right"
+                aria-sort={
+                  sortKey === key ? (sortDirection === 'asc' ? 'ascending' : 'descending') : 'none'
+                }
               >
-                Баллы
-                <IconArrowsUpDown className="ml-2 h-4 w-4" />
-              </Button>
-            </TableHead>
-            <TableHead className="text-right">
-              <Button
-                variant="ghost"
-                size="sm"
-                className="h-auto p-0 hover:bg-transparent"
-                onClick={() => handleSort('totalPredictions')}
-              >
-                Прогнозов
-                <IconArrowsUpDown className="ml-2 h-4 w-4" />
-              </Button>
-            </TableHead>
-            <TableHead className="text-right">
-              <Button
-                variant="ghost"
-                size="sm"
-                className="h-auto p-0 hover:bg-transparent"
-                onClick={() => handleSort('perfectPredictions')}
-              >
-                Идеальных
-                <IconArrowsUpDown className="ml-2 h-4 w-4" />
-              </Button>
-            </TableHead>
-            <TableHead className="text-right">
-              <Button
-                variant="ghost"
-                size="sm"
-                className="h-auto whitespace-normal w-min p-0 hover:bg-transparent"
-                onClick={() => handleSort('averagePoints')}
-              >
-                Средний балл
-                <IconArrowsUpDown className="ml-2 h-4 w-4" />
-              </Button>
-            </TableHead>
-            <TableHead className="text-right">
-              <Button
-                variant="ghost"
-                size="sm"
-                className="h-auto p-0 hover:bg-transparent"
-                onClick={() => handleSort('currentStreak')}
-              >
-                Стрик
-                <IconArrowsUpDown className="ml-2 h-4 w-4" />
-              </Button>
-            </TableHead>
-            <TableHead className="text-right">
-              <Button
-                variant="ghost"
-                size="sm"
-                className="h-auto whitespace-normal w-min p-0 hover:bg-transparent "
-                onClick={() => handleSort('bestStreak')}
-              >
-                Лучший стрик
-                <IconArrowsUpDown className="ml-2 h-4 w-4" />
-              </Button>
-            </TableHead>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className={`h-auto p-0 hover:bg-transparent ${wrap ? 'whitespace-normal w-min' : ''}`}
+                  onClick={() => handleSort(key)}
+                >
+                  {label}
+                  <IconArrowsUpDown className="ml-2 h-4 w-4" aria-hidden />
+                </Button>
+              </TableHead>
+            ))}
           </TableRow>
         </TableHeader>
         <TableBody>
           {pageData.map((entry, index) => {
-            const position = index + 1 + (currentPage - 1) * PER_PAGE
+            // Место — по очкам (порядок с сервера), а не по текущей сортировке таблицы
+            const position = rankById.get(entry.id) ?? index + 1 + (currentPage - 1) * PER_PAGE
             return (
-              <motion.tr
+              <TableRow
                 key={entry.id || index}
-                layout="position"
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ duration: 0.2 }}
-                className={getRowStyles(position) + ' border-b transition-colors'}
+                className={
+                  getRowStyles(position) +
+                  ' border-b transition-colors animate-in fade-in duration-200'
+                }
               >
                 <TableCell className="text-center font-medium">
                   <div className="flex items-center justify-center gap-2">
@@ -245,7 +207,7 @@ export const LeaderboardTable: React.FC<{ entries: LeaderboardEntry[] }> = ({ en
                 <TableCell className="text-right text-muted-foreground font-mono">
                   {entry.bestStreak > 0 ? entry.bestStreak : '-'}
                 </TableCell>
-              </motion.tr>
+              </TableRow>
             )
           })}
         </TableBody>
@@ -258,6 +220,7 @@ export const LeaderboardTable: React.FC<{ entries: LeaderboardEntry[] }> = ({ en
             disabled={currentPage === 1}
             className="rounded-full px-3"
             onClick={() => setCurentPage((p) => Math.max(1, p - 1))}
+            aria-label="Предыдущая страница"
           >
             ←
           </Button>
@@ -284,6 +247,7 @@ export const LeaderboardTable: React.FC<{ entries: LeaderboardEntry[] }> = ({ en
             disabled={currentPage === totalPages}
             className="rounded-full px-3"
             onClick={() => setCurentPage((p) => Math.max(1, p + 1))}
+            aria-label="Следующая страница"
           >
             →
           </Button>

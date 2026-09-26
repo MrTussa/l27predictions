@@ -84,6 +84,8 @@ export function PodiumSlot({
             topLeftContent={
               !disabled && onRemove ? (
                 <button
+                  type="button"
+                  aria-label={`Убрать ${driver.name} с ${position}-го места`}
                   onClick={(e) => {
                     e.stopPropagation()
                     onRemove()

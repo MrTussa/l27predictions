@@ -1,29 +1,31 @@
 'use client'
 
-import { animate, useReducedMotion } from 'motion/react'
 import { useEffect, useState } from 'react'
 
-// Animates 0 → value on mount. Honors prefers-reduced-motion.
+const easeOut = (t: number) => 1 - (1 - t) ** 3
+
 export const CountUp: React.FC<{
   value: number
   duration?: number
   className?: string
 }> = ({ value, duration = 1, className }) => {
-  const reduce = useReducedMotion()
-  const [display, setDisplay] = useState(reduce ? value : 0)
+  const [display, setDisplay] = useState(0)
 
   useEffect(() => {
-    if (reduce) {
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
       setDisplay(value)
       return
     }
-    const controls = animate(0, value, {
-      duration,
-      ease: 'easeOut',
-      onUpdate: (v) => setDisplay(Math.round(v)),
-    })
-    return () => controls.stop()
-  }, [value, duration, reduce])
+    let frame = 0
+    const start = performance.now()
+    const tick = (now: number) => {
+      const t = Math.min(1, (now - start) / (duration * 1000))
+      setDisplay(Math.round(value * easeOut(t)))
+      if (t < 1) frame = requestAnimationFrame(tick)
+    }
+    frame = requestAnimationFrame(tick)
+    return () => cancelAnimationFrame(frame)
+  }, [value, duration])
 
   return <span className={className}>{display}</span>
 }

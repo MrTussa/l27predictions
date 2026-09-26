@@ -1,6 +1,7 @@
 import type { CollectionConfig } from 'payload'
 
 import { adminOnly, adminOrOwner, isAdmin } from '@/access'
+import { revalidateOnChange, revalidateOnDelete } from '@/utilities/cacheTags'
 import { normalizeID, normalizeIDs } from '@/utilities/normalizeID'
 import { canMakePrediction } from '@/utilities/raceStatus'
 
@@ -72,6 +73,8 @@ export const Predictions: CollectionConfig = {
     },
   ],
   hooks: {
+    afterChange: [revalidateOnChange('predictions')],
+    afterDelete: [revalidateOnDelete('predictions')],
     beforeValidate: [
       async ({ data, req, operation, originalDoc }) => {
         if (operation === 'create' && req.user && data) {
@@ -113,6 +116,9 @@ export const Predictions: CollectionConfig = {
     {
       fields: ['user', 'race'],
       unique: true,
+    },
+    {
+      fields: ['race', 'points'],
     },
   ],
 }

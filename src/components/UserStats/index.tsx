@@ -2,6 +2,7 @@ import { CountUp } from '@/components/CountUp'
 import { Card } from '@/components/ui/card'
 import type { ProfileData, PublicUser } from '@/utilities/queries'
 import { IconChartLine, IconFlame, IconTarget, IconTrophy } from '@tabler/icons-react'
+import { Suspense } from 'react'
 import { PersonalPointsChart } from './PersonalPointsChart'
 import { SeasonPredictionBlock } from './SeasonPredictionBlock'
 
@@ -99,7 +100,9 @@ export async function UserStats({ user, data, isOwnProfile, timeZone }: UserStat
         ))}
       </div>
 
-      <SeasonPredictionBlock userId={user.id} season={currentYear} timeZone={timeZone} />
+      <Suspense fallback={null}>
+        <SeasonPredictionBlock userId={user.id} season={currentYear} timeZone={timeZone} />
+      </Suspense>
 
       {chartData.length >= 2 && (
         <Card variant="default" corners="cut-corner" className="p-0.5">

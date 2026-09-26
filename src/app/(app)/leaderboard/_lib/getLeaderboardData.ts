@@ -1,5 +1,5 @@
 import type { Race } from '@/payload-types'
-import { getAllSeasonStats, getRaces } from '@/utilities/queries'
+import { getAllSeasonStats, getRaceList } from '@/utilities/queries'
 import { isRaceCompleted } from '@/utilities/raceStatus'
 
 export type UserProgress = {
@@ -32,10 +32,12 @@ export type LeaderboardEntry = {
   bestStreak: number
 }
 
+type RaceListItem = Awaited<ReturnType<typeof getRaceList>>[number]
+
 export type LeaderboardData = {
   usersProgress: UserProgress[]
-  completedRaces: Race[]
-  ratedRaces: Race[]
+  completedRaces: Pick<Race, 'id' | 'name' | 'round'>[]
+  ratedRaces: RaceListItem[]
   seasonPodium: PodiumEntry[]
   standings: LeaderboardEntry[]
 }
@@ -45,7 +47,7 @@ export async function getLeaderboardData(year?: number): Promise<LeaderboardData
 
   const [seasonStats, allRaces] = await Promise.all([
     getAllSeasonStats({ year: currentYear, sort: '-totalPoints', depth: 1 }),
-    getRaces({ year: currentYear }),
+    getRaceList(currentYear),
   ])
 
   const completedRaces = allRaces.filter((race) => isRaceCompleted(race))
@@ -123,7 +125,7 @@ export async function getLeaderboardData(year?: number): Promise<LeaderboardData
 
   return {
     usersProgress,
-    completedRaces,
+    completedRaces: completedRaces.map(({ id, name, round }) => ({ id, name, round })),
     ratedRaces,
     seasonPodium,
     standings,

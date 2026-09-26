@@ -4,9 +4,14 @@ import { adminOnly, adminOnlyFieldAccess, adminOrSelf, isAdmin, publicAccess } f
 
 import { resetPasswordEmail } from '@/utilities/email-templates'
 import { ensureFirstUserIsAdmin } from './hooks/ensureFirstUserIsAdmin'
+import { revalidateOnChange, revalidateOnDelete } from '@/utilities/cacheTags'
 
 export const Users: CollectionConfig = {
   slug: 'users',
+  hooks: {
+    afterChange: [revalidateOnChange('season-stats', 'predictions')],
+    afterDelete: [revalidateOnDelete('season-stats', 'predictions')],
+  },
   access: {
     admin: ({ req: { user } }) => isAdmin(user),
     create: publicAccess,

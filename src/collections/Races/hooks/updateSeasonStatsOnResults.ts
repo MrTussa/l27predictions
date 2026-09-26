@@ -24,6 +24,8 @@ export const updateSeasonStatsOnResults: CollectionAfterChangeHook = async ({
           },
         },
         limit: 1000,
+        depth: 0,
+        select: { user: true, predictions: true, points: true },
       })
 
       if (predictions.length === 0) {
@@ -38,6 +40,8 @@ export const updateSeasonStatsOnResults: CollectionAfterChangeHook = async ({
           and: [{ season: { equals: doc.season } }, { currentStreak: { greater_than: 0 } }],
         },
         limit: 1000,
+        depth: 0,
+        select: { user: true },
       })
 
       const streakUserIds = normalizeIDs(statsWithStreak.map((s) => s.user))

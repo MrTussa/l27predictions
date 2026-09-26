@@ -6,23 +6,20 @@ export const updateRaceRatingCounts: CollectionAfterChangeHook = async ({ doc, r
 
   if (!raceId) return doc
 
-  const { docs: ratings } = await req.payload.find({
-    collection: 'race-ratings',
-    where: {
-      race: { equals: raceId },
-    },
-    limit: 10000,
-  })
+  const countRating = async (rating: 'bad' | 'normal' | 'good') =>
+    (
+      await req.payload.count({
+        collection: 'race-ratings',
+        where: { and: [{ race: { equals: raceId } }, { rating: { equals: rating } }] },
+      })
+    ).totalDocs
 
-  const counts = ratings.reduce(
-    (acc, r) => {
-      if (r.rating === 'bad') acc.ratingBad++
-      else if (r.rating === 'normal') acc.ratingNormal++
-      else if (r.rating === 'good') acc.ratingGood++
-      return acc
-    },
-    { ratingBad: 0, ratingNormal: 0, ratingGood: 0 },
-  )
+  const [ratingBad, ratingNormal, ratingGood] = await Promise.all([
+    countRating('bad'),
+    countRating('normal'),
+    countRating('good'),
+  ])
+  const counts = { ratingBad, ratingNormal, ratingGood }
 
   await req.payload.update({
     collection: 'races',

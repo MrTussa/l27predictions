@@ -57,6 +57,7 @@ export const AccountForm: React.FC = () => {
         if (response.ok) {
           const json = await response.json()
           setUser(json.doc)
+          router.refresh()
           toast.success('Настройки аккаунта обновлены.')
           setChangePassword(false)
           reset({
@@ -73,7 +74,7 @@ export const AccountForm: React.FC = () => {
         }
       }
     },
-    [user, setUser, reset],
+    [user, setUser, reset, router],
   )
 
   useEffect(() => {

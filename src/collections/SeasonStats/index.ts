@@ -1,9 +1,14 @@
 import type { CollectionConfig } from 'payload'
 
 import { adminOnly } from '@/access'
+import { revalidateOnChange, revalidateOnDelete } from '@/utilities/cacheTags'
 
 export const SeasonStats: CollectionConfig = {
   slug: 'season-stats',
+  hooks: {
+    afterChange: [revalidateOnChange('season-stats')],
+    afterDelete: [revalidateOnDelete('season-stats')],
+  },
   access: {
     create: adminOnly,
     delete: adminOnly,

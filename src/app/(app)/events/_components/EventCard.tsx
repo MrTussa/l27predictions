@@ -92,7 +92,7 @@ export const EventCard: React.FC<Props> = ({ event, hasResponded, userResponse }
                 Правильных ответов: {userResponse.correctAnswersCount || 0} из{' '}
                 {event.questions?.length || 0}
               </p>
-              {userResponse.reward && userResponse.reward > 0 && (
+              {(userResponse.reward ?? 0) > 0 && (
                 <p className="text-sm font-bold text-accent mt-1">
                   +{userResponse.reward} {getRewardLabel()}
                 </p>
@@ -103,9 +103,9 @@ export const EventCard: React.FC<Props> = ({ event, hasResponded, userResponse }
         <div>
           {/* Action Button */}
           {canParticipate ? (
-            <Link href={`/events/${event.id}`}>
-              <Button className="w-full">Принять участие</Button>
-            </Link>
+            <Button asChild className="w-full">
+              <Link href={`/events/${event.id}`}>Принять участие</Link>
+            </Button>
           ) : event.status === 'open' && hasResponded ? (
             <Button disabled className="w-full">
               Вы уже участвовали
