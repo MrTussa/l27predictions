@@ -40,37 +40,32 @@ interface EffectsProps {
 }
 
 function FrameClock({ fps }: { fps: number }) {
-  const { invalidate, gl } = useThree()
+  const { invalidate } = useThree()
 
   useEffect(() => {
-    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return
+    let intervalId: ReturnType<typeof setInterval>
 
-    let intervalId: ReturnType<typeof setInterval> | undefined
-    let onScreen = true
-
-    function sync() {
-      const shouldRun = onScreen && !document.hidden
-      if (shouldRun && !intervalId) intervalId = setInterval(invalidate, 1000 / fps)
-      if (!shouldRun && intervalId) {
-        clearInterval(intervalId)
-        intervalId = undefined
-      }
+    function start() {
+      intervalId = setInterval(invalidate, 1000 / fps)
     }
 
-    const observer = new IntersectionObserver(([entry]) => {
-      onScreen = entry.isIntersecting
-      sync()
-    })
-    observer.observe(gl.domElement)
-    document.addEventListener('visibilitychange', sync)
-    sync()
+    function stop() {
+      clearInterval(intervalId)
+    }
+
+    function handleVisibility() {
+      if (document.hidden) stop()
+      else start()
+    }
+
+    start()
+    document.addEventListener('visibilitychange', handleVisibility)
 
     return () => {
-      clearInterval(intervalId)
-      observer.disconnect()
-      document.removeEventListener('visibilitychange', sync)
+      stop()
+      document.removeEventListener('visibilitychange', handleVisibility)
     }
-  }, [invalidate, fps, gl])
+  }, [invalidate, fps])
 
   return null
 }
@@ -241,7 +236,6 @@ export default function RaceTrackVisualization({
     <div className={className} style={{ backgroundColor }}>
       <Canvas
         frameloop="demand"
-        dpr={[1, 1.5]}
         camera={{
           position: [0, -6, 6],
           fov: 35,
