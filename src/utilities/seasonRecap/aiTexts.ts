@@ -3,7 +3,7 @@ import { BADGE_ICONS, type BadgeIcon, type RecapTexts, type SeasonRecap } from '
 const RATING_LABEL = { bad: 'плохая', normal: 'нормальная', good: 'хорошая' } as const
 
 // OpenRouter не пускает запросы из РФ: на таком сервере OPENROUTER_BASE_URL указывает на
-// ретранслятор за рубежом (scripts/openrouter-relay-worker.js), он пересылает запрос как есть
+// прокси на зарубежном сервере (nginx), он пересылает запрос как есть
 const openRouterUrl = () =>
   `${(process.env.OPENROUTER_BASE_URL || 'https://openrouter.ai/api/v1').replace(/\/+$/, '')}/chat/completions`
 export const DEFAULT_RECAP_MODEL = 'anthropic/claude-haiku-4.5'
