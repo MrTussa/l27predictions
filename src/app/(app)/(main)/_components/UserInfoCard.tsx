@@ -1,11 +1,11 @@
+import { Caption, F1_RED, Fact, PODIUM_COLORS, Panel } from '@/components/Broadcast'
+import { TelemetryChart } from '@/components/Broadcast/charts'
 import { CountUp } from '@/components/CountUp'
 import { Button } from '@/components/ui/button'
-import { Card } from '@/components/ui/card'
 import type { SeasonStat, User } from '@/payload-types'
-import { IconAlertCircle, IconClock } from '@tabler/icons-react'
+import { formatDecimal } from '@/utilities/plural'
+import { IconAlertCircle } from '@tabler/icons-react'
 import Link from 'next/link'
-import type { ReactNode } from 'react'
-import { UserPointsSparkline } from './UserPointsSparkline'
 
 interface UserInfoCardProps {
   user: User | null
@@ -17,22 +17,20 @@ interface UserInfoCardProps {
 export function UserInfoCard({ user, seasonStats, userRank, totalUsers }: UserInfoCardProps) {
   if (!user) {
     return (
-      <Card variant="gray" corners="cut-corner" className="h-full">
-        <div className="space-y-6 px-6 py-8">
-          <div className="flex flex-col items-center justify-center gap-4 text-center">
-            <IconAlertCircle className="w-12 h-12 text-muted-foreground" />
-            <div className="space-y-2">
-              <h3 className="text-lg font-bold text-muted-foreground">Не авторизован</h3>
-              <p className="text-sm text-muted-foreground">
-                Войдите в систему, чтобы увидеть свою статистику и участвовать в прогнозах
-              </p>
-            </div>
-            <Button asChild>
-              <Link href="/login?redirect=%2F">Войти</Link>
-            </Button>
+      <Panel stripe={F1_RED} className="flex h-full items-center p-6">
+        <div className="flex w-full flex-col items-center gap-4 text-center">
+          <IconAlertCircle className="size-12 text-muted-foreground" />
+          <div className="space-y-2">
+            <h3 className="-skew-x-6 text-xl font-black uppercase italic">Не авторизован</h3>
+            <p className="text-sm text-muted-foreground">
+              Войдите в систему, чтобы увидеть свою статистику и участвовать в прогнозах
+            </p>
           </div>
+          <Button asChild>
+            <Link href="/login?redirect=%2F">Войти</Link>
+          </Button>
         </div>
-      </Card>
+      </Panel>
     )
   }
 
@@ -44,96 +42,83 @@ export function UserInfoCard({ user, seasonStats, userRank, totalUsers }: UserIn
   const position = userRank || 0
   const predictionsCount = seasonStats?.predictionsCount || 0
   const perfectPredictions = seasonStats?.perfectPredictions || 0
-  const averagePoints = predictionsCount > 0 ? (racePoints / predictionsCount).toFixed(1) : '0.0'
+  const averagePoints = predictionsCount > 0 ? racePoints / predictionsCount : 0
 
-  const raceHistory = seasonStats?.raceHistory || []
-  const lastRacePoints = raceHistory.length > 0 ? raceHistory[raceHistory.length - 1]?.points : null
-
-  const sparklineData = raceHistory
+  const raceHistory = (seasonStats?.raceHistory || [])
     .map((entry) => {
       const race = typeof entry.race === 'object' ? entry.race : null
-      return { round: race?.round || 0, points: entry.cumulativePoints }
+      return {
+        key: race?.id ?? String(entry.id),
+        label: race?.name ?? '',
+        round: race?.round ?? 0,
+        points: entry.points,
+      }
     })
     .sort((a, b) => a.round - b.round)
-
-  const firstLetter = (nickname || 'U')[0].toUpperCase()
+  const lastRacePoints = raceHistory.at(-1)?.points ?? null
 
   return (
-    <Card variant="gray" corners="cut-corner" className="h-full">
-      <div className="px-5 space-y-4">
-        {/* Header */}
-        <div className="flex items-center gap-3">
-          <div
-            className="clip-path-cut-corner-sm shrink-0 w-11 h-11 flex items-center justify-center font-black text-lg text-black"
-            style={{ backgroundColor: chartColor }}
-          >
-            {firstLetter}
-          </div>
-          <div className="flex-1 min-w-0">
-            <div className="font-bold uppercase tracking-wider text-xl leading-tight truncate">
-              {nickname}
-            </div>
-          </div>
-          {position > 0 && (
-            <div className="clip-path-cut-corner-sm bg-accent text-accent-foreground font-black font-mono text-sm px-3 py-2 uppercase tracking-wide shrink-0">
+    <Panel stripe={F1_RED} className="h-full p-5">
+      {/* Шапка: ник и место, как плашка пилота в трансляции */}
+      <div className="flex items-center gap-3 border-b border-white/10 pb-4">
+        <span className="h-9 w-1.5 shrink-0" style={{ background: chartColor }} />
+        <div className="min-w-0 flex-1 -skew-x-6 truncate text-xl font-black uppercase italic">
+          {nickname}
+        </div>
+        {position > 0 && (
+          <div className="shrink-0 text-right">
+            <div
+              className="-skew-x-12 text-3xl font-black italic leading-none tabular-nums"
+              style={{ color: PODIUM_COLORS[position - 1] ?? '#fff' }}
+            >
               P{position}
             </div>
+            <div className="font-mono text-[10px] uppercase tracking-wider text-muted-foreground">
+              из {totalUsers}
+            </div>
+          </div>
+        )}
+      </div>
+
+      <div className="space-y-1 pt-4">
+        <Caption>Очки сезона</Caption>
+        <div className="flex items-center gap-3">
+          <span className="-skew-x-12 text-6xl font-black italic leading-none tabular-nums text-accent">
+            <CountUp value={totalPoints} />
+          </span>
+          {lastRacePoints != null && lastRacePoints > 0 && (
+            <span className="-skew-x-12 bg-[#00d26a]/15 px-2 py-0.5 font-mono text-sm font-bold text-[#00d26a]">
+              +{lastRacePoints}
+            </span>
           )}
         </div>
+      </div>
 
-        <div className="border-t border-border" />
-
-        {/* Points */}
-        <div className="space-y-1.5">
-          <div className="text-xs text-muted-foreground uppercase tracking-widest">Очки сезона</div>
-          <div className="flex items-center gap-3">
-            <span className="text-6xl font-black font-mono italic text-accent leading-none">
-              <CountUp value={totalPoints} />
-            </span>
-            {lastRacePoints != null && lastRacePoints > 0 && (
-              <div className="flex items-center gap-1 bg-[hsl(160_60%_10%)] text-[hsl(160_80%_55%)] text-sm font-bold font-mono px-2.5 py-1 rounded-full">
-                <IconClock className="w-3.5 h-3.5" />
-                <span>+{lastRacePoints}</span>
-              </div>
-            )}
+      {raceHistory.length >= 2 && (
+        <div className="pt-4">
+          <Caption>Телеметрия сезона</Caption>
+          <div className="h-16 pt-1">
+            <TelemetryChart data={raceHistory} color={chartColor} compact />
           </div>
         </div>
+      )}
 
-        {/* Sparkline */}
-        {sparklineData.length >= 2 && (
-          <UserPointsSparkline data={sparklineData} color={chartColor} />
-        )}
-
-        {/* Stats grid */}
-        <div className="grid grid-cols-2 gap-2">
-          <StatTile label="Место">
-            <span className="text-2xl font-black font-mono">#{position}</span>
-            <span className="text-sm text-muted-foreground font-mono ml-1">/{totalUsers}</span>
-          </StatTile>
-          <StatTile label="Серия">
-            <span className="text-2xl font-black font-mono text-orange-400">{currentStreak}</span>
-            <span className="text-lg ml-1">🔥</span>
-          </StatTile>
-          <StatTile label="Идеальных">
-            <span className="text-2xl font-black font-mono">{perfectPredictions}</span>
-            <span className="text-sm text-muted-foreground font-mono ml-1.5">
-              из {predictionsCount}
-            </span>
-          </StatTile>
-          <StatTile label="Средний">
-            <span className="text-2xl font-black font-mono">{averagePoints}</span>
-          </StatTile>
-        </div>
+      <div className="mt-4 grid grid-cols-2 gap-px border border-white/10 bg-white/10">
+        <Fact
+          label="Серия"
+          value={currentStreak}
+          color={currentStreak > 0 ? '#fb923c' : undefined}
+          note={currentStreak > 0 ? 'гонок подряд' : 'нет серии'}
+        />
+        <Fact
+          label="Идеальных"
+          value={perfectPredictions}
+          color={perfectPredictions > 0 ? PODIUM_COLORS[0] : undefined}
+          note={`из ${predictionsCount}`}
+        />
+        <Fact label="Средний" value={formatDecimal(averagePoints)} note="очков за гонку" />
+        <Fact label="Прогнозов" value={predictionsCount} note="за сезон" />
       </div>
-    </Card>
-  )
-}
-
-function StatTile({ label, children }: { label: string; children: ReactNode }) {
-  return (
-    <div className="bg-background/60 border rounded-sm p-3 space-y-1">
-      <div className="text-xs text-muted-foreground uppercase tracking-widest">{label}</div>
-      <div className="flex items-baseline">{children}</div>
-    </div>
+    </Panel>
   )
 }

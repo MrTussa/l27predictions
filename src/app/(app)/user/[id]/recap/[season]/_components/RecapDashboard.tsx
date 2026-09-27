@@ -3,12 +3,14 @@ import {
   Caption,
   Checkered,
   F1_RED,
+  Fact,
   Heading,
   PANEL,
   PODIUM_COLORS,
   Radio,
   TrackPlate,
-} from '@/components/RecapBroadcast'
+} from '@/components/Broadcast'
+import { RadarChart, TelemetryChart } from '@/components/Broadcast/charts'
 import { formatDecimal, plural } from '@/utilities/plural'
 import type { BadgeIcon, RecapDriver, RecapTexts, SeasonRecap } from '@/utilities/seasonRecap/types'
 import {
@@ -32,8 +34,6 @@ import {
 } from '@tabler/icons-react'
 import Image from 'next/image'
 import type { CSSProperties, ReactNode } from 'react'
-import { RecapRadar } from './RecapRadar'
-import { SeasonTelemetry } from './SeasonTelemetry'
 
 const BADGE_ICON: Record<BadgeIcon, Icon> = {
   trophy: IconTrophy,
@@ -92,7 +92,19 @@ export function RecapDashboard({ recap, texts, licence }: Props) {
           </Heading>
           <div className="grid grid-cols-1 gap-4 lg:grid-cols-[minmax(0,1fr)_18rem]">
             <div className="border border-white/10 bg-[#15151E] p-4 sm:p-5">
-              <SeasonTelemetry timeline={recap.timeline} color={color} />
+              <div className="min-h-88">
+                <TelemetryChart
+                  color={color}
+                  data={recap.timeline.map((entry) => ({
+                    key: entry.race.id,
+                    label: entry.race.name,
+                    round: entry.race.round,
+                    points: entry.points,
+                    avg: entry.avg,
+                    rank: entry.rank,
+                  }))}
+                />
+              </div>
             </div>
             <div className="grid grid-cols-2 gap-px self-start border border-white/10 bg-white/10 lg:grid-cols-1">
               <Fact label="Пик в таблице" value={recap.peakRank ? `P${recap.peakRank}` : '—'} />
@@ -192,7 +204,7 @@ export function RecapDashboard({ recap, texts, licence }: Props) {
         </Heading>
         <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
           <div className="border border-white/10 bg-[#15151E] p-4">
-            <RecapRadar axes={recap.radar} />
+            <RadarChart data={recap.radar} />
             <div className="flex flex-wrap items-center justify-center gap-2 pt-2">
               <Caption color="#ff4d4d">Слабости</Caption>
               {texts.weaknesses.map((weakness) => (
@@ -432,36 +444,6 @@ function Badges({ texts }: { texts: RecapTexts }) {
           </div>
         )
       })}
-    </div>
-  )
-}
-
-/** Ячейка с цифрой: подпись, крупное значение, пояснение */
-function Fact({
-  label,
-  value,
-  note,
-  color,
-}: {
-  label: string
-  value: string
-  note?: string
-  color?: string
-}) {
-  return (
-    <div className="bg-[#15151E] px-4 py-3">
-      <Caption>{label}</Caption>
-      <div
-        className="-skew-x-12 pt-1 text-3xl font-black italic leading-none tabular-nums"
-        style={color ? { color } : undefined}
-      >
-        {value}
-      </div>
-      {note && (
-        <div className="pt-1 font-mono text-[10px] uppercase tracking-wider text-muted-foreground">
-          {note}
-        </div>
-      )}
     </div>
   )
 }

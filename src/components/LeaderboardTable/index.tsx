@@ -1,7 +1,7 @@
 'use client'
 
 import { Button } from '@/components/ui/button'
-import { Card } from '@/components/ui/card'
+import { F1_RED, PODIUM_COLORS, Panel } from '@/components/Broadcast'
 import {
   Table,
   TableBody,
@@ -12,7 +12,7 @@ import {
 } from '@/components/ui/table'
 import { Nickname } from '@/components/Nickname'
 import type { LeaderboardEntry } from '@/app/(app)/leaderboard/_lib/getLeaderboardData'
-import { IconArrowsUpDown, IconAward, IconMedal, IconTrophy } from '@tabler/icons-react'
+import { IconArrowsUpDown } from '@tabler/icons-react'
 import Link from 'next/link'
 import { useMemo, useState } from 'react'
 
@@ -85,126 +85,132 @@ export const LeaderboardTable: React.FC<{ entries: LeaderboardEntry[] }> = ({ en
     [entries, sortKey, sortDirection, currentPage],
   )
 
-  const getPositionIcon = (position: number) => {
-    switch (position) {
-      case 1:
-        return <IconTrophy className="w-5 h-5 text-accent" />
-      case 2:
-        return <IconMedal className="w-5 h-5 text-gray-400" />
-      case 3:
-        return <IconAward className="w-5 h-5 text-amber-600" />
-      default:
-        return null
-    }
-  }
+  const leaderPoints = entries[0]?.totalPoints ?? 0
 
-  const getRowStyles = (position: number) => {
-    switch (position) {
-      case 1:
-        return 'bg-accent/10 hover:bg-accent/15 border-l-4 border-accent font-bold'
-      case 2:
-        return 'bg-muted/30 hover:bg-muted/40 border-l-4 border-gray-400'
-      case 3:
-        return 'bg-muted/20 hover:bg-muted/30 border-l-4 border-amber-600'
-      default:
-        return 'hover:bg-muted/20'
-    }
-  }
+  const renderSortHead = ({ key, label, wrap }: (typeof SORT_COLUMNS)[number]) => (
+    <TableHead
+      key={key}
+      className="text-right"
+      aria-sort={sortKey === key ? (sortDirection === 'asc' ? 'ascending' : 'descending') : 'none'}
+    >
+      <Button
+        variant="ghost"
+        size="sm"
+        className={`h-auto p-0 font-mono text-[10px] uppercase tracking-[0.2em] hover:bg-transparent ${
+          sortKey === key ? 'text-accent' : ''
+        } ${wrap ? 'w-min whitespace-normal' : ''}`}
+        onClick={() => handleSort(key)}
+      >
+        {label}
+        <IconArrowsUpDown className="ml-1 h-3.5 w-3.5" aria-hidden />
+      </Button>
+    </TableHead>
+  )
 
   if (entries.length === 0) {
     return (
-      <Card
-        variant="yellow-glow"
-        corners="cut-corner"
-        className="p-8 text-center text-muted-foreground"
-      >
+      <Panel className="w-full max-w-6xl p-8 text-center text-muted-foreground">
         Нет данных за текущий сезон
-      </Card>
+      </Panel>
     )
   }
 
   return (
-    <Card variant="yellow-glow" corners="cut-corner" className="overflow-hidden gap-0 max-w-6xl">
+    <Panel stripe={F1_RED} className="w-full max-w-6xl">
       <Table>
         <TableHeader>
-          <TableRow className="bg-muted/50">
-            <TableHead className="w-16 text-center">#</TableHead>
-            <TableHead>Участник</TableHead>
-            {SORT_COLUMNS.map(({ key, label, wrap }) => (
-              <TableHead
-                key={key}
-                className="text-right"
-                aria-sort={
-                  sortKey === key ? (sortDirection === 'asc' ? 'ascending' : 'descending') : 'none'
-                }
-              >
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  className={`h-auto p-0 hover:bg-transparent ${wrap ? 'whitespace-normal w-min' : ''}`}
-                  onClick={() => handleSort(key)}
-                >
-                  {label}
-                  <IconArrowsUpDown className="ml-2 h-4 w-4" aria-hidden />
-                </Button>
-              </TableHead>
-            ))}
+          <TableRow className="border-white/10 hover:bg-transparent">
+            <TableHead className="w-20 pl-5 font-mono text-[10px] uppercase tracking-[0.2em]">
+              Поз
+            </TableHead>
+            <TableHead className="font-mono text-[10px] uppercase tracking-[0.2em]">
+              Участник
+            </TableHead>
+            {SORT_COLUMNS.slice(0, 1).map(renderSortHead)}
+            <TableHead className="text-right font-mono text-[10px] uppercase tracking-[0.2em]">
+              Отрыв
+            </TableHead>
+            {SORT_COLUMNS.slice(1).map(renderSortHead)}
           </TableRow>
         </TableHeader>
         <TableBody>
           {pageData.map((entry, index) => {
             // Место — по очкам (порядок с сервера), а не по текущей сортировке таблицы
             const position = rankById.get(entry.id) ?? index + 1 + (currentPage - 1) * PER_PAGE
+            const podiumColor = PODIUM_COLORS[position - 1]
+            const gap = leaderPoints - entry.totalPoints
             return (
               <TableRow
                 key={entry.id || index}
-                className={
-                  getRowStyles(position) +
-                  ' border-b transition-colors animate-in fade-in duration-200'
+                className="border-white/5 transition-colors animate-in fade-in duration-200 hover:bg-white/[0.03]"
+                style={
+                  podiumColor
+                    ? {
+                        background: `linear-gradient(90deg, color-mix(in srgb, ${podiumColor} 14%, transparent), transparent 45%)`,
+                      }
+                    : undefined
                 }
               >
-                <TableCell className="text-center font-medium">
-                  <div className="flex items-center justify-center gap-2">
-                    {getPositionIcon(position)}
-                    <span className="font-mono">{position}</span>
+                <TableCell className="pl-5">
+                  <div className="flex items-center gap-2">
+                    <span
+                      className="-skew-x-12 w-9 text-xl font-black italic tabular-nums"
+                      style={{ color: podiumColor }}
+                    >
+                      {position}
+                    </span>
+                    <PositionChange value={entry.positionChange} />
                   </div>
                 </TableCell>
-                <TableCell className="font-medium">
+                <TableCell>
                   <Link
                     href={`/user/${entry.id}`}
-                    className="flex items-center gap-3 hover:text-accent transition-colors "
+                    className="flex items-center gap-3 font-black uppercase tracking-wide transition-colors hover:text-accent"
                   >
-                    <div
-                      className="w-3 h-3 rounded-full"
+                    <span
+                      className="h-6 w-1 shrink-0"
                       style={{ backgroundColor: entry.chartColor }}
                     />
-                    <Nickname effect={entry.equippedNicknameEffect} className="truncate max-w-22">
+                    <Nickname effect={entry.equippedNicknameEffect} className="max-w-40 truncate">
                       {entry.nickname}
                     </Nickname>
                   </Link>
                 </TableCell>
-                <TableCell className="text-right font-bold font-mono">
-                  {entry.totalPoints}
+                <TableCell className="text-right">
+                  <span className="-skew-x-12 inline-block text-lg font-black italic tabular-nums">
+                    {entry.totalPoints}
+                  </span>
                 </TableCell>
-                <TableCell className="text-right text-muted-foreground font-mono">
+                <TableCell className="text-right font-mono text-xs text-muted-foreground">
+                  {position === 1 ? (
+                    <span className="font-bold uppercase tracking-wider text-accent">Лидер</span>
+                  ) : (
+                    `+${gap}`
+                  )}
+                </TableCell>
+                <TableCell className="text-right font-mono text-muted-foreground">
                   {entry.totalPredictions}
                 </TableCell>
-                <TableCell className="text-right text-muted-foreground font-mono">
-                  {entry.perfectPredictions}
+                <TableCell className="text-right font-mono text-muted-foreground">
+                  {entry.perfectPredictions > 0 ? (
+                    <span className="font-bold text-accent">{entry.perfectPredictions}</span>
+                  ) : (
+                    0
+                  )}
                 </TableCell>
-                <TableCell className="text-right text-muted-foreground font-mono">
+                <TableCell className="text-right font-mono text-muted-foreground">
                   {entry.averagePoints.toFixed(2)}
                 </TableCell>
                 <TableCell className="text-right">
                   {entry.currentStreak > 0 ? (
-                    <span className="text-accent font-semibold font-mono">
+                    <span className="font-mono font-semibold text-accent">
                       🔥 {entry.currentStreak}
                     </span>
                   ) : (
                     <span className="text-muted-foreground">-</span>
                   )}
                 </TableCell>
-                <TableCell className="text-right text-muted-foreground font-mono">
+                <TableCell className="pr-5 text-right font-mono text-muted-foreground">
                   {entry.bestStreak > 0 ? entry.bestStreak : '-'}
                 </TableCell>
               </TableRow>
@@ -214,11 +220,11 @@ export const LeaderboardTable: React.FC<{ entries: LeaderboardEntry[] }> = ({ en
       </Table>
 
       {totalPages > 1 && (
-        <div className="flex items-center justify-center flex-row gap-1 ">
+        <div className="flex flex-row items-center justify-center gap-1 border-t border-white/5 py-2">
           <Button
             variant={'ghost'}
             disabled={currentPage === 1}
-            className="rounded-full px-3"
+            className="px-3"
             onClick={() => setCurentPage((p) => Math.max(1, p - 1))}
             aria-label="Предыдущая страница"
           >
@@ -235,7 +241,7 @@ export const LeaderboardTable: React.FC<{ entries: LeaderboardEntry[] }> = ({ en
                 variant={currentPage === page ? 'default' : 'ghost'}
                 disabled={currentPage === page}
                 size={'sm'}
-                className="disabled:opacity-100 rounded-full px-3"
+                className="px-3 font-mono disabled:opacity-100"
                 onClick={() => setCurentPage(page as number)}
               >
                 {page}
@@ -245,7 +251,7 @@ export const LeaderboardTable: React.FC<{ entries: LeaderboardEntry[] }> = ({ en
           <Button
             variant={'ghost'}
             disabled={currentPage === totalPages}
-            className="rounded-full px-3"
+            className="px-3"
             onClick={() => setCurentPage((p) => Math.max(1, p + 1))}
             aria-label="Следующая страница"
           >
@@ -253,6 +259,23 @@ export const LeaderboardTable: React.FC<{ entries: LeaderboardEntry[] }> = ({ en
           </Button>
         </div>
       )}
-    </Card>
+    </Panel>
+  )
+}
+
+/** ▲ — отыграл места за последнюю гонку, ▼ — потерял */
+function PositionChange({ value }: { value: number | null }) {
+  if (value === null) return null
+  if (value === 0) return <span className="w-6 font-mono text-[10px] text-white/25">—</span>
+  const up = value > 0
+  return (
+    <span
+      className="w-6 font-mono text-[10px] font-bold"
+      style={{ color: up ? '#00d26a' : F1_RED }}
+      title={up ? `+${value} за последнюю гонку` : `${value} за последнюю гонку`}
+    >
+      {up ? '▲' : '▼'}
+      {Math.abs(value)}
+    </span>
   )
 }

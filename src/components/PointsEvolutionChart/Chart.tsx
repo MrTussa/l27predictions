@@ -1,5 +1,6 @@
 'use client'
 
+import { ChartTooltip, ChartTooltipRow } from '@/components/Broadcast/ChartTooltip'
 import type { Race } from '@/payload-types'
 import { useMemo, useState } from 'react'
 import { Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts'
@@ -78,32 +79,22 @@ export function PointsEvolutionChart({ races, usersProgress }: PointsEvolutionCh
     const raceIndex = sortedRaces.findIndex((race) => race.name === label)
 
     return (
-      <div className="bg-background/95 backdrop-blur-sm border-2 border-accent/20 rounded-lg p-4 shadow-xl max-w-48">
-        <p className="font-bold text-accent mb-2 truncate">{label}</p>
-        <div className="space-y-1">
-          {payload
-            .sort((a, b) => b.value - a.value)
-            .map((entry, index) => {
-              const user = usersProgress.find((u) => u.nickname === entry.name)
-              const pointsInRace = user?.pointsByRace[raceIndex] || 0
-
-              return (
-                <div key={index} className="flex flex-col gap-1">
-                  <div className="flex items-center gap-2">
-                    <div
-                      className="w-2 h-2 rounded-full"
-                      style={{ backgroundColor: entry.color }}
-                    />
-                    <span className="text-sm font-medium truncate">{entry.name}</span>
-                  </div>
-                  <div className="ml-4 text-xs text-muted-foreground">
-                    +{pointsInRace} в гонке • Всего: {entry.value}
-                  </div>
-                </div>
-              )
-            })}
-        </div>
-      </div>
+      <ChartTooltip title={label}>
+        {payload
+          .sort((a, b) => b.value - a.value)
+          .map((entry) => {
+            const user = usersProgress.find((u) => u.nickname === entry.name)
+            const pointsInRace = user?.pointsByRace[raceIndex] || 0
+            return (
+              <ChartTooltipRow
+                key={entry.name}
+                color={entry.color}
+                label={entry.name}
+                value={`${entry.value} (+${pointsInRace})`}
+              />
+            )
+          })}
+      </ChartTooltip>
     )
   }
 
@@ -116,7 +107,7 @@ export function PointsEvolutionChart({ races, usersProgress }: PointsEvolutionCh
   }
 
   return (
-    <div className="w-full space-y-4 px-6">
+    <div className="w-full space-y-4">
       {/* График */}
       <div className="w-full overflow-x-auto overflow-y-hidden custom-scrollbar">
         <ResponsiveContainer minWidth={'600px'} width="100%" height={550}>
@@ -141,7 +132,10 @@ export function PointsEvolutionChart({ races, usersProgress }: PointsEvolutionCh
                 style: { fill: '#888' },
               }}
             />
-            <Tooltip content={<CustomTooltip />} />
+            <Tooltip
+              content={<CustomTooltip />}
+              cursor={{ stroke: 'rgba(255,255,255,0.25)', strokeDasharray: '4 4' }}
+            />
 
             {visibleUsers.map((user) => (
               <Line

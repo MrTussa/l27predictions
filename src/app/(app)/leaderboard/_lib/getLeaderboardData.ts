@@ -1,4 +1,5 @@
 import type { Race } from '@/payload-types'
+import { normalizeID } from '@/utilities/normalizeID'
 import { getAllSeasonStats, getRaceList } from '@/utilities/queries'
 import { isRaceCompleted } from '@/utilities/raceStatus'
 
@@ -30,6 +31,8 @@ export type LeaderboardEntry = {
   averagePoints: number
   currentStreak: number
   bestStreak: number
+  /** Сколько мест отыграл (+) или потерял (−) за последнюю гонку; null — гонок ещё мало */
+  positionChange: number | null
 }
 
 type RaceListItem = Awaited<ReturnType<typeof getRaceList>>[number]
@@ -107,7 +110,15 @@ export async function getLeaderboardData(year?: number): Promise<LeaderboardData
     }
   })
 
-  const standings: LeaderboardEntry[] = seasonStats.map((stat) => {
+  // Место до последней гонки: общий счёт без очков за неё
+  const lastRace = completedRaces.at(-1)
+  const lastRacePoints = (stat: (typeof seasonStats)[number]) =>
+    stat.raceHistory?.find((history) => normalizeID(history.race) === lastRace?.id)?.points ?? 0
+  const totals = seasonStats.map((stat) => stat.totalPointsWithSeasonPrediction ?? 0)
+  const previousTotals = seasonStats.map((stat, i) => totals[i] - lastRacePoints(stat))
+  const rankIn = (list: number[], value: number) => 1 + list.filter((v) => v > value).length
+
+  const standings: LeaderboardEntry[] = seasonStats.map((stat, i) => {
     const user = typeof stat.user === 'object' ? stat.user : null
     return {
       id: user?.id || '',
@@ -120,6 +131,10 @@ export async function getLeaderboardData(year?: number): Promise<LeaderboardData
       averagePoints: stat.predictionsCount > 0 ? stat.totalPoints / stat.predictionsCount : 0,
       currentStreak: stat.currentStreak,
       bestStreak: stat.bestStreak,
+      positionChange:
+        completedRaces.length > 1
+          ? rankIn(previousTotals, previousTotals[i]) - rankIn(totals, totals[i])
+          : null,
     }
   })
 

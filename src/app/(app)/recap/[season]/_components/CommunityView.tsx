@@ -13,7 +13,7 @@ import {
   PODIUM_COLORS,
   Radio,
   TrackPlate,
-} from '@/components/RecapBroadcast'
+} from '@/components/Broadcast'
 
 // Ступени подиума: центр выше, по краям ниже
 const PODIUM_STEP = ['sm:h-44', 'sm:h-32', 'sm:h-24']

@@ -19,16 +19,18 @@ const Digit: React.FC<{ value: number; label: string }> = ({ value, label }) => 
     {/* серверное и клиентское время расходятся на секунды — гидрация чинит сама */}
     <span
       suppressHydrationWarning
-      className="text-2xl md:text-6xl font-bold font-mono text-accent text-shadow-accent text-shadow-[0_0_30px] tabular-nums"
+      className="-skew-x-6 text-3xl font-black italic text-accent text-shadow-accent text-shadow-[0_0_30px] tabular-nums md:text-6xl"
     >
       {value}
     </span>
-    <span className="text-xs md:text-base text-muted-foreground">{label}</span>
+    <span className="font-mono text-[10px] uppercase tracking-[0.2em] text-muted-foreground md:text-xs">
+      {label}
+    </span>
   </div>
 )
 
 const Colon = () => (
-  <span className="font-bold font-mono text-muted-foreground text-xl leading-8 md:text-4xl md:leading-14">
+  <span className="px-1.5 text-xl font-black leading-9 text-white/30 md:px-2.5 md:text-4xl md:leading-15">
     :
   </span>
 )

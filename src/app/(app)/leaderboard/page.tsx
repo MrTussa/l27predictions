@@ -1,6 +1,6 @@
+import { Heading, Panel } from '@/components/Broadcast'
 import { LeaderboardTable } from '@/components/LeaderboardTable'
 import { PointsEvolutionChart } from '@/components/PointsEvolutionChart'
-import { Card } from '@/components/ui/card'
 import { mergeOpenGraph } from '@/utilities/mergeOpenGraph'
 import type { Metadata } from 'next'
 import { cacheLife, cacheTag } from 'next/cache'
@@ -26,13 +26,19 @@ export default async function LeaderboardPage() {
         </div>
 
         {completedRaces.length > 0 && usersProgress.length > 0 && (
-          <Card variant="default" corners="cut-corner" className="h-full">
+          <Panel className="h-full p-5 sm:p-6">
+            <Heading index="03" aside="топ-10 по очкам">
+              Гонка за титул
+            </Heading>
             <PointsEvolutionChart races={completedRaces} usersProgress={usersProgress} />
-          </Card>
+          </Panel>
         )}
       </div>
 
-      <div className="w-full flex justify-center">
+      <div className="mx-auto w-full max-w-6xl">
+        <Heading index="04" aside="▲▼ — за последнюю гонку">
+          Таблица чемпионата
+        </Heading>
         <LeaderboardTable entries={standings} />
       </div>
     </div>

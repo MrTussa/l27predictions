@@ -1,7 +1,8 @@
+import { cn } from '@/utilities/cn'
 import type { RecapRace } from '@/utilities/seasonRecap/types'
 import type { ReactNode } from 'react'
 
-// Язык ТВ-графики F1 для итогов сезона: тёмные плашки, красные полосы, наклонный жирный текст,
+// Язык ТВ-графики F1: тёмные плашки, красные полосы, наклонный жирный текст,
 // строки таймингтауэра и «командное радио» для текстов нейросети.
 
 export const F1_RED = '#E10600'
@@ -82,6 +83,56 @@ export function Radio({
           «{text}»
         </p>
       </div>
+    </div>
+  )
+}
+
+/** Тёмная плашка; stripe — цветная полоса сверху */
+export function Panel({
+  stripe,
+  className,
+  children,
+}: {
+  stripe?: string
+  className?: string
+  children: ReactNode
+}) {
+  return (
+    <div className={cn('relative overflow-hidden border border-white/10 bg-[#15151E]', className)}>
+      {stripe && (
+        <div className="absolute inset-x-0 top-0 z-1 h-1" style={{ background: stripe }} />
+      )}
+      {children}
+    </div>
+  )
+}
+
+/** Ячейка с цифрой: подпись, крупное наклонное значение, пояснение */
+export function Fact({
+  label,
+  value,
+  note,
+  color,
+}: {
+  label: string
+  value: ReactNode
+  note?: ReactNode
+  color?: string
+}) {
+  return (
+    <div className="bg-[#15151E] px-4 py-3">
+      <Caption>{label}</Caption>
+      <div
+        className="-skew-x-12 pt-1 text-3xl font-black italic leading-none tabular-nums"
+        style={color ? { color } : undefined}
+      >
+        {value}
+      </div>
+      {note && (
+        <div className="pt-1 font-mono text-[10px] uppercase tracking-wider text-muted-foreground">
+          {note}
+        </div>
+      )}
     </div>
   )
 }
