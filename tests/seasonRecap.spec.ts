@@ -7,6 +7,10 @@ import {
 } from '@/utilities/seasonRecap/aiTexts'
 import { buildCommunityRecap } from '@/utilities/seasonRecap/buildCommunityRecap'
 import { buildSeasonRecap } from '@/utilities/seasonRecap/buildSeasonRecap'
+import {
+  buildCommunityFallback,
+  sanitizeCommunityTexts,
+} from '@/utilities/seasonRecap/communityTexts'
 import { buildFallbackTexts } from '@/utilities/seasonRecap/fallbackTexts'
 import type { RecapDriver, RecapInput, RecapPrediction } from '@/utilities/seasonRecap/types'
 import { plural } from '@/utilities/plural'
@@ -254,6 +258,23 @@ describe('buildCommunityRecap', () => {
   const community = buildCommunityRecap({ ...fullSeason, players })
   const byKey = (key: string) => community.nominations.find((n) => n.key === key)
 
+  it('комментарии к номинациям не теряются после сохранения', () => {
+    const fallback = buildCommunityFallback(community)
+    const texts = sanitizeCommunityTexts(
+      {
+        headline: 'Сезон',
+        intro: 'Было весело',
+        nominations: [{ key: 'champion', comment: 'Тащил' }],
+      },
+      community,
+      fallback,
+    )
+    expect(texts.nominations.champion).toBe('Тащил')
+    expect(sanitizeCommunityTexts(JSON.parse(JSON.stringify(texts)), community, fallback)).toEqual(
+      texts,
+    )
+  })
+
   it('раздаёт номинации по статистике', () => {
     expect(byKey('champion')).toMatchObject({ user: { id: 'u2' }, value: '47 очков' })
     expect(byKey('sniper')).toMatchObject({ user: { id: 'u2' }, value: '3 идеальных' })
@@ -342,6 +363,27 @@ describe('тексты итогов', () => {
     expect(texts.nemesisComment).toBe(fallback.nemesisComment)
   })
 
+  it('понимает короткие id моментов из промпта и не теряет тексты после сохранения', () => {
+    const texts = sanitizeRecapTexts(
+      {
+        title: 'Т',
+        tagline: 'Ц',
+        moments: [
+          { id: 'm1', label: 'сход', comment: 'Ноль — тоже число.' },
+          { id: 'm2', label: 'прогул', comment: 'Проспал гонку.' },
+        ],
+      },
+      recap,
+      fallback,
+    )
+    expect(texts.moments['zero-r3'].comment).toBe('Ноль — тоже число.')
+    expect(texts.moments['missed-r2'].comment).toBe('Проспал гонку.')
+
+    // В базе лежит уже разобранный объект — при чтении он должен остаться как был
+    const stored = JSON.parse(JSON.stringify(texts))
+    expect(sanitizeRecapTexts(stored, recap, fallback)).toEqual(texts)
+  })
+
   it('ответ без заголовка считается неудачным', () => {
     expect(() => sanitizeRecapTexts({ tagline: 'x' }, recap, fallback)).toThrow()
     expect(() => sanitizeRecapTexts(null, recap, fallback)).toThrow()
@@ -383,7 +425,7 @@ describe('requestRecapTexts', () => {
     expect(init.headers).toMatchObject({ Authorization: 'Bearer test-key' })
     expect(body.model).toBe('google/gemini-test')
     expect(body.response_format.json_schema.strict).toBe(true)
-    expect(body.messages[1].content).toContain('"id": "zero-r3"')
+    expect(body.messages[1].content).toContain('"id": "m1"')
     expect(texts.title).toBe('Заложник Норриса')
     expect(texts.badges).toEqual(fallback.badges)
   })

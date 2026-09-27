@@ -158,7 +158,7 @@ export function buildPromptFacts(recap: SeasonRecap) {
       rating: RATING_LABEL[rating],
       pointsThere: points ?? 'прогноза не было',
     })),
-    moments: recap.moments.map(({ id, fact }) => ({ id, fact })),
+    moments: recap.moments.map(({ fact }, i) => ({ id: momentPromptId(i), fact })),
   }
 }
 
@@ -203,6 +203,24 @@ export const asRecords = (value: unknown) =>
   )
 
 /**
+ * Строки с ключом: модель присылает массив [{ id, … }], а в базе тексты лежат
+ * уже разобранными — объектом { [id]: … }. Строковое значение становится полем valueKey.
+ */
+export function keyedRows(value: unknown, idKey: string, valueKey = 'value') {
+  if (Array.isArray(value)) return asRecords(value)
+  if (!value || typeof value !== 'object') return []
+  return Object.entries(value).map(
+    ([id, item]): Record<string, unknown> =>
+      item && typeof item === 'object'
+        ? { ...item, [idKey]: id }
+        : { [idKey]: id, [valueKey]: item },
+  )
+}
+
+// В промпте у моментов короткие id: длинный id гонки из базы модель может переписать с ошибкой
+const momentPromptId = (index: number) => `m${index + 1}`
+
+/**
  * Проверяет ответ модели и обрезает слишком длинные строки.
  * Недостающие поля берутся из шаблонных текстов, без заголовка ответ считается неудачным.
  */
@@ -228,14 +246,17 @@ export function sanitizeRecapTexts(
     return [{ icon, name: name.toUpperCase(), description }]
   })
 
-  const momentIds = new Set(recap.moments.map((moment) => moment.id))
+  const momentIds = new Map<unknown, string>()
+  recap.moments.forEach((moment, i) => {
+    momentIds.set(moment.id, moment.id)
+    momentIds.set(momentPromptId(i), moment.id)
+  })
   const moments: RecapTexts['moments'] = {}
-  for (const moment of asRecords(data.moments)) {
+  for (const moment of keyedRows(data.moments, 'id')) {
+    const id = momentIds.get(moment.id)
     const label = clean(moment.label, 30)
     const comment = clean(moment.comment, 150)
-    if (typeof moment.id === 'string' && momentIds.has(moment.id) && label && comment) {
-      moments[moment.id] = { label: label.toUpperCase(), comment }
-    }
+    if (id && label && comment) moments[id] = { label: label.toUpperCase(), comment }
   }
 
   const weaknesses = (Array.isArray(data.weaknesses) ? data.weaknesses : [])

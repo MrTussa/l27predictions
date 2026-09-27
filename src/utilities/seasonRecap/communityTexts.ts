@@ -1,5 +1,5 @@
 import { formatDecimal } from '@/utilities/plural'
-import { asRecords, callOpenRouter, clean, type OnUsage } from './aiTexts'
+import { callOpenRouter, clean, keyedRows, type OnUsage } from './aiTexts'
 import type { CommunityRecap } from './buildCommunityRecap'
 
 /** Тексты страницы «Итоги сезона» для всех игроков */
@@ -148,7 +148,7 @@ export function sanitizeCommunityTexts(
 
   const keys = new Set(recap.nominations.map((n) => n.key))
   const nominations: Record<string, string> = {}
-  for (const row of asRecords(data.nominations)) {
+  for (const row of keyedRows(data.nominations, 'key', 'comment')) {
     const comment = clean(row.comment, 170)
     if (typeof row.key === 'string' && keys.has(row.key) && comment) nominations[row.key] = comment
   }
