@@ -1,5 +1,6 @@
 import type { PayloadRequest } from 'payload'
 import { addDataAndFileToRequest } from 'payload'
+import type { MongooseAdapter } from '@payloadcms/db-mongodb'
 import { COSMETICS_BY_ID } from '@/utilities/cosmetics'
 
 // POST /api/shop  { action: 'buy' | 'equip', itemId }
@@ -41,21 +42,37 @@ export const shop = async (req: PayloadRequest) => {
       if (owned.includes(item.id)) {
         return Response.json({ message: 'Предмет уже куплен' }, { status: 400 })
       }
-      const balance = user.pitCoins || 0
-      if (balance < item.price) {
+      if ((user.pitCoins || 0) < item.price) {
         return Response.json({ message: 'Недостаточно Pit Coins' }, { status: 400 })
       }
 
-      // ponytail: read-modify-write, no lock. A double-click could double-spend.
-      // Fine at this scale; switch to an atomic $inc if it ever matters.
-      const updated = await req.payload.update({
+      // Списание одним атомарным запросом: сработает, только если монет хватает и предмета
+      // ещё нет, поэтому двойной клик не купит дважды на одни и те же монеты
+      const users = (req.payload.db as unknown as MongooseAdapter).collections.users
+      const result = await users.updateOne(
+        { _id: user.id, pitCoins: { $gte: item.price }, ownedCosmetics: { $ne: item.id } },
+        [
+          {
+            $set: {
+              pitCoins: { $subtract: ['$pitCoins', item.price] },
+              ownedCosmetics: {
+                $concatArrays: [{ $ifNull: ['$ownedCosmetics', []] }, [item.id]],
+              },
+            },
+          },
+        ],
+      )
+      if (result.modifiedCount === 0) {
+        return Response.json(
+          { message: 'Покупка не прошла: не хватает Pit Coins или предмет уже куплен' },
+          { status: 409 },
+        )
+      }
+
+      const updated = await req.payload.findByID({
         collection: 'users',
         id: user.id,
         overrideAccess: true,
-        data: {
-          pitCoins: balance - item.price,
-          ownedCosmetics: [...owned, item.id],
-        },
       })
       return Response.json({ user: updated }, { status: 200 })
     }

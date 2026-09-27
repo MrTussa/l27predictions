@@ -17,8 +17,7 @@ export async function UserStats({ user, data, isOwnProfile, timeZone }: UserStat
   const currentYear = new Date().getFullYear()
   const { userStats, userRank, userPredictions } = data
 
-  const totalPointsWithSeason =
-    userStats?.totalPointsWithSeasonPrediction || userStats?.totalPoints || 0
+  const totalPointsWithSeason = userStats?.totalPointsWithSeasonPrediction || 0
   const seasonPoints = userStats?.seasonPredictionPoints || 0
   const chartColor = user.chartColor || '#FFDF2C'
 
@@ -41,7 +40,7 @@ export async function UserStats({ user, data, isOwnProfile, timeZone }: UserStat
       value: totalPointsWithSeason,
       icon: IconTrophy,
       color: 'text-accent',
-      subtitle: seasonPoints > 0 ? `+${seasonPoints} за сезон` : undefined,
+      subtitle: seasonPoints > 0 ? `из них +${seasonPoints} за события` : undefined,
     },
     {
       label: 'Место в таблице',

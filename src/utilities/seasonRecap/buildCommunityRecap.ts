@@ -16,6 +16,8 @@ export type CommunityInput = {
   predictions: RecapPrediction[]
   drivers: Record<string, RecapDriver>
   players: Record<string, RecapUser>
+  /** Очки за события — входят в общий зачёт, как в таблице лидеров */
+  bonusPoints?: Record<string, number>
 }
 
 export type Nomination = {
@@ -167,6 +169,9 @@ export function buildCommunityRecap(input: CommunityInput): CommunityRecap {
       crowdPoints += calculatePoints(crowdPicks(racePredictions), race.results)
     }
   }
+
+  // Общий зачёт как в таблице лидеров: гонки + события
+  for (const [id, entry] of players) entry.points += input.bonusPoints?.[id] ?? 0
 
   // Номинант — лучший по метрике; при равенстве — по нику, чтобы порядок был стабилен
   const best = (metric: (entry: Player) => number, min = 1) =>

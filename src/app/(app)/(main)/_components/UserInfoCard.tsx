@@ -38,12 +38,13 @@ export function UserInfoCard({ user, seasonStats, userRank, totalUsers }: UserIn
 
   const nickname = user.nickname || user.email
   const chartColor = user.chartColor || '#FFDF2C'
-  const totalPoints = seasonStats?.totalPoints || 0
+  const totalPoints = seasonStats?.totalPointsWithSeasonPrediction || 0
+  const racePoints = seasonStats?.totalPoints || 0
   const currentStreak = seasonStats?.currentStreak || 0
   const position = userRank || 0
   const predictionsCount = seasonStats?.predictionsCount || 0
   const perfectPredictions = seasonStats?.perfectPredictions || 0
-  const averagePoints = predictionsCount > 0 ? (totalPoints / predictionsCount).toFixed(1) : '0.0'
+  const averagePoints = predictionsCount > 0 ? (racePoints / predictionsCount).toFixed(1) : '0.0'
 
   const raceHistory = seasonStats?.raceHistory || []
   const lastRacePoints = raceHistory.length > 0 ? raceHistory[raceHistory.length - 1]?.points : null

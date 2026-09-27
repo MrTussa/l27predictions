@@ -17,7 +17,14 @@ export const SeasonStats: CollectionConfig = {
   },
   admin: {
     group: 'F1 Championship',
-    defaultColumns: ['user', 'season', 'totalPointsWithSeasonPrediction', 'seasonPredictionPoints', 'totalPoints', 'predictionsCount'],
+    defaultColumns: [
+      'user',
+      'season',
+      'totalPointsWithSeasonPrediction',
+      'seasonPredictionPoints',
+      'totalPoints',
+      'predictionsCount',
+    ],
     useAsTitle: 'id',
     description: 'Кешированная статистика пользователей по сезонам',
   },
@@ -55,9 +62,9 @@ export const SeasonStats: CollectionConfig = {
       type: 'number',
       defaultValue: 0,
       required: true,
-      label: 'Очки за сезонный прогноз',
+      label: 'Очки за события',
       admin: {
-        description: 'Очки за прогноз победителей сезона (макс. 140)',
+        description: 'Очки за события с наградой «очки», включая сезонный прогноз',
         readOnly: true,
       },
     },
@@ -168,7 +175,7 @@ export const SeasonStats: CollectionConfig = {
       unique: true,
     },
     {
-      fields: ['season', 'totalPoints'],
+      fields: ['season', 'totalPointsWithSeasonPrediction'],
     },
   ],
 }

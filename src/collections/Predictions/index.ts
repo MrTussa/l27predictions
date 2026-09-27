@@ -1,6 +1,6 @@
 import type { CollectionConfig } from 'payload'
 
-import { adminOnly, adminOrOwner, isAdmin } from '@/access'
+import { adminOnly, adminOnlyFieldAccess, adminOrOwner, isAdmin } from '@/access'
 import { revalidateOnChange, revalidateOnDelete } from '@/utilities/cacheTags'
 import { normalizeID, normalizeIDs } from '@/utilities/normalizeID'
 import { canMakePrediction } from '@/utilities/raceStatus'
@@ -66,6 +66,11 @@ export const Predictions: CollectionConfig = {
       type: 'number',
       defaultValue: 0,
       label: 'Набранные баллы',
+      // Считает только сервер после ввода результатов
+      access: {
+        create: adminOnlyFieldAccess,
+        update: adminOnlyFieldAccess,
+      },
       admin: {
         readOnly: true,
         description: 'Рассчитывается автоматически после ввода результатов гонки',

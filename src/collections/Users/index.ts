@@ -95,6 +95,11 @@ export const Users: CollectionConfig = {
       type: 'number',
       defaultValue: 0,
       label: 'Pit Coins',
+      // Меняется только сервером (награды, магазин) — иначе пользователь начислил бы себе монеты
+      access: {
+        create: adminOnlyFieldAccess,
+        update: adminOnlyFieldAccess,
+      },
       admin: {
         description: 'Виртуальная валюта для покупок в магазине',
         readOnly: true,

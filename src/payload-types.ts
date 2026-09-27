@@ -384,7 +384,7 @@ export interface SeasonStat {
    */
   totalPoints: number;
   /**
-   * Очки за прогноз победителей сезона (макс. 140)
+   * Очки за события с наградой «очки», включая сезонный прогноз
    */
   seasonPredictionPoints: number;
   /**

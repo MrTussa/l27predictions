@@ -99,8 +99,11 @@ export function buildSeasonRecap(input: RecapInput): SeasonRecap {
   }
 
   const points = cumulative.get(me) ?? 0
+  // Место — как в таблице лидеров: очки за гонки плюс очки за события
+  const bonus = (id: string) => input.bonusPoints?.[id] ?? 0
+  const myTotal = points + bonus(me)
   const rank = cumulative.has(me)
-    ? 1 + [...cumulative.values()].filter((total) => total > points).length
+    ? 1 + [...cumulative.entries()].filter(([id, total]) => total + bonus(id) > myTotal).length
     : null
 
   const played = myRaces.filter(

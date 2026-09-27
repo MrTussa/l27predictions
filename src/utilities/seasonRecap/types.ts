@@ -48,6 +48,8 @@ export type RecapInput = {
   /** Прогнозы всех игроков на гонки сезона */
   predictions: RecapPrediction[]
   drivers: Record<string, RecapDriver>
+  /** Очки за события всех игроков (как в season-stats) — учитываются в месте */
+  bonusPoints?: Record<string, number>
   /** Оценки гонок игроком: id гонки → оценка */
   ratings: Record<string, RaceRatingValue>
 }

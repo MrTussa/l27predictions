@@ -124,10 +124,12 @@ export async function calculateEventRewards(payload: Payload, eventId: string): 
           payload.update({
             collection: 'season-stats',
             id: stat.id,
+            // Очки событий копятся отдельно: totalPoints — только гонки, его пересчитывают
+            // после каждого ввода результатов, и прибавка в нём затёрлась бы
             data: {
-              totalPoints: (stat.totalPoints || 0) + g.reward,
+              seasonPredictionPoints: (stat.seasonPredictionPoints || 0) + g.reward,
               totalPointsWithSeasonPrediction:
-                (stat.totalPointsWithSeasonPrediction || stat.totalPoints || 0) + g.reward,
+                (stat.totalPoints || 0) + (stat.seasonPredictionPoints || 0) + g.reward,
             },
           }),
         )
@@ -138,9 +140,9 @@ export async function calculateEventRewards(payload: Payload, eventId: string): 
             data: {
               user: g.userId as string,
               season,
-              totalPoints: g.reward,
+              totalPoints: 0,
               totalPointsWithSeasonPrediction: g.reward,
-              seasonPredictionPoints: 0,
+              seasonPredictionPoints: g.reward,
               predictionsCount: 0,
               perfectPredictions: 0,
               currentStreak: 0,

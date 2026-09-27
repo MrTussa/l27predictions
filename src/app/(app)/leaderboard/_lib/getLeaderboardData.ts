@@ -46,7 +46,7 @@ export async function getLeaderboardData(year?: number): Promise<LeaderboardData
   const currentYear = year ?? new Date().getFullYear()
 
   const [seasonStats, allRaces] = await Promise.all([
-    getAllSeasonStats({ year: currentYear, sort: '-totalPoints', depth: 1 }),
+    getAllSeasonStats({ year: currentYear, depth: 1 }),
     getRaceList(currentYear),
   ])
 
@@ -102,7 +102,7 @@ export async function getLeaderboardData(year?: number): Promise<LeaderboardData
       nickname: user?.nickname || user?.email || 'Unknown',
       chartColor: user?.chartColor || '#FFDF2C',
       equippedNicknameEffect: user?.equippedNicknameEffect || null,
-      totalPoints: stat.totalPoints ?? 0,
+      totalPoints: stat.totalPointsWithSeasonPrediction ?? 0,
       perfectPredictions: stat.perfectPredictions ?? 0,
     }
   })
@@ -114,7 +114,7 @@ export async function getLeaderboardData(year?: number): Promise<LeaderboardData
       nickname: user?.nickname || user?.email || 'Unknown',
       chartColor: user?.chartColor || '#FFDF2C',
       equippedNicknameEffect: user?.equippedNicknameEffect || null,
-      totalPoints: stat.totalPoints,
+      totalPoints: stat.totalPointsWithSeasonPrediction,
       totalPredictions: stat.predictionsCount,
       perfectPredictions: stat.perfectPredictions,
       averagePoints: stat.predictionsCount > 0 ? stat.totalPoints / stat.predictionsCount : 0,

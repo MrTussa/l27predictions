@@ -8,7 +8,8 @@ import { normalizeID } from './normalizeID'
 
 const payload = await getPayload({ config: configPromise })
 
-const currentYear = new Date().getFullYear()
+// Год считаем при каждом вызове: процесс сервера может пережить Новый год
+const thisYear = () => new Date().getFullYear()
 
 const publicUserPopulate = {
   nickname: true,
@@ -27,7 +28,7 @@ export async function getRaces(options?: { year?: number | null; depth?: number 
     collection: 'races',
     where: {
       season: {
-        equals: year ?? currentYear,
+        equals: year ?? thisYear(),
       },
     },
     sort: 'round',
@@ -45,7 +46,7 @@ export async function getRaceList(year?: number) {
   cacheLife('hours')
   const { docs } = await payload.find({
     collection: 'races',
-    where: { season: { equals: year ?? currentYear } },
+    where: { season: { equals: year ?? thisYear() } },
     sort: 'round',
     depth: 0,
     pagination: false,
@@ -90,17 +91,21 @@ export async function getUserRacesRating(userId: string) {
 
 export async function getUserPredictions(
   userId: string,
-  options?: { depth?: number; limit?: number },
+  options?: { depth?: number; limit?: number; season?: number },
 ) {
-  const { depth = 2, limit = 100 } = options || {}
+  const { depth = 2, limit = 100, season } = options || {}
+  // Без сезона прогнозы разных лет смешиваются, а лимит со временем отрезает свежие
+  const raceIds = season ? (await getRaceList(season)).map((race) => race.id) : null
 
   const { docs } = await payload.find({
     collection: 'predictions',
     where: {
       user: { equals: userId },
+      ...(raceIds ? { race: { in: raceIds } } : {}),
     },
     depth,
     select: { user: false },
+    sort: '-createdAt',
     limit,
   })
 
@@ -222,7 +227,7 @@ export async function getUserSeasonStats(userId: string, year?: number, depth?: 
   const { docs } = await payload.find({
     collection: 'season-stats',
     where: {
-      and: [{ user: { equals: userId } }, { season: { equals: year ?? currentYear } }],
+      and: [{ user: { equals: userId } }, { season: { equals: year ?? thisYear() } }],
     },
     limit: 1,
     depth: depth ?? 1,
@@ -241,12 +246,12 @@ export async function getAllSeasonStats(options?: {
   'use cache'
   cacheTag('season-stats')
   cacheLife('hours')
-  const { year, sort = '-totalPoints', limit = 1000, depth = 1 } = options || {}
+  const { year, sort = '-totalPointsWithSeasonPrediction', limit = 1000, depth = 1 } = options || {}
 
   const { docs } = await payload.find({
     collection: 'season-stats',
     where: {
-      season: { equals: year ?? currentYear },
+      season: { equals: year ?? thisYear() },
     },
     sort,
     limit,
@@ -263,7 +268,7 @@ export async function countSeasonStats(year?: number) {
   cacheLife('hours')
   const { totalDocs } = await payload.count({
     collection: 'season-stats',
-    where: { season: { equals: year ?? currentYear } },
+    where: { season: { equals: year ?? thisYear() } },
   })
   return totalDocs
 }
@@ -272,7 +277,7 @@ export async function getUserRank(
   userId: string,
   year?: number,
 ): Promise<{ rank: number | null; total: number }> {
-  const season = year ?? currentYear
+  const season = year ?? thisYear()
   const [stats, total] = await Promise.all([
     getUserSeasonStats(userId, year),
     countSeasonStats(season),
@@ -284,7 +289,11 @@ export async function getUserRank(
     where: {
       and: [
         { season: { equals: season } },
-        { totalPoints: { greater_than: stats.totalPoints ?? 0 } },
+        {
+          totalPointsWithSeasonPrediction: {
+            greater_than: stats.totalPointsWithSeasonPrediction ?? 0,
+          },
+        },
       ],
     },
   })
@@ -423,7 +432,7 @@ export async function getProfileData(userId: string): Promise<ProfileData> {
   const [userStats, rankData, userPredictions] = await Promise.all([
     getUserSeasonStats(userId, currentYear, 1),
     getUserRank(userId, currentYear),
-    getUserPredictions(userId, { depth: 1 }),
+    getUserPredictions(userId, { depth: 1, season: currentYear }),
   ])
 
   return {

@@ -170,7 +170,7 @@ function Hero({ recap, texts }: { recap: SeasonRecap; texts: RecapTexts | null }
     },
     recap.seasonPredictionPoints > 0 && {
       icon: <IconCrown className="text-accent" />,
-      text: `+${recap.seasonPredictionPoints} за сезонный прогноз`,
+      text: `+${recap.seasonPredictionPoints} за события`,
     },
   ]
   const chips = candidates.filter((chip): chip is HeroChip => !!chip)

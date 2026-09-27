@@ -1,4 +1,4 @@
-import type { Driver } from '@/payload-types'
+import type { Driver, SeasonStat } from '@/payload-types'
 import { normalizeID } from '@/utilities/normalizeID'
 import {
   getAllSeasonStats,
@@ -64,13 +64,19 @@ export async function loadSeasonData(season: number) {
   }
 }
 
+const bonusPoints = (stats: SeasonStat[]) =>
+  Object.fromEntries(
+    stats.map((stat) => [normalizeID(stat.user), stat.seasonPredictionPoints ?? 0]),
+  )
+
 export async function getSeasonRecap(userId: string, season: number): Promise<SeasonRecap | null> {
   const user = await getUserPublicProfile(userId)
   if (!user) return null
 
-  const [data, stats, ratingDocs] = await Promise.all([
+  const [data, stats, allStats, ratingDocs] = await Promise.all([
     loadSeasonData(season),
     getUserSeasonStats(userId, season, 0),
+    getAllSeasonStats({ year: season, depth: 0 }),
     getUserRacesRating(userId),
   ])
 
@@ -90,6 +96,7 @@ export async function getSeasonRecap(userId: string, season: number): Promise<Se
       equippedNicknameEffect: user.equippedNicknameEffect ?? null,
     },
     seasonPredictionPoints: stats?.seasonPredictionPoints ?? 0,
+    bonusPoints: bonusPoints(allStats),
     ratings,
     ...data,
   })
@@ -112,7 +119,7 @@ export async function getCommunityRecap(season: number): Promise<CommunityRecap>
     }
   }
 
-  return buildCommunityRecap({ season, players, ...data })
+  return buildCommunityRecap({ season, players, bonusPoints: bonusPoints(stats), ...data })
 }
 
 export type SeasonProgress = {
