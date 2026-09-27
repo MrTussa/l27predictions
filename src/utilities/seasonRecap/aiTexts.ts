@@ -295,9 +295,9 @@ export async function callOpenRouter(options: {
       },
       temperature: 0.9,
       max_tokens: 8000,
-      // Размышления оплачиваются как выход и дают основную часть цены, шуткам они не нужны.
-      // У Gemini 3 их нельзя выключить совсем: minimal — нижний уровень
-      reasoning: { effort: 'minimal', exclude: true },
+      // Размышления на уровне модели по умолчанию: на minimal шутки заметно хуже.
+      // Текст размышлений в ответе не нужен — оплачиваются они в любом случае
+      reasoning: { exclude: true },
       usage: { include: true },
     }),
     signal: AbortSignal.timeout(60_000),
