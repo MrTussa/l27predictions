@@ -388,6 +388,22 @@ describe('requestRecapTexts', () => {
     expect(texts.badges).toEqual(fallback.badges)
   })
 
+  it('ходит через ретранслятор, если задан OPENROUTER_BASE_URL', async () => {
+    vi.stubEnv('OPENROUTER_API_KEY', 'test-key')
+    vi.stubEnv('OPENROUTER_BASE_URL', 'https://relay.example.workers.dev/api/v1/')
+    vi.stubEnv('OPENROUTER_RELAY_SECRET', 'relay-secret')
+    const fetchMock = reply({
+      choices: [{ message: { content: '{"title":"Т","tagline":"Ц"}' } }],
+    })
+    vi.stubGlobal('fetch', fetchMock)
+
+    await requestRecapTexts(recap, fallback)
+    const [url, init] = fetchMock.mock.calls[0]
+
+    expect(url).toBe('https://relay.example.workers.dev/api/v1/chat/completions')
+    expect(init.headers).toMatchObject({ 'X-Relay-Secret': 'relay-secret' })
+  })
+
   it('без ключа не ходит в сеть, ошибку OpenRouter пробрасывает', async () => {
     const fetchMock = reply({ error: 'no credits' }, 402)
     vi.stubGlobal('fetch', fetchMock)

@@ -2,7 +2,10 @@ import { BADGE_ICONS, type BadgeIcon, type RecapTexts, type SeasonRecap } from '
 
 const RATING_LABEL = { bad: 'плохая', normal: 'нормальная', good: 'хорошая' } as const
 
-const OPENROUTER_URL = 'https://openrouter.ai/api/v1/chat/completions'
+// OpenRouter не пускает запросы из РФ: на таком сервере OPENROUTER_BASE_URL указывает на
+// ретранслятор за рубежом (scripts/openrouter-relay-worker.js), он пересылает запрос как есть
+const openRouterUrl = () =>
+  `${(process.env.OPENROUTER_BASE_URL || 'https://openrouter.ai/api/v1').replace(/\/+$/, '')}/chat/completions`
 export const DEFAULT_RECAP_MODEL = 'anthropic/claude-haiku-4.5'
 
 export const recapModel = () => process.env.OPENROUTER_MODEL || DEFAULT_RECAP_MODEL
@@ -265,13 +268,15 @@ export async function callOpenRouter(options: {
   const apiKey = process.env.OPENROUTER_API_KEY
   if (!apiKey) throw new Error('OPENROUTER_API_KEY не задан')
 
-  const response = await fetch(OPENROUTER_URL, {
+  const relaySecret = process.env.OPENROUTER_RELAY_SECRET
+  const response = await fetch(openRouterUrl(), {
     method: 'POST',
     headers: {
       Authorization: `Bearer ${apiKey}`,
       'Content-Type': 'application/json',
       'HTTP-Referer': process.env.NEXT_PUBLIC_SERVER_URL || 'https://limonov27.ru',
       'X-Title': 'L27 Predictions',
+      ...(relaySecret ? { 'X-Relay-Secret': relaySecret } : {}),
     },
     body: JSON.stringify({
       model: recapModel(),
