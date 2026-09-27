@@ -25,14 +25,6 @@ const nextConfig = {
   cacheComponents: true,
   experimental: {
     optimizePackageImports: ['three', 'recharts', 'lucide-react', '@tabler/icons-react'],
-    // Nixpacks mounts .next/cache as a persistent BuildKit cache, and Turbopack
-    // (build cache on by default since 16.3) replays module evaluations from it.
-    // A build that once ran without a native binding — lightningcss before its
-    // Linux package was pinned — cached that failed require, and every cached
-    // build replayed it even after the package was installed. Clean builds
-    // passed, cached ones failed. Builds are slower without it, but they
-    // resolve native bindings from what is actually installed.
-    turbopackFileSystemCacheForBuild: false,
   },
   async headers() {
     return [
