@@ -1,52 +1,44 @@
-import { Card } from '@/components/ui/card'
+import { Caption, Panel } from '@/components/Broadcast'
 import { Event } from '@/payload-types'
-import { IconCalendar, IconCoins, IconTrophy } from '@tabler/icons-react'
+import { plural } from '@/utilities/plural'
+import { IconAlertTriangle } from '@tabler/icons-react'
+import { rewardLabel, totalReward } from '../../_components/EventCard'
 
 type Props = {
   event: Event
 }
 
 export const EventHeader: React.FC<Props> = ({ event }) => {
-  const getRewardIcon = () => {
-    return event.rewardType === 'points' ? (
-      <IconTrophy className="w-5 h-5" />
-    ) : (
-      <IconCoins className="w-5 h-5" />
-    )
-  }
-
-  const getRewardLabel = () => {
-    return event.rewardType === 'points' ? 'очков' : 'Pit Coins'
-  }
+  const questions = event.questions?.length || 0
 
   return (
-    <Card variant="default" corners="cut-corner" className="p-0.5 mb-6">
-      <div className="px-4 space-y-4">
-        <div>
-          <h1 className="text-3xl font-bold uppercase tracking-tight mb-2">{event.name}</h1>
+    <Panel variant="yellow-glow" className="mb-6" bodyClassName="space-y-4">
+      <div className="flex items-start justify-between gap-4">
+        <div className="min-w-0 space-y-2">
+          <span className="clip-path-cut-corner-xs inline-block bg-accent px-2 py-0.5 font-mono text-xs font-black text-black">
+            Событие
+          </span>
+          <h1 className="text-3xl font-bold uppercase leading-snug tracking-tight">{event.name}</h1>
           {event.description && <p className="text-muted-foreground">{event.description}</p>}
         </div>
-
-        <div className="flex flex-wrap gap-4 text-sm">
-          <div className="flex items-center gap-2 text-muted-foreground">
-            {getRewardIcon()}
-            <span>
-              {event.questions?.reduce((sum, q) => sum + (q.rewardPoints || 0), 0) || 0}{' '}
-              {getRewardLabel()} за все вопросы
-            </span>
+        <div className="shrink-0 text-right">
+          <div className="text-4xl font-black leading-none tabular-nums text-accent">
+            +{totalReward(event)}
           </div>
-          <div className="flex items-center gap-2 text-muted-foreground">
-            <IconCalendar className="w-5 h-5" />
-            <span>{event.questions?.length || 0} вопросов</span>
+          <div className="pt-1 font-mono text-[10px] uppercase tracking-wider text-muted-foreground">
+            {rewardLabel(event)}
           </div>
-        </div>
-
-        <div className="p-3 rounded-md bg-blue-500/10 border border-blue-500/20">
-          <p className="text-sm text-blue-500">
-            <strong>Важно:</strong> После отправки ответов изменить их будет невозможно
-          </p>
         </div>
       </div>
-    </Card>
+
+      <Caption>
+        {questions} {plural(questions, ['вопрос', 'вопроса', 'вопросов'])} · награда за все ответы
+      </Caption>
+
+      <div className="clip-path-cut-corner-sm flex items-center gap-2 bg-accent/10 px-3 py-2 text-sm text-accent">
+        <IconAlertTriangle className="size-4 shrink-0" />
+        После отправки ответы изменить нельзя
+      </div>
+    </Panel>
   )
 }

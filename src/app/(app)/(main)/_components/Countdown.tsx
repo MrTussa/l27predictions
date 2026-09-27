@@ -19,7 +19,7 @@ const Digit: React.FC<{ value: number; label: string }> = ({ value, label }) => 
     {/* серверное и клиентское время расходятся на секунды — гидрация чинит сама */}
     <span
       suppressHydrationWarning
-      className="-skew-x-6 text-3xl font-black italic text-accent text-shadow-accent text-shadow-[0_0_30px] tabular-nums md:text-6xl"
+      className="text-3xl font-black text-accent text-shadow-accent text-shadow-[0_0_30px] tabular-nums md:text-6xl"
     >
       {value}
     </span>

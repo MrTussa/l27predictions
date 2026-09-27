@@ -1,12 +1,16 @@
+import { Card, type CardProps } from '@/components/ui/card'
 import { cn } from '@/utilities/cn'
 import type { RecapRace } from '@/utilities/seasonRecap/types'
 import type { ReactNode } from 'react'
 
-// Язык ТВ-графики F1: тёмные плашки, красные полосы, наклонный жирный текст,
+// Язык ТВ-графики F1 в цветах сайта: карточки со срезанными углами, жёлтые плашки,
 // строки таймингтауэра и «командное радио» для текстов нейросети.
 
-export const F1_RED = '#E10600'
-export const PANEL = '#15151E'
+/** Фирменный жёлтый сайта */
+export const ACCENT = '#FFDF2C'
+/** Только для смысла «плохо»: ноль очков, падение в таблице, плохая оценка */
+export const NEGATIVE = '#ff4d4d'
+export const POSITIVE = '#00d26a'
 export const PODIUM_COLORS = ['#FFDF2C', '#C2C9D2', '#CD6B2C']
 
 export function Checkered({ className = '' }: { className?: string }) {
@@ -24,28 +28,26 @@ export function Checkered({ className = '' }: { className?: string }) {
   )
 }
 
-/** Заголовок раздела как плашка трансляции: красный скошенный номер + название */
+/** Заголовок раздела как плашка трансляции: жёлтый номер + название */
 export function Heading({
   index,
   children,
   aside,
+  as: Tag = 'h2',
 }: {
   index: string
   children: ReactNode
-  aside?: string
+  aside?: ReactNode
+  /** h1 — для заголовка страницы */
+  as?: 'h1' | 'h2'
 }) {
   return (
     <div className="mb-4 flex items-end justify-between gap-3 border-b border-white/10 pb-2">
       <div className="flex items-center gap-3">
-        <span
-          className="-skew-x-12 px-2 py-0.5 font-mono text-sm font-black text-white"
-          style={{ background: F1_RED }}
-        >
+        <span className="clip-path-cut-corner-xs bg-accent px-2 py-0.5 font-mono text-sm font-black text-black">
           {index}
         </span>
-        <h2 className="-skew-x-6 text-2xl font-black uppercase italic tracking-tight">
-          {children}
-        </h2>
+        <Tag className="text-2xl font-bold uppercase tracking-tight">{children}</Tag>
       </div>
       {aside && (
         <span className="hidden font-mono text-[10px] uppercase tracking-[0.2em] text-muted-foreground sm:block">
@@ -56,11 +58,45 @@ export function Heading({
   )
 }
 
+/**
+ * Фирменная карточка сайта со срезанными углами.
+ * accent — цветная рамка слева (или снизу) с лёгкой подсветкой фона, как у Card.
+ */
+export function Panel({
+  accent,
+  accentPosition,
+  variant = 'default',
+  corners = 'cut-corner',
+  className,
+  bodyClassName,
+  children,
+}: {
+  accent?: string
+  accentPosition?: 'left' | 'bottom'
+  variant?: CardProps['variant']
+  corners?: CardProps['corners']
+  className?: string
+  bodyClassName?: string
+  children: ReactNode
+}) {
+  return (
+    <Card
+      variant={variant}
+      corners={corners}
+      accentColor={accent}
+      accentPosition={accentPosition}
+      className={className}
+    >
+      <div className={cn('relative h-full px-5', bodyClassName)}>{children}</div>
+    </Card>
+  )
+}
+
 /** Текст нейросети в виде «командного радио» из трансляций */
 export function Radio({
   text,
   from = 'Паддок L27',
-  color = F1_RED,
+  color = ACCENT,
 }: {
   text: string
   from?: string
@@ -79,59 +115,24 @@ export function Radio({
           <span className="text-white">Team radio</span>
           <span className="text-muted-foreground">· {from}</span>
         </div>
-        <p className="text-sm font-semibold italic leading-snug text-white/90 sm:text-base">
-          «{text}»
-        </p>
+        <p className="text-sm font-medium leading-relaxed text-white/90 sm:text-base">«{text}»</p>
       </div>
     </div>
   )
 }
 
-/** Тёмная плашка; stripe — цветная полоса сверху */
-export function Panel({
-  stripe,
-  className,
-  children,
-}: {
-  stripe?: string
-  className?: string
-  children: ReactNode
-}) {
+/** Заголовок внутри карточки: жёлтая черта и подпись, справа — дополнение */
+export function CardHeading({ children, aside }: { children: ReactNode; aside?: ReactNode }) {
   return (
-    <div className={cn('relative overflow-hidden border border-white/10 bg-[#15151E]', className)}>
-      {stripe && (
-        <div className="absolute inset-x-0 top-0 z-1 h-1" style={{ background: stripe }} />
-      )}
-      {children}
-    </div>
-  )
-}
-
-/** Ячейка с цифрой: подпись, крупное наклонное значение, пояснение */
-export function Fact({
-  label,
-  value,
-  note,
-  color,
-}: {
-  label: string
-  value: ReactNode
-  note?: ReactNode
-  color?: string
-}) {
-  return (
-    <div className="bg-[#15151E] px-4 py-3">
-      <Caption>{label}</Caption>
-      <div
-        className="-skew-x-12 pt-1 text-3xl font-black italic leading-none tabular-nums"
-        style={color ? { color } : undefined}
-      >
-        {value}
-      </div>
-      {note && (
-        <div className="pt-1 font-mono text-[10px] uppercase tracking-wider text-muted-foreground">
-          {note}
-        </div>
+    <div className="mb-4 flex items-center justify-between gap-3">
+      <h2 className="flex items-center gap-2 text-base font-bold uppercase tracking-wide">
+        <span className="inline-block h-0.75 w-3.5 bg-accent" />
+        {children}
+      </h2>
+      {aside && (
+        <span className="font-mono text-[10px] uppercase tracking-[0.14em] text-muted-foreground">
+          {aside}
+        </span>
       )}
     </div>
   )
@@ -145,6 +146,36 @@ export function Caption({ children, color }: { children: ReactNode; color?: stri
       style={color ? { color } : undefined}
     >
       {children}
+    </div>
+  )
+}
+
+/** Ячейка с цифрой: подпись, крупное значение, пояснение */
+export function Fact({
+  label,
+  value,
+  note,
+  color,
+}: {
+  label: string
+  value: ReactNode
+  note?: ReactNode
+  color?: string
+}) {
+  return (
+    <div className="bg-card px-4 py-3">
+      <Caption>{label}</Caption>
+      <div
+        className="pt-1 text-3xl font-black leading-none tabular-nums"
+        style={color ? { color } : undefined}
+      >
+        {value}
+      </div>
+      {note && (
+        <div className="pt-1 font-mono text-[10px] uppercase tracking-wider text-muted-foreground">
+          {note}
+        </div>
+      )}
     </div>
   )
 }
@@ -164,13 +195,12 @@ export function TrackPlate({
   color: string
 }) {
   return (
-    <div className="relative overflow-hidden border border-white/10 bg-[#15151E] p-4">
-      <div className="absolute inset-x-0 top-0 h-1" style={{ background: color }} />
+    <Panel accent={color} accentPosition="bottom" className="h-full" bodyClassName="px-4">
       {race.trackSVGPath && (
         <svg
           viewBox="144 144 512 512"
           aria-hidden="true"
-          className="pointer-events-none absolute -right-4 -top-2 size-36 opacity-25"
+          className="pointer-events-none absolute -right-2 -top-4 size-32 opacity-20"
           fill={color}
         >
           <path d={race.trackSVGPath} />
@@ -178,12 +208,12 @@ export function TrackPlate({
       )}
       <div className="relative space-y-2">
         <Caption color={color}>{label}</Caption>
-        <div className="max-w-[75%] font-black uppercase leading-tight">{race.name}</div>
-        <div className="-skew-x-12 pt-2 text-4xl font-black italic tabular-nums">{value}</div>
+        <div className="max-w-[75%] font-bold leading-snug">{race.name}</div>
+        <div className="pt-1 text-4xl font-black tabular-nums">{value}</div>
         <div className="font-mono text-[10px] uppercase tracking-wider text-muted-foreground">
           {unit}
         </div>
       </div>
-    </div>
+    </Panel>
   )
 }

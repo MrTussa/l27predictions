@@ -181,15 +181,13 @@ export const EventForm: React.FC<Props> = ({ event, drivers = [], teams = [] }) 
       {event.questions?.map((question, questionIndex) => {
         const answer = answers[questionIndex]
         return (
-          <Card key={questionIndex} variant="default" corners="sharp" className="p-0.5">
-            <div className="p-4 space-y-3">
+          <Card key={questionIndex} variant="default" corners="cut-corner">
+            <div className="space-y-3 px-4">
               <div className="flex items-start gap-3">
-                <div className="shrink-0 w-8 h-8 rounded-full bg-accent flex items-center justify-center text-sm font-bold text-black">
-                  {questionIndex + 1}
-                </div>
-                <div className="flex-1">
-                  <h3 className="font-medium">{question.questionText}</h3>
-                </div>
+                <span className="clip-path-cut-corner-xs shrink-0 bg-accent px-2 py-0.5 font-mono text-sm font-black text-black">
+                  {String(questionIndex + 1).padStart(2, '0')}
+                </span>
+                <h3 className="flex-1 pt-0.5 font-bold leading-snug">{question.questionText}</h3>
               </div>
 
               {/* Answer Options */}
@@ -227,8 +225,10 @@ export const EventForm: React.FC<Props> = ({ event, drivers = [], teams = [] }) 
                           role="radio"
                           aria-checked={checked}
                           key={optionIndex}
-                          className={`block w-full text-left text-sm font-medium p-3 rounded-md border cursor-pointer transition-colors ${
-                            checked ? 'border-accent bg-accent/10' : 'border-border hover:bg-muted/20'
+                          className={`block w-full cursor-pointer border p-3 text-left text-sm font-medium transition-colors ${
+                            checked
+                              ? 'border-accent bg-accent/10'
+                              : 'border-border hover:bg-muted/20'
                           }`}
                           onClick={() => handleSingleChoiceChange(questionIndex, optionIndex)}
                         >
@@ -247,7 +247,7 @@ export const EventForm: React.FC<Props> = ({ event, drivers = [], teams = [] }) 
                     return (
                       <div
                         key={optionIndex}
-                        className="flex items-center gap-3 p-3 rounded-md border border-border hover:bg-muted/20"
+                        className="flex items-center gap-3 border border-border p-3 hover:bg-muted/20"
                       >
                         <Checkbox
                           id={`q${questionIndex}-opt${optionIndex}`}

@@ -1,11 +1,11 @@
-import { Caption, Heading, Panel } from '@/components/Broadcast'
+import { Caption, Heading, NEGATIVE, POSITIVE, Panel } from '@/components/Broadcast'
 import type { Race } from '@/payload-types'
 import Link from 'next/link'
 import { ScrollToEnd } from './ScrollToEnd'
 
-const BAD = '#ff4d4d'
+const BAD = NEGATIVE
 const NORMAL = '#ffcc00'
-const GOOD = '#00d26a'
+const GOOD = POSITIVE
 
 interface RaceRatingsSectionProps {
   races: Pick<Race, 'id' | 'name' | 'round' | 'trackSVGPath' | 'rating'>[]
@@ -15,7 +15,7 @@ export function RaceRatingsSection({ races }: RaceRatingsSectionProps) {
   if (races.length === 0) return null
 
   return (
-    <Panel className="p-5 sm:p-6">
+    <Panel>
       <Heading index="02" aside="оценки игроков">
         Рейтинг гонок
       </Heading>
@@ -34,9 +34,9 @@ export function RaceRatingsSection({ races }: RaceRatingsSectionProps) {
             <Link
               key={race.id}
               href={`/predictions?race=${race.id}`}
-              className="relative w-44 shrink-0 overflow-hidden border border-white/10 bg-black/40 p-3 transition-colors hover:border-white/30"
+              className="clip-path-cut-corner-sm relative w-44 shrink-0 overflow-hidden border-b-4 bg-black/40 p-3 transition-colors hover:bg-black/60"
+              style={{ borderColor: verdict }}
             >
-              <div className="absolute inset-x-0 top-0 h-1" style={{ background: verdict }} />
               {race.trackSVGPath && (
                 <svg
                   viewBox="144 144 512 512"
@@ -49,13 +49,10 @@ export function RaceRatingsSection({ races }: RaceRatingsSectionProps) {
               )}
               <div className="relative space-y-2">
                 <Caption>Этап {race.round}</Caption>
-                <div className="line-clamp-2 min-h-10 text-sm font-black uppercase leading-tight">
+                <div className="line-clamp-2 min-h-10 text-sm font-bold leading-snug">
                   {race.name}
                 </div>
-                <div
-                  className="-skew-x-12 text-3xl font-black italic tabular-nums"
-                  style={{ color: verdict }}
-                >
+                <div className="text-3xl font-black tabular-nums" style={{ color: verdict }}>
                   {score > 0 ? `+${score}` : score}
                 </div>
                 <div className="flex h-1.5 w-full overflow-hidden bg-white/5">

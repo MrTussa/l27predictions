@@ -1,4 +1,4 @@
-import { Caption, F1_RED } from '@/components/Broadcast'
+import { Caption } from '@/components/Broadcast'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 import type { Race } from '@/payload-types'
@@ -25,15 +25,12 @@ export function CurrentRaceCard({ race, votedCount, timeZone }: CurrentRaceCardP
         <div className="flex justify-between gap-4 border-b border-accent/30 pb-4">
           <div className="min-w-0 space-y-2">
             <div className="flex items-center gap-3">
-              <span
-                className="-skew-x-12 px-2 py-0.5 font-mono text-xs font-black text-white"
-                style={{ background: F1_RED }}
-              >
+              <span className="clip-path-cut-corner-xs bg-accent px-2 py-0.5 font-mono text-xs font-black text-black">
                 R{race.round}
               </span>
               <Caption>Следующая гонка</Caption>
             </div>
-            <h2 className="-skew-x-6 text-3xl font-black uppercase italic leading-none text-accent">
+            <h2 className="text-2xl font-bold uppercase leading-snug tracking-wide text-accent md:text-3xl">
               {race.name}
             </h2>
           </div>
@@ -62,7 +59,7 @@ export function CurrentRaceCard({ race, votedCount, timeZone }: CurrentRaceCardP
             <div className="space-y-2 text-right">
               <div>
                 <Caption>Проголосовало</Caption>
-                <div className="-skew-x-12 text-2xl font-black italic tabular-nums text-accent md:text-3xl">
+                <div className="text-2xl font-black tabular-nums text-accent md:text-3xl">
                   {votedCount}
                 </div>
               </div>

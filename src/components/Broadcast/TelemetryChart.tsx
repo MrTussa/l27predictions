@@ -30,7 +30,8 @@ export type TelemetryPoint = {
 
 const MAX_POINTS = 15
 const PERFECT = '#FFDF2C'
-const ZERO = '#E10600'
+const ZERO = '#ff4d4d'
+const RANK = '#FFDF2C'
 const AVG = 'rgba(255,255,255,0.75)'
 const AXIS_TICK = { fill: 'rgba(255,255,255,0.45)', fontSize: 10, fontFamily: 'var(--font-mono)' }
 const Y_WIDTH = 28
@@ -62,7 +63,7 @@ function TelemetryTooltip({
       />
       {row.avg !== undefined && <ChartTooltipRow color={AVG} label="Среднее" value={row.avg} />}
       {row.rank !== undefined && (
-        <ChartTooltipRow color={ZERO} label="Место в таблице" value={`P${row.rank}`} />
+        <ChartTooltipRow color={RANK} label="Место в таблице" value={`P${row.rank}`} />
       )}
     </ChartTooltip>
   )
@@ -73,21 +74,12 @@ function TelemetryTooltip({
  * и среднее по игрокам на той же шкале. Место в таблице — отдельным графиком под ним,
  * со своей шкалой: две шкалы на одном графике читаются неверно.
  */
-export function TelemetryChart({
-  data,
-  color,
-  compact = false,
-}: {
-  data: TelemetryPoint[]
-  color: string
-  /** Только столбцы, без осей и графика места — для карточек */
-  compact?: boolean
-}) {
+export function TelemetryChart({ data, color }: { data: TelemetryPoint[]; color: string }) {
   const id = useId().replace(/:/g, '')
   const hatch = `telemetry-hatch-${id}`
   const rows: Row[] = data.map((point) => ({ ...point, bar: point.points ?? MAX_POINTS }))
   const hasAvg = rows.some((row) => row.avg !== undefined)
-  const hasRank = !compact && rows.some((row) => row.rank !== undefined)
+  const hasRank = rows.some((row) => row.rank !== undefined)
   const worstRank = Math.max(2, ...rows.map((row) => row.rank ?? 1))
   const tooltip = (
     <Tooltip
@@ -99,12 +91,12 @@ export function TelemetryChart({
 
   return (
     <div className="w-full">
-      <ResponsiveContainer width="100%" height={compact ? 64 : 200}>
+      <ResponsiveContainer width="100%" height={200}>
         <ComposedChart
           data={rows}
           syncId={hasRank ? `telemetry-${id}` : undefined}
           margin={{ top: 4, right: 0, left: 0, bottom: 0 }}
-          barCategoryGap={compact ? 2 : '18%'}
+          barCategoryGap="18%"
         >
           <defs>
             <pattern
@@ -117,18 +109,9 @@ export function TelemetryChart({
               <rect width="2" height="6" fill="rgba(255,255,255,0.14)" />
             </pattern>
           </defs>
-          {!compact && (
-            <CartesianGrid vertical={false} stroke="rgba(255,255,255,0.07)" strokeDasharray="3 3" />
-          )}
-          <XAxis
-            dataKey="round"
-            hide={compact}
-            tick={AXIS_TICK}
-            tickLine={false}
-            axisLine={false}
-          />
+          <CartesianGrid vertical={false} stroke="rgba(255,255,255,0.07)" strokeDasharray="3 3" />
+          <XAxis dataKey="round" tick={AXIS_TICK} tickLine={false} axisLine={false} />
           <YAxis
-            hide={compact}
             domain={[0, MAX_POINTS]}
             ticks={[0, 5, 10, 15]}
             width={Y_WIDTH}
@@ -153,7 +136,7 @@ export function TelemetryChart({
               type="linear"
               stroke={AVG}
               strokeWidth={2}
-              dot={{ r: 3, fill: AVG, stroke: '#15151E', strokeWidth: 2 }}
+              dot={{ r: 3, fill: AVG, stroke: 'var(--card)', strokeWidth: 2 }}
               activeDot={{ r: 5 }}
               isAnimationActive={false}
             />
@@ -199,9 +182,9 @@ export function TelemetryChart({
               <Line
                 dataKey="rank"
                 type="linear"
-                stroke={ZERO}
+                stroke={RANK}
                 strokeWidth={2}
-                dot={{ r: 3, fill: ZERO, stroke: '#15151E', strokeWidth: 2 }}
+                dot={{ r: 3, fill: RANK, stroke: 'var(--card)', strokeWidth: 2 }}
                 activeDot={{ r: 5 }}
                 isAnimationActive={false}
               />
@@ -210,25 +193,23 @@ export function TelemetryChart({
         </div>
       )}
 
-      {!compact && (
-        <div className="mt-3 flex flex-wrap gap-x-5 gap-y-1 font-mono text-[10px] uppercase tracking-wider text-muted-foreground">
-          <Legend swatch={<span className="size-2.5" style={{ background: color }} />}>
-            очки за гонку
+      <div className="mt-3 flex flex-wrap gap-x-5 gap-y-1 font-mono text-[10px] uppercase tracking-wider text-muted-foreground">
+        <Legend swatch={<span className="size-2.5" style={{ background: color }} />}>
+          очки за гонку
+        </Legend>
+        <Legend swatch={<span className="size-2.5" style={{ background: PERFECT }} />}>
+          идеальный подиум
+        </Legend>
+        <Legend swatch={<span className="size-2.5" style={{ background: ZERO }} />}>ноль</Legend>
+        <Legend swatch={<span className="size-2.5 border border-dashed border-white/30" />}>
+          пропуск
+        </Legend>
+        {hasAvg && (
+          <Legend swatch={<span className="h-0.5 w-3" style={{ background: AVG }} />}>
+            среднее по игрокам
           </Legend>
-          <Legend swatch={<span className="size-2.5" style={{ background: PERFECT }} />}>
-            идеальный подиум
-          </Legend>
-          <Legend swatch={<span className="size-2.5" style={{ background: ZERO }} />}>ноль</Legend>
-          <Legend swatch={<span className="size-2.5 border border-dashed border-white/30" />}>
-            пропуск
-          </Legend>
-          {hasAvg && (
-            <Legend swatch={<span className="h-0.5 w-3" style={{ background: AVG }} />}>
-              среднее по игрокам
-            </Legend>
-          )}
-        </div>
-      )}
+        )}
+      </div>
     </div>
   )
 }

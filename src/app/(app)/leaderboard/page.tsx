@@ -26,7 +26,7 @@ export default async function LeaderboardPage() {
         </div>
 
         {completedRaces.length > 0 && usersProgress.length > 0 && (
-          <Panel className="h-full p-5 sm:p-6">
+          <Panel className="h-full">
             <Heading index="03" aside="топ-10 по очкам">
               Гонка за титул
             </Heading>

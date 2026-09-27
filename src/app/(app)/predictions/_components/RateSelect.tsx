@@ -78,7 +78,9 @@ export const RateSelect: React.FC<Props> = ({ raceId, initialRating }) => {
 
   return (
     <div className="flex w-full items-center justify-center flex-col gap-4">
-      <span className="text-muted-foreground">Оцените Гонку!</span>
+      <span className="font-mono text-[10px] font-bold uppercase tracking-[0.2em] text-muted-foreground">
+        Оцените гонку
+      </span>
       <div
         style={{
           display: 'flex',

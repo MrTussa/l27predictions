@@ -1,5 +1,6 @@
 'use client'
 
+import { Heading } from '@/components/Broadcast'
 import { Driver, Prediction, Race } from '@/payload-types'
 import { useState } from 'react'
 
@@ -136,9 +137,11 @@ export const PredictionForm: React.FC<Props> = ({
     <div className="space-y-8">
       {/* Подиум - Топ 3 */}
       <div>
-        <h2 className="text-2xl font-bold mb-6">
-          Ваш прогноз топ-3 {filledSlotsCount > 0 && `(${filledSlotsCount}/3)`}
-        </h2>
+        <div className="mb-6">
+          <Heading as="h1" index={`R${race.round}`} aside={`Выбрано ${filledSlotsCount}/3`}>
+            Ваш прогноз топ-3
+          </Heading>
+        </div>
 
         <DndContext
           id="prediction-dnd"

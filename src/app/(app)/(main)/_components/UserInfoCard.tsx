@@ -1,11 +1,11 @@
-import { Caption, F1_RED, Fact, PODIUM_COLORS, Panel } from '@/components/Broadcast'
-import { TelemetryChart } from '@/components/Broadcast/charts'
+import { Caption, Fact, PODIUM_COLORS, Panel } from '@/components/Broadcast'
 import { CountUp } from '@/components/CountUp'
 import { Button } from '@/components/ui/button'
 import type { SeasonStat, User } from '@/payload-types'
 import { formatDecimal } from '@/utilities/plural'
 import { IconAlertCircle } from '@tabler/icons-react'
 import Link from 'next/link'
+import { UserPointsSparkline } from './UserPointsSparkline'
 
 interface UserInfoCardProps {
   user: User | null
@@ -17,11 +17,11 @@ interface UserInfoCardProps {
 export function UserInfoCard({ user, seasonStats, userRank, totalUsers }: UserInfoCardProps) {
   if (!user) {
     return (
-      <Panel stripe={F1_RED} className="flex h-full items-center p-6">
+      <Panel variant="gray" className="h-full" bodyClassName="flex items-center py-4">
         <div className="flex w-full flex-col items-center gap-4 text-center">
           <IconAlertCircle className="size-12 text-muted-foreground" />
           <div className="space-y-2">
-            <h3 className="-skew-x-6 text-xl font-black uppercase italic">Не авторизован</h3>
+            <h3 className="text-lg font-bold uppercase tracking-wide">Не авторизован</h3>
             <p className="text-sm text-muted-foreground">
               Войдите в систему, чтобы увидеть свою статистику и участвовать в прогнозах
             </p>
@@ -44,31 +44,32 @@ export function UserInfoCard({ user, seasonStats, userRank, totalUsers }: UserIn
   const perfectPredictions = seasonStats?.perfectPredictions || 0
   const averagePoints = predictionsCount > 0 ? racePoints / predictionsCount : 0
 
-  const raceHistory = (seasonStats?.raceHistory || [])
+  const history = (seasonStats?.raceHistory || [])
     .map((entry) => {
       const race = typeof entry.race === 'object' ? entry.race : null
-      return {
-        key: race?.id ?? String(entry.id),
-        label: race?.name ?? '',
-        round: race?.round ?? 0,
-        points: entry.points,
-      }
+      return { round: race?.round || 0, points: entry.points, cumulative: entry.cumulativePoints }
     })
     .sort((a, b) => a.round - b.round)
-  const lastRacePoints = raceHistory.at(-1)?.points ?? null
+  const lastRacePoints = history.at(-1)?.points ?? null
+  const sparklineData = history.map(({ round, cumulative }) => ({ round, points: cumulative }))
 
   return (
-    <Panel stripe={F1_RED} className="h-full p-5">
-      {/* Шапка: ник и место, как плашка пилота в трансляции */}
+    <Panel variant="gray" className="h-full" bodyClassName="space-y-4">
+      {/* Шапка: ник и место */}
       <div className="flex items-center gap-3 border-b border-white/10 pb-4">
-        <span className="h-9 w-1.5 shrink-0" style={{ background: chartColor }} />
-        <div className="min-w-0 flex-1 -skew-x-6 truncate text-xl font-black uppercase italic">
+        <div
+          className="clip-path-cut-corner-sm flex size-11 shrink-0 items-center justify-center text-lg font-black text-black"
+          style={{ backgroundColor: chartColor }}
+        >
+          {(nickname || 'U')[0].toUpperCase()}
+        </div>
+        <div className="min-w-0 flex-1 truncate text-xl font-bold uppercase tracking-wider">
           {nickname}
         </div>
         {position > 0 && (
           <div className="shrink-0 text-right">
             <div
-              className="-skew-x-12 text-3xl font-black italic leading-none tabular-nums"
+              className="text-3xl font-black leading-none tabular-nums"
               style={{ color: PODIUM_COLORS[position - 1] ?? '#fff' }}
             >
               P{position}
@@ -80,30 +81,23 @@ export function UserInfoCard({ user, seasonStats, userRank, totalUsers }: UserIn
         )}
       </div>
 
-      <div className="space-y-1 pt-4">
+      <div className="space-y-1">
         <Caption>Очки сезона</Caption>
         <div className="flex items-center gap-3">
-          <span className="-skew-x-12 text-6xl font-black italic leading-none tabular-nums text-accent">
+          <span className="text-6xl font-black leading-none tabular-nums text-accent">
             <CountUp value={totalPoints} />
           </span>
           {lastRacePoints != null && lastRacePoints > 0 && (
-            <span className="-skew-x-12 bg-[#00d26a]/15 px-2 py-0.5 font-mono text-sm font-bold text-[#00d26a]">
+            <span className="clip-path-cut-corner-xs bg-[#00d26a]/15 px-2 py-0.5 font-mono text-sm font-bold text-[#00d26a]">
               +{lastRacePoints}
             </span>
           )}
         </div>
       </div>
 
-      {raceHistory.length >= 2 && (
-        <div className="pt-4">
-          <Caption>Телеметрия сезона</Caption>
-          <div className="h-16 pt-1">
-            <TelemetryChart data={raceHistory} color={chartColor} compact />
-          </div>
-        </div>
-      )}
+      {sparklineData.length >= 2 && <UserPointsSparkline data={sparklineData} color={chartColor} />}
 
-      <div className="mt-4 grid grid-cols-2 gap-px border border-white/10 bg-white/10">
+      <div className="grid grid-cols-2 gap-px border border-white/10 bg-white/10">
         <Fact
           label="Серия"
           value={currentStreak}

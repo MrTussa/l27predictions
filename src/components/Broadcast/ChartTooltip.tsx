@@ -3,7 +3,7 @@ import type { ReactNode } from 'react'
 /** Рамка подсказки для графиков recharts в стиле ТВ-графики */
 export function ChartTooltip({
   title,
-  color = '#E10600',
+  color = '#FFDF2C',
   children,
 }: {
   title: ReactNode

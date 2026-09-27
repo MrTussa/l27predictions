@@ -1,7 +1,7 @@
 'use client'
 
 import { Button } from '@/components/ui/button'
-import { F1_RED, PODIUM_COLORS, Panel } from '@/components/Broadcast'
+import { NEGATIVE, PODIUM_COLORS, POSITIVE, Panel } from '@/components/Broadcast'
 import {
   Table,
   TableBody,
@@ -109,14 +109,18 @@ export const LeaderboardTable: React.FC<{ entries: LeaderboardEntry[] }> = ({ en
 
   if (entries.length === 0) {
     return (
-      <Panel className="w-full max-w-6xl p-8 text-center text-muted-foreground">
+      <Panel
+        variant="yellow-glow"
+        className="w-full max-w-6xl"
+        bodyClassName="p-8 text-center text-muted-foreground"
+      >
         Нет данных за текущий сезон
       </Panel>
     )
   }
 
   return (
-    <Panel stripe={F1_RED} className="w-full max-w-6xl">
+    <Panel variant="yellow-glow" className="w-full max-w-6xl" bodyClassName="px-0">
       <Table>
         <TableHeader>
           <TableRow className="border-white/10 hover:bg-transparent">
@@ -154,7 +158,7 @@ export const LeaderboardTable: React.FC<{ entries: LeaderboardEntry[] }> = ({ en
                 <TableCell className="pl-5">
                   <div className="flex items-center gap-2">
                     <span
-                      className="-skew-x-12 w-9 text-xl font-black italic tabular-nums"
+                      className="w-9 text-xl font-black tabular-nums"
                       style={{ color: podiumColor }}
                     >
                       {position}
@@ -165,7 +169,7 @@ export const LeaderboardTable: React.FC<{ entries: LeaderboardEntry[] }> = ({ en
                 <TableCell>
                   <Link
                     href={`/user/${entry.id}`}
-                    className="flex items-center gap-3 font-black uppercase tracking-wide transition-colors hover:text-accent"
+                    className="flex items-center gap-3 font-bold uppercase tracking-wide transition-colors hover:text-accent"
                   >
                     <span
                       className="h-6 w-1 shrink-0"
@@ -177,7 +181,7 @@ export const LeaderboardTable: React.FC<{ entries: LeaderboardEntry[] }> = ({ en
                   </Link>
                 </TableCell>
                 <TableCell className="text-right">
-                  <span className="-skew-x-12 inline-block text-lg font-black italic tabular-nums">
+                  <span className="inline-block text-lg font-black tabular-nums">
                     {entry.totalPoints}
                   </span>
                 </TableCell>
@@ -271,7 +275,7 @@ function PositionChange({ value }: { value: number | null }) {
   return (
     <span
       className="w-6 font-mono text-[10px] font-bold"
-      style={{ color: up ? '#00d26a' : F1_RED }}
+      style={{ color: up ? POSITIVE : NEGATIVE }}
       title={up ? `+${value} за последнюю гонку` : `${value} за последнюю гонку`}
     >
       {up ? '▲' : '▼'}

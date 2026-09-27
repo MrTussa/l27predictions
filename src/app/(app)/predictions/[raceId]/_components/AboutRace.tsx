@@ -1,8 +1,10 @@
+import { ACCENT, Caption, CardHeading, NEGATIVE, POSITIVE } from '@/components/Broadcast'
 import { Card } from '@/components/ui/card'
 import type { Race, User } from '@/payload-types'
 import { formatDate } from '@/utilities/formatDate'
-import { IconCalendar, IconCheck, IconClock, IconFlag, IconUser, IconX } from '@tabler/icons-react'
+import { IconCheck, IconClock, IconX } from '@tabler/icons-react'
 import Link from 'next/link'
+import type { ReactElement } from 'react'
 
 interface AboutRaceProps {
   race: Race
@@ -21,104 +23,82 @@ export function AboutRace({
   recentPredictors,
   timeZone,
 }: AboutRaceProps) {
-  let status: { text: string; icon: React.ReactElement; color: string } | null = null
+  let status: { text: string; icon: ReactElement; color: string } | null = null
 
   if (isPredictionClosed) {
-    status = {
-      text: 'Прогнозы закрыты',
-      icon: <IconX className="w-4 h-4" />,
-      color: 'text-red-500',
-    }
+    status = { text: 'Прогнозы закрыты', icon: <IconX className="size-4" />, color: NEGATIVE }
   } else if (!isPredictionOpen) {
     status = {
-      text: 'Прогнозы еще не открыты',
-      icon: <IconClock className="w-4 h-4" />,
-      color: 'text-blue-500',
+      text: 'Прогнозы ещё не открыты',
+      icon: <IconClock className="size-4" />,
+      color: '#38bdf8',
     }
   } else if (hasUserPrediction) {
-    status = {
-      text: 'Вы проголосовали',
-      icon: <IconCheck className="w-4 h-4" />,
-      color: 'text-green-500',
-    }
-  } else if (isPredictionOpen) {
-    status = {
-      text: 'Прогнозы открыты',
-      icon: <IconCheck className="w-4 h-4" />,
-      color: 'text-accent',
-    }
+    status = { text: 'Вы проголосовали', icon: <IconCheck className="size-4" />, color: POSITIVE }
+  } else {
+    status = { text: 'Прогнозы открыты', icon: <IconCheck className="size-4" />, color: ACCENT }
   }
 
   return (
     <Card variant="elevated" corners="cut-corner">
-      <div className="space-y-4 px-4">
-        <div className="border-b border-muted pb-4">
-          <div className="flex items-start gap-3">
-            <IconFlag className="w-5 h-5 text-accent mt-1 shrink-0" />
-            <div>
-              <h2 className="text-xl font-bold">{race.name}</h2>
-              <p className="text-sm text-muted-foreground mt-1">Этап {race.round}</p>
+      <div className="space-y-5 px-4">
+        <div className="space-y-2 border-b border-white/10 pb-4">
+          <div className="flex items-center gap-3">
+            <span className="clip-path-cut-corner-xs bg-accent px-2 py-0.5 font-mono text-xs font-black text-black">
+              R{race.round}
+            </span>
+            <Caption>Этап {race.round}</Caption>
+          </div>
+          <h2 className="text-xl font-bold leading-snug">{race.name}</h2>
+        </div>
+
+        <div className="grid grid-cols-2 gap-4">
+          <div>
+            <Caption>Старт гонки</Caption>
+            <div className="pt-1 font-bold">{formatDate(race.raceDate, timeZone, 'dateYear')}</div>
+            <div className="font-mono text-sm text-muted-foreground">
+              {formatDate(race.raceDate, timeZone, 'time')}
             </div>
           </div>
-        </div>
-
-        <div className="space-y-1">
-          <div className="text-sm text-muted-foreground uppercase tracking-wider flex items-center gap-2">
-            <IconCalendar className="w-4 h-4" />
-            Начало гонки
-          </div>
-          <div className="text-base font-bold">
-            {formatDate(race.raceDate, timeZone, 'dateYear')}
-          </div>
-          <div className="text-sm text-muted-foreground">
-            {formatDate(race.raceDate, timeZone, 'time')}
-          </div>
-        </div>
-
-        <div className="space-y-1">
-          <div className="text-sm text-muted-foreground uppercase tracking-wider flex items-center gap-2">
-            <IconClock className="w-4 h-4" />
-            Прогнозы до
-          </div>
-          <div className="text-base font-bold">
-            {formatDate(race.predictionCloseDate, timeZone, 'date')}
-          </div>
-          <div className="text-sm text-muted-foreground">
-            {formatDate(race.predictionCloseDate, timeZone, 'time')}
+          <div>
+            <Caption>Прогнозы до</Caption>
+            <div className="pt-1 font-bold">
+              {formatDate(race.predictionCloseDate, timeZone, 'date')}
+            </div>
+            <div className="font-mono text-sm text-muted-foreground">
+              {formatDate(race.predictionCloseDate, timeZone, 'time')}
+            </div>
           </div>
         </div>
 
         {status && (
-          <div className="pt-4 border-t border-muted">
-            <div
-              className={`flex items-center gap-2 font-bold uppercase tracking-wider text-sm ${status.color}`}
-            >
-              {status.icon}
-              {status.text}
-            </div>
+          <div
+            className="clip-path-cut-corner-sm flex items-center gap-2 px-3 py-2 text-sm font-bold uppercase tracking-wider"
+            style={{
+              color: status.color,
+              background: `color-mix(in srgb, ${status.color} 14%, transparent)`,
+            }}
+          >
+            {status.icon}
+            {status.text}
           </div>
         )}
 
         {recentPredictors.length > 0 && (
-          <div className="pt-4 border-t border-muted">
-            <div className="text-sm text-muted-foreground uppercase tracking-wider mb-3 flex items-center gap-2">
-              <IconUser className="w-4 h-4" />
-              Недавно проголосовали
-            </div>
-            <div className="space-y-2">
+          <div>
+            <CardHeading>Недавно проголосовали</CardHeading>
+            <div className="clip-path-cut-corner-sm divide-y divide-white/5 bg-black/30">
               {recentPredictors.map((user) => (
                 <Link
                   key={user.id}
                   href={`/user/${user.id}`}
-                  className="flex items-center gap-2 text-sm hover:text-accent transition-colors group"
+                  className="flex items-center gap-3 px-3 py-2 text-sm font-bold transition-colors hover:text-accent"
                 >
-                  <div
-                    className="w-2 h-2 rounded-full shrink-0"
-                    style={{ backgroundColor: user.chartColor || '#FFDF2C' }}
+                  <span
+                    className="h-4 w-1 shrink-0"
+                    style={{ backgroundColor: user.chartColor || ACCENT }}
                   />
-                  <span className="truncate group-hover:underline">
-                    {user.nickname || user.email}
-                  </span>
+                  <span className="truncate">{user.nickname || user.email}</span>
                 </Link>
               ))}
             </div>

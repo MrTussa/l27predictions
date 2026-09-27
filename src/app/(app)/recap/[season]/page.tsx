@@ -79,7 +79,7 @@ function Notice({
       <Card variant="gray" corners="cut-corner" className="mx-auto max-w-xl">
         <div className="flex flex-col items-center gap-4 px-6 py-4 text-center">
           {icon}
-          <h1 className="text-2xl font-black uppercase tracking-wide">{title}</h1>
+          <h1 className="text-2xl font-bold uppercase leading-snug tracking-wide">{title}</h1>
           <p className="text-muted-foreground">{children}</p>
         </div>
       </Card>

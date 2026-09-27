@@ -12,7 +12,7 @@ export function SeasonPodium({ entries }: { entries: PodiumEntry[] }) {
   if (entries.length === 0) return null
 
   return (
-    <Panel className="p-5 sm:p-6">
+    <Panel>
       <Heading index="01" aside={`Сезон ${new Date().getFullYear()} · топ 3`}>
         Подиум сезона
       </Heading>
@@ -23,12 +23,12 @@ export function SeasonPodium({ entries }: { entries: PodiumEntry[] }) {
             <div className="mb-3 min-w-0 text-center">
               <Link
                 href={`/user/${entry.userId}`}
-                className="block truncate text-sm font-black uppercase transition-colors hover:text-accent sm:text-lg"
+                className="block truncate text-sm font-bold uppercase transition-colors hover:text-accent sm:text-lg"
               >
                 <Nickname effect={entry.equippedNicknameEffect}>{entry.nickname}</Nickname>
               </Link>
               <div
-                className="-skew-x-6 text-2xl font-black italic leading-tight tabular-nums sm:text-3xl"
+                className="text-2xl font-black leading-tight tabular-nums sm:text-3xl"
                 style={{ color: PODIUM_COLORS[i] }}
               >
                 <CountUp value={entry.totalPoints} />
@@ -40,10 +40,10 @@ export function SeasonPodium({ entries }: { entries: PodiumEntry[] }) {
             <div
               className={`relative flex items-start justify-center overflow-hidden pt-2 ${STEP[i]}`}
               style={{
-                background: `linear-gradient(180deg, ${PODIUM_COLORS[i]} 0%, color-mix(in srgb, ${PODIUM_COLORS[i]} 35%, #15151E) 100%)`,
+                background: `linear-gradient(180deg, ${PODIUM_COLORS[i]} 0%, color-mix(in srgb, ${PODIUM_COLORS[i]} 35%, var(--card)) 100%)`,
               }}
             >
-              <span className="-skew-x-12 text-5xl font-black italic leading-none text-black/80 sm:text-6xl">
+              <span className="text-5xl font-black leading-none text-black/80 sm:text-6xl">
                 {i + 1}
               </span>
               <div

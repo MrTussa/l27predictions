@@ -1,3 +1,4 @@
+import { CardHeading, Heading, NEGATIVE, POSITIVE } from '@/components/Broadcast'
 import { PodiumDriver } from '@/components/DriverCard/PodiumDriver'
 import { PredictionCard } from '@/components/DriverCard/PredictionCard'
 import { Button } from '@/components/ui/button'
@@ -13,7 +14,7 @@ import {
   getUserPredictionForRace,
   getUserRacesRating,
 } from '@/utilities/queries'
-import { canMakePrediction, isRaceCompleted } from '@/utilities/raceStatus'
+import { canMakePrediction, getRaceStatus, isRaceCompleted } from '@/utilities/raceStatus'
 import type { Metadata } from 'next'
 import Link from 'next/link'
 import { redirect } from 'next/navigation'
@@ -25,6 +26,13 @@ import { RateSelect } from './_components/RateSelect'
 import { buildConsensus } from './_lib/buildConsensus'
 
 type RaceListItem = Awaited<ReturnType<typeof getRaceList>>[number]
+
+const STATUS_LABEL = {
+  completed: 'Итоги гонки',
+  closed: 'Прогнозы закрыты',
+  open: 'Прогнозы открыты',
+  upcoming: 'Прогнозы скоро откроются',
+} as const
 
 // ?race= → открытая гонка → последняя по дате
 function pickRace(races: RaceListItem[], requestedId?: string): RaceListItem {
@@ -84,13 +92,26 @@ export default async function PredictionsPage({
     return raceId === selectedRace.id
   })?.rating
 
+  // Где финишировал каждый выбранный пилот — для отметок ✓ / P2 / ✕
+  const finishById = new Map(
+    (selectedRace.results ?? []).map((result, i) => [
+      typeof result.driver === 'object' ? result.driver.id : result.driver,
+      result.position ?? i + 1,
+    ]),
+  )
+  const hasResults = finishById.size > 0
+
   const userPredictedDrivers = [...(userPrediction?.predictions ?? [])]
     .sort((a, b) => a.position - b.position)
-    .map((item) => ({
-      position: item.position,
-      name: typeof item.driver === 'object' ? item.driver.name : 'Unknown',
-      team: typeof item.driver === 'object' ? item.driver.team : 'Unknown',
-    }))
+    .map((item) => {
+      const driverId = typeof item.driver === 'object' ? item.driver.id : item.driver
+      return {
+        position: item.position,
+        name: typeof item.driver === 'object' ? item.driver.name : 'Unknown',
+        team: typeof item.driver === 'object' ? item.driver.team : 'Unknown',
+        finish: finishById.get(driverId) ?? null,
+      }
+    })
 
   return (
     <div className="min-h-screen">
@@ -98,9 +119,13 @@ export default async function PredictionsPage({
         <div className="max-w-450 mx-auto">
           <div className="grid grid-cols-1 xl:grid-cols-[1fr_400px] gap-8">
             <div className="p-1">
-              <h1 className="text-2xl font-bold uppercase tracking-wide mb-6 text-center">
+              <Heading
+                as="h1"
+                index={`R${selectedRace.round}`}
+                aside={STATUS_LABEL[getRaceStatus(selectedRace)]}
+              >
                 {selectedRace.name}
-              </h1>
+              </Heading>
               <div>
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:flex lg:items-end lg:justify-center gap-4 lg:gap-6">
                   {([1, 2, 3] as const).map((position) => {
@@ -136,26 +161,24 @@ export default async function PredictionsPage({
             <div className="flex flex-col gap-6">
               <Card variant="gray" corners="cut-corner" className="p-1">
                 <div className="px-4">
-                  <div className="mb-4 flex items-center justify-between gap-3">
-                    <h2 className="flex items-center gap-2 text-base font-black uppercase tracking-wide">
-                      <span className="inline-block w-3.5 h-0.75 bg-accent" />
-                      Мои результаты
-                    </h2>
-                    <div className="flex items-baseline gap-2">
-                      <span className="font-mono text-[10px] uppercase tracking-[0.14em] text-muted-foreground">
+                  <CardHeading
+                    aside={
+                      <span className="flex items-baseline gap-2">
                         Очки
+                        <span
+                          className={`text-3xl font-black leading-none tabular-nums ${
+                            userPrediction
+                              ? 'text-accent [text-shadow:0_0_20px_rgba(255,211,32,0.35)]'
+                              : 'text-muted-foreground/30'
+                          }`}
+                        >
+                          {userPrediction ? userPrediction.points || 0 : '—'}
+                        </span>
                       </span>
-                      <span
-                        className={`text-3xl font-black leading-none tabular-nums ${
-                          userPrediction
-                            ? 'text-accent [text-shadow:0_0_20px_rgba(255,211,32,0.35)]'
-                            : 'text-muted-foreground/30'
-                        }`}
-                      >
-                        {userPrediction ? userPrediction.points || 0 : '—'}
-                      </span>
-                    </div>
-                  </div>
+                    }
+                  >
+                    Мои результаты
+                  </CardHeading>
 
                   <div className="mb-4" aria-hidden={!userPrediction}>
                     <div className="space-y-2">
@@ -163,20 +186,25 @@ export default async function PredictionsPage({
                         ? userPredictedDrivers.map((driver) => {
                             const team = teams.find((t) => t.id === driver.team)
                             return (
-                              <div key={driver.position}>
-                                {team ? (
-                                  <PredictionCard
-                                    name={driver.name}
-                                    position={driver.position}
-                                    team={team}
-                                    variant={'colored'}
-                                  />
-                                ) : (
-                                  <PredictionCard
-                                    name={driver.name}
-                                    position={driver.position}
-                                    variant={'default'}
-                                  />
+                              <div key={driver.position} className="flex items-center gap-2">
+                                <div className="min-w-0 flex-1">
+                                  {team ? (
+                                    <PredictionCard
+                                      name={driver.name}
+                                      position={driver.position}
+                                      team={team}
+                                      variant={'colored'}
+                                    />
+                                  ) : (
+                                    <PredictionCard
+                                      name={driver.name}
+                                      position={driver.position}
+                                      variant={'default'}
+                                    />
+                                  )}
+                                </div>
+                                {hasResults && (
+                                  <PickMark position={driver.position} finish={driver.finish} />
                                 )}
                               </div>
                             )
@@ -232,7 +260,12 @@ export default async function PredictionsPage({
       </div>
 
       <RaceCarousel
-        races={races.map(({ id, name, round, trackSVGPath }) => ({ id, name, round, trackSVGPath }))}
+        races={races.map(({ id, name, round, trackSVGPath }) => ({
+          id,
+          name,
+          round,
+          trackSVGPath,
+        }))}
         selectedRaceId={selectedRace.id}
       />
     </div>
@@ -243,4 +276,20 @@ export const metadata: Metadata = {
   title: 'Прогнозы',
   description: 'Делайте прогнозы на гонки Формулы 1 и соревнуйтесь с другими участниками',
   openGraph: mergeOpenGraph({ title: 'Прогнозы', url: '/predictions' }),
+}
+
+/** Отметка у выбора: ✓ — точно, P2 — на подиуме, но на другом месте, ✕ — мимо подиума */
+function PickMark({ position, finish }: { position: number; finish: number | null }) {
+  const onPodium = finish !== null && finish <= 3
+  const exact = finish === position
+  const color = exact ? POSITIVE : onPodium ? '#ffcc00' : NEGATIVE
+  return (
+    <span
+      className="clip-path-cut-corner-xs grid h-10.5 w-11 shrink-0 place-items-center font-mono text-sm font-black"
+      style={{ color, background: `color-mix(in srgb, ${color} 15%, transparent)` }}
+      title={exact ? 'Точное попадание' : onPodium ? `Финишировал P${finish}` : 'Мимо подиума'}
+    >
+      {exact ? '✓' : onPodium ? `P${finish}` : '✕'}
+    </span>
+  )
 }

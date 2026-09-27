@@ -1,4 +1,5 @@
 import { isAdmin } from '@/access'
+import { Panel } from '@/components/Broadcast'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 import { getServerSideUser } from '@/utilities/getServerSideUser'
@@ -84,7 +85,7 @@ function Licence({ recap }: { recap: SeasonRecap }) {
   const shareUrl = `https://t.me/share/url?url=${encodeURIComponent(pageUrl)}&text=${encodeURIComponent(`Мои итоги сезона ${recap.season} в L27`)}`
 
   return (
-    <div className="grid items-center gap-6 border border-white/10 bg-[#15151E] p-4 sm:p-5 lg:grid-cols-[minmax(0,1fr)_320px]">
+    <Panel bodyClassName="grid items-center gap-6 lg:grid-cols-[minmax(0,1fr)_320px]">
       {/* PNG уже собран сервером под нужный размер — next/image его только пережмёт */}
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img
@@ -115,7 +116,7 @@ function Licence({ recap }: { recap: SeasonRecap }) {
           </Button>
         </div>
       </div>
-    </div>
+    </Panel>
   )
 }
 
@@ -133,7 +134,7 @@ function RecapNotice({
       <Card variant="gray" corners="cut-corner" className="mx-auto max-w-xl">
         <div className="flex flex-col items-center gap-4 px-6 py-4 text-center">
           {icon}
-          <h1 className="text-2xl font-black uppercase tracking-wide">{title}</h1>
+          <h1 className="text-2xl font-bold uppercase leading-snug tracking-wide">{title}</h1>
           {children}
         </div>
       </Card>

@@ -1,3 +1,4 @@
+import { PODIUM_COLORS } from '@/components/Broadcast'
 import type { Driver } from '@/payload-types'
 import Image from 'next/image'
 import type { ReactNode } from 'react'
@@ -138,11 +139,7 @@ export function EmptySlot({
   height = 'h-[280px]',
   isHighlighted = false,
 }: EmptySlotProps) {
-  const positionLabels = {
-    1: '1ST',
-    2: '2ND',
-    3: '3RD',
-  }
+  const podiumColor = PODIUM_COLORS[position - 1]
 
   return (
     <div
@@ -152,12 +149,14 @@ export function EmptySlot({
     >
       <div className="w-full h-full bg-background clip-path-cut-corner flex flex-col items-center justify-center">
         <div
-          className="text-6xl font-black opacity-20 mb-4"
-          style={{ color: isHighlighted ? '#FFDF2C' : '#666' }}
+          className="mb-2 text-6xl font-black transition-opacity"
+          style={{ color: podiumColor, opacity: isHighlighted ? 0.9 : 0.35 }}
         >
-          {position}
+          P{position}
         </div>
-        <div className="text-sm text-muted-foreground">{positionLabels[position]}</div>
+        <div className="font-mono text-[10px] uppercase tracking-[0.2em] text-muted-foreground">
+          Выбери пилота
+        </div>
       </div>
     </div>
   )
