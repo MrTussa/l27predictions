@@ -17,7 +17,7 @@ export const CommunityRecaps: CollectionConfig = {
     defaultColumns: ['season', 'model', 'updatedAt'],
     useAsTitle: 'season',
     description:
-      'Тексты общей страницы итогов сезона от нейросети. Можно поправить вручную; удалите запись, чтобы сгенерировать заново.',
+      'Тексты общей страницы итогов сезона от нейросети, их пишет скрипт npm run recap:generate. Тексты можно поправить вручную.',
   },
   fields: [
     {
@@ -34,7 +34,8 @@ export const CommunityRecaps: CollectionConfig = {
       label: 'Отпечаток статистики',
       admin: {
         readOnly: true,
-        description: 'Когда статистика сезона меняется, тексты генерируются заново',
+        description:
+          'Статистика, по которой написаны тексты. Если она изменилась, скрипт перепишет тексты',
       },
     },
     {

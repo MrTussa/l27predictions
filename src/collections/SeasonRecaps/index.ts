@@ -2,7 +2,7 @@ import type { CollectionConfig } from 'payload'
 
 import { adminOnly } from '@/access'
 
-// Тексты «Итогов сезона» от нейросети: генерируются один раз на игрока и сезон
+// Тексты «Итогов сезона» от нейросети: пишет скрипт scripts/generate-recaps.ts, сайт только читает
 export const SeasonRecaps: CollectionConfig = {
   slug: 'season-recaps',
   // SeasonRecap — это посчитанная сводка в utilities/seasonRecap
@@ -18,7 +18,7 @@ export const SeasonRecaps: CollectionConfig = {
     defaultColumns: ['user', 'season', 'model', 'updatedAt'],
     useAsTitle: 'id',
     description:
-      'Тексты «Итогов сезона» от нейросети. Их можно поправить вручную; удалите запись, чтобы сгенерировать заново.',
+      'Тексты «Итогов сезона» от нейросети, их пишет скрипт npm run recap:generate. Тексты можно поправить вручную.',
   },
   indexes: [
     {
@@ -47,7 +47,8 @@ export const SeasonRecaps: CollectionConfig = {
       label: 'Отпечаток статистики',
       admin: {
         readOnly: true,
-        description: 'Когда статистика игрока меняется, тексты генерируются заново',
+        description:
+          'Статистика, по которой написаны тексты. Если она изменилась, скрипт перепишет тексты',
       },
     },
     {

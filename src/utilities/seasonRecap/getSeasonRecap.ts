@@ -69,14 +69,24 @@ const bonusPoints = (stats: SeasonStat[]) =>
     stats.map((stat) => [normalizeID(stat.user), stat.seasonPredictionPoints ?? 0]),
   )
 
-export async function getSeasonRecap(userId: string, season: number): Promise<SeasonRecap | null> {
+export type SeasonData = Awaited<ReturnType<typeof loadSeasonData>>
+
+/**
+ * Личные итоги игрока. Скрипт генерации передаёт данные сезона и таблицу сам,
+ * чтобы не загружать их заново для каждого игрока.
+ */
+export async function getSeasonRecap(
+  userId: string,
+  season: number,
+  preloaded?: { data: SeasonData; allStats: SeasonStat[] },
+): Promise<SeasonRecap | null> {
   const user = await getUserPublicProfile(userId)
   if (!user) return null
 
   const [data, stats, allStats, ratingDocs] = await Promise.all([
-    loadSeasonData(season),
+    preloaded?.data ?? loadSeasonData(season),
     getUserSeasonStats(userId, season, 0),
-    getAllSeasonStats({ year: season, depth: 0 }),
+    preloaded?.allStats ?? getAllSeasonStats({ year: season, depth: 0 }),
     getUserRacesRating(userId),
   ])
 

@@ -1,5 +1,5 @@
 import { formatDecimal } from '@/utilities/plural'
-import { asRecords, callOpenRouter, clean } from './aiTexts'
+import { asRecords, callOpenRouter, clean, type OnUsage } from './aiTexts'
 import type { CommunityRecap } from './buildCommunityRecap'
 
 /** Тексты страницы «Итоги сезона» для всех игроков */
@@ -167,8 +167,10 @@ export function sanitizeCommunityTexts(
 export async function requestCommunityTexts(
   recap: CommunityRecap,
   fallback: CommunityTexts,
+  onUsage?: OnUsage,
 ): Promise<CommunityTexts> {
   const raw = await callOpenRouter({
+    onUsage,
     system: SYSTEM_PROMPT,
     user: `Данные сезона:\n${JSON.stringify(buildCommunityFacts(recap), null, 2)}`,
     schemaName: 'community_recap',

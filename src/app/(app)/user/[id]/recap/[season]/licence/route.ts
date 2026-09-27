@@ -10,7 +10,7 @@ type Context = {
 
 // Картинка-суперлицензия: превью ссылки в Telegram и кнопка «Скачать PNG».
 // Доступ как у страницы: до финальной гонки — только админам.
-// Тексты берём только сохранённые — ждать нейросеть ради превью нельзя.
+// Без сгенерированных скриптом текстов карточки нет.
 export async function GET(_request: Request, { params }: Context) {
   const { id, season: seasonParam } = await params
   const season = parseSeason(seasonParam)
@@ -18,9 +18,10 @@ export async function GET(_request: Request, { params }: Context) {
   const isPublic = !!recap?.isSeasonComplete
   const canView =
     !!recap && recap.predictions > 0 && (isPublic || isAdmin((await getServerSideUser()).user))
+  const texts = canView ? await getSavedRecapTexts(recap) : null
 
   return renderLicenceImage(
-    canView ? { recap, texts: await getSavedRecapTexts(recap) } : null,
+    recap && texts ? { recap, texts } : null,
     season,
     isPublic ? 'public, max-age=300' : 'private, no-store',
   )

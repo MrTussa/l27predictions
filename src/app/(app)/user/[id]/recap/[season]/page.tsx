@@ -5,21 +5,21 @@ import { getServerSideUser } from '@/utilities/getServerSideUser'
 import { mergeOpenGraph } from '@/utilities/mergeOpenGraph'
 import { plural } from '@/utilities/plural'
 import { getUserPublicProfile } from '@/utilities/queries'
-import { getRecapTexts } from '@/utilities/seasonRecap/getRecapTexts'
+import { getSavedRecapTexts } from '@/utilities/seasonRecap/getRecapTexts'
 import { getSeasonRecap, parseSeason } from '@/utilities/seasonRecap/getSeasonRecap'
 import type { SeasonRecap } from '@/utilities/seasonRecap/types'
 import {
   IconBrandTelegram,
   IconChevronLeft,
   IconDownload,
+  IconFlag,
   IconHourglass,
   IconMoodEmpty,
 } from '@tabler/icons-react'
 import type { Metadata } from 'next'
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
-import { Suspense, type ReactNode } from 'react'
-import { GeneratingMarker, GeneratingOverlay } from './_components/GeneratingOverlay'
+import type { ReactNode } from 'react'
 import { SectionTitle } from './_components/parts'
 import { RecapDashboard } from './_components/RecapDashboard'
 
@@ -42,6 +42,10 @@ export default async function SeasonRecapPage({ params }: Props) {
   const isPreview = !recap.isSeasonComplete
   if (isPreview && !isAdmin(viewer)) return <RecapLocked recap={recap} />
   if (recap.predictions === 0) return <RecapEmpty recap={recap} />
+
+  // Тексты пишет скрипт заранее; без них итоги не показываем вовсе
+  const texts = await getSavedRecapTexts(recap)
+  if (!texts) return <RecapWarmup recap={recap} isOwner={viewer?.id === recap.user.id} />
 
   return (
     <div className="mx-auto max-w-450 space-y-6 px-4 py-6 md:px-16">
@@ -68,25 +72,9 @@ export default async function SeasonRecapPage({ params }: Props) {
         )}
       </div>
 
-      <GeneratingOverlay />
-
-      <Suspense
-        fallback={
-          <>
-            <GeneratingMarker />
-            <RecapDashboard recap={recap} texts={null} />
-          </>
-        }
-      >
-        <RecapWithTexts recap={recap} />
-      </Suspense>
+      <RecapDashboard recap={recap} texts={texts} licence={<Licence recap={recap} />} />
     </div>
   )
-}
-
-async function RecapWithTexts({ recap }: { recap: SeasonRecap }) {
-  const texts = await getRecapTexts(recap)
-  return <RecapDashboard recap={recap} texts={texts} licence={<Licence recap={recap} />} />
 }
 
 function Licence({ recap }: { recap: SeasonRecap }) {
@@ -181,6 +169,24 @@ function RecapLocked({ recap }: { recap: SeasonRecap }) {
       </div>
       <Button asChild variant="outline">
         <Link href="/predictions">К прогнозам</Link>
+      </Button>
+    </RecapNotice>
+  )
+}
+
+function RecapWarmup({ recap, isOwner }: { recap: SeasonRecap; isOwner: boolean }) {
+  return (
+    <RecapNotice
+      icon={<IconFlag className="size-12 text-accent" />}
+      title={
+        isOwner
+          ? 'Твои итоги на разогревочном круге'
+          : `Итоги ${recap.user.nickname} на разогревочном круге`
+      }
+    >
+      <p className="text-muted-foreground">Приходи позже.</p>
+      <Button asChild variant="outline">
+        <Link href={`/recap/${recap.season}`}>Номинации сезона</Link>
       </Button>
     </RecapNotice>
   )

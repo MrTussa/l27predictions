@@ -2,8 +2,8 @@ import { BADGE_ICONS, type BadgeIcon, type RecapTexts, type SeasonRecap } from '
 
 const RATING_LABEL = { bad: 'плохая', normal: 'нормальная', good: 'хорошая' } as const
 
-// OpenRouter не пускает запросы из РФ: на таком сервере OPENROUTER_BASE_URL указывает на
-// прокси на зарубежном сервере (nginx), он пересылает запрос как есть
+// Тексты генерирует скрипт scripts/generate-recaps.ts, сайт их только читает из базы.
+// OPENROUTER_BASE_URL — если OpenRouter недоступен напрямую (например, из РФ)
 const openRouterUrl = () =>
   `${(process.env.OPENROUTER_BASE_URL || 'https://openrouter.ai/api/v1').replace(/\/+$/, '')}/chat/completions`
 export const DEFAULT_RECAP_MODEL = 'anthropic/claude-haiku-4.5'
@@ -258,12 +258,17 @@ export function sanitizeRecapTexts(
   }
 }
 
+/** Расход на один запрос: токены и цена в долларах, как их посчитал OpenRouter */
+export type OpenRouterUsage = { inputTokens: number; outputTokens: number; cost: number }
+export type OnUsage = (usage: OpenRouterUsage) => void
+
 /** Запрос к OpenRouter со строгой JSON-схемой; возвращает разобранный JSON ответа */
 export async function callOpenRouter(options: {
   system: string
   user: string
   schemaName: string
   schema: object
+  onUsage?: OnUsage
 }): Promise<unknown> {
   const apiKey = process.env.OPENROUTER_API_KEY
   if (!apiKey) throw new Error('OPENROUTER_API_KEY не задан')
@@ -290,6 +295,10 @@ export async function callOpenRouter(options: {
       },
       temperature: 0.9,
       max_tokens: 8000,
+      // Размышления оплачиваются как выход и дают основную часть цены, шуткам они не нужны.
+      // У Gemini 3 их нельзя выключить совсем: minimal — нижний уровень
+      reasoning: { effort: 'minimal', exclude: true },
+      usage: { include: true },
     }),
     signal: AbortSignal.timeout(60_000),
     cache: 'no-store',
@@ -300,14 +309,21 @@ export async function callOpenRouter(options: {
   }
 
   const data = await response.json()
+  options.onUsage?.({
+    inputTokens: Number(data?.usage?.prompt_tokens) || 0,
+    outputTokens: Number(data?.usage?.completion_tokens) || 0,
+    cost: Number(data?.usage?.cost) || 0,
+  })
   return parseModelJson(data?.choices?.[0]?.message?.content)
 }
 
 export async function requestRecapTexts(
   recap: SeasonRecap,
   fallback: RecapTexts,
+  onUsage?: OnUsage,
 ): Promise<RecapTexts> {
   const raw = await callOpenRouter({
+    onUsage,
     system: SYSTEM_PROMPT,
     user: `Данные игрока:\n${JSON.stringify(buildPromptFacts(recap), null, 2)}`,
     schemaName: 'season_recap',
