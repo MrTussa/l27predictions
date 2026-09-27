@@ -24,6 +24,16 @@ const titillium = localFont({
   variable: '--font-geist-sans',
 })
 
+// В Titillium нет кириллицы: русский текст берём из Geist, латиница остаётся Titillium
+const geistCyrillic = localFont({
+  src: '../../fonts/geist/Geist-Variable.woff2',
+  weight: '100 900',
+  variable: '--font-cyrillic',
+  // Без запасного Arial: иначе он перехватил бы латиницу до Titillium
+  adjustFontFallback: false,
+  declarations: [{ prop: 'unicode-range', value: 'U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116' }],
+})
+
 const jetbrains = localFont({
   src: '../../fonts/jetBrainsMono/JetBrainsMono-VariableFont_wght.ttf',
   variable: '--font-geist-mono',
@@ -60,7 +70,9 @@ async function UserShell({ children }: { children: ReactNode }) {
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (
     <html
-      className={[titillium.variable, jetbrains.variable, 'dark'].filter(Boolean).join(' ')}
+      className={[titillium.variable, geistCyrillic.variable, jetbrains.variable, 'dark']
+        .filter(Boolean)
+        .join(' ')}
       data-theme="dark"
       lang="ru"
       suppressHydrationWarning

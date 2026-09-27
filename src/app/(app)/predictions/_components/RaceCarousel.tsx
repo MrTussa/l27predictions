@@ -113,7 +113,7 @@ export function RaceCarousel({ races, selectedRaceId }: RaceCarouselProps) {
                       />
                     ) : (
                       <svg
-                        viewBox="100 100 512 512"
+                        viewBox="144 144 512 512"
                         className="w-full h-full opacity-60 p-2"
                         fill="#FFFFFF"
                       >

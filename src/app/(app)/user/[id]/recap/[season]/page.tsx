@@ -99,6 +99,8 @@ function Licence({ recap }: { recap: SeasonRecap }) {
   return (
     <Card variant="default" corners="cut-corner">
       <div className="grid items-center gap-6 px-5 lg:grid-cols-[minmax(0,1fr)_320px]">
+        {/* PNG уже собран сервером под нужный размер — next/image его только пережмёт */}
+        {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
           src={imageUrl}
           alt={`Суперлицензия прогнозиста ${recap.user.nickname}`}

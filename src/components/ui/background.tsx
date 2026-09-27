@@ -1,3 +1,4 @@
+import type { CSSProperties } from 'react'
 export default function BgStage() {
   const streaks = [
     { left: '12%', d: '6.5s', delay: '0s', c: 'rgba(225,6,0,0.6)' },
@@ -15,13 +16,14 @@ export default function BgStage() {
         {streaks.map((s, i) => (
           <i
             key={i}
-            style={{
-              left: s.left,
-              //@ts-ignore
-              '--d': s.d,
-              '--delay': s.delay,
-              '--streak': s.c,
-            }}
+            style={
+              {
+                left: s.left,
+                '--d': s.d,
+                '--delay': s.delay,
+                '--streak': s.c,
+              } as CSSProperties
+            }
           ></i>
         ))}
       </div>
