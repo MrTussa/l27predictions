@@ -427,7 +427,7 @@ export interface SeasonStat {
   createdAt: string;
 }
 /**
- * Тексты «Итогов сезона» от нейросети. Их можно поправить вручную; удалите запись, чтобы сгенерировать заново.
+ * Тексты «Итогов сезона» от нейросети, их пишет скрипт npm run recap:generate. Тексты можно поправить вручную.
  *
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "season-recaps".
@@ -437,7 +437,7 @@ export interface SeasonRecapRecord {
   user: string | User;
   season: number;
   /**
-   * Когда статистика игрока меняется, тексты генерируются заново
+   * Статистика, по которой написаны тексты. Если она изменилась, скрипт перепишет тексты
    */
   fingerprint: string;
   model?: string | null;
@@ -454,7 +454,7 @@ export interface SeasonRecapRecord {
   createdAt: string;
 }
 /**
- * Тексты общей страницы итогов сезона от нейросети. Можно поправить вручную; удалите запись, чтобы сгенерировать заново.
+ * Тексты общей страницы итогов сезона от нейросети, их пишет скрипт npm run recap:generate. Тексты можно поправить вручную.
  *
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "community-recaps".
@@ -463,7 +463,7 @@ export interface CommunityRecapRecord {
   id: string;
   season: number;
   /**
-   * Когда статистика сезона меняется, тексты генерируются заново
+   * Статистика, по которой написаны тексты. Если она изменилась, скрипт перепишет тексты
    */
   fingerprint: string;
   model?: string | null;

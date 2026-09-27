@@ -38,6 +38,7 @@ const F1_RED = '#E10600'
 const DARK = '#15151E'
 const PANEL = '#1F1F2B'
 const GREY = '#9B9BAA'
+const PODIUM = [ACCENT, '#C2C9D2', '#CD6B2C']
 
 // Стиль ТВ-графики F1: тёмный фон, красные акценты, наклонный жирный текст.
 // Курсива у Geist нет, поэтому наклон — через skewX.
@@ -74,8 +75,21 @@ function Checkered({ columns, size = 9 }: { columns: number; size?: number }) {
   )
 }
 
-/** Строка «таймингтауэра»: метка слева, значение справа */
-function TowerRow({ label, value, color }: { label: string; value: string; color?: string }) {
+/** Строка «таймингтауэра»: метка слева, значение справа, серое дополнение после него */
+function TowerRow({
+  label,
+  value,
+  extra,
+  color,
+  chip,
+}: {
+  label: string
+  value: string
+  extra?: string
+  color?: string
+  /** Трёхбуквенный код пилота на плашке цвета команды */
+  chip?: { text: string; color: string }
+}) {
   return (
     <div
       style={{
@@ -99,21 +113,99 @@ function TowerRow({ label, value, color }: { label: string; value: string; color
       >
         {label}
       </div>
+      {chip && (
+        <div
+          style={{
+            ...slant,
+            display: 'flex',
+            padding: '2px 8px',
+            marginRight: 10,
+            background: chip.color,
+            color: '#fff',
+            fontFamily: 'Geist Mono',
+            fontSize: 16,
+            fontWeight: 700,
+          }}
+        >
+          {chip.text}
+        </div>
+      )}
       <div
         style={{
+          display: 'flex',
+          alignItems: 'baseline',
           flex: 1,
           paddingRight: 16,
-          fontSize: 24,
-          fontWeight: 900,
-          whiteSpace: 'nowrap',
           overflow: 'hidden',
-          textOverflow: 'ellipsis',
+          whiteSpace: 'nowrap',
         }}
       >
-        {value}
+        <div style={{ fontSize: 24, fontWeight: 900 }}>{value}</div>
+        {extra && (
+          <div style={{ fontSize: 17, fontWeight: 700, color: GREY, marginLeft: 10 }}>{extra}</div>
+        )}
       </div>
     </div>
   )
+}
+
+/** Очки по гонкам столбиками: жёлтый — идеальный подиум, красный — ноль, пунктир — пропуск */
+function Telemetry({ recap }: { recap: SeasonRecap }) {
+  const timeline = recap.timeline
+  const barWidth = Math.max(
+    6,
+    Math.min(22, Math.floor((312 - timeline.length * 3) / timeline.length)),
+  )
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column' }}>
+      <div style={{ fontSize: 13, fontWeight: 700, letterSpacing: 2, color: GREY }}>
+        ТЕЛЕМЕТРИЯ СЕЗОНА
+      </div>
+      <div
+        style={{
+          display: 'flex',
+          alignItems: 'flex-end',
+          gap: 3,
+          height: 50,
+          marginTop: 8,
+          borderBottom: '2px solid #3a3a4a',
+        }}
+      >
+        {timeline.map((entry) => {
+          const points = entry.points ?? 0
+          const color =
+            entry.points === null
+              ? 'transparent'
+              : points === 15
+                ? ACCENT
+                : points === 0
+                  ? F1_RED
+                  : recap.user.chartColor
+          return (
+            <div
+              key={entry.race.id}
+              style={{
+                display: 'flex',
+                width: barWidth,
+                height: entry.points === null ? 48 : Math.max(4, (points / 15) * 48),
+                background: color,
+                border: entry.points === null ? '2px dashed #3a3a4a' : 'none',
+              }}
+            />
+          )
+        })}
+      </div>
+    </div>
+  )
+}
+
+/** Печать поверх лицензии — итог сезона одной фразой */
+function stamp(recap: SeasonRecap): { text: string; color: string } | null {
+  if (recap.penaltyPoints >= 12) return { text: 'ЛИЦЕНЗИЯ ПРИОСТАНОВЛЕНА', color: F1_RED }
+  if (recap.rank === 1) return { text: 'ЧЕМПИОН СЕЗОНА', color: ACCENT }
+  if (recap.rank && recap.rank <= 3) return { text: 'ПОДИУМ СЕЗОНА', color: '#C2C9D2' }
+  if (!recap.isSeasonComplete) return null
+  return { text: `ДОПУЩЕН К СЕЗОНУ ${recap.season + 1}`, color: '#6fdc8c' }
 }
 
 export function LicenceImage({ recap, texts }: { recap: SeasonRecap; texts: RecapTexts }) {
@@ -127,6 +219,9 @@ export function LicenceImage({ recap, texts }: { recap: SeasonRecap; texts: Reca
   const userColor = recap.user.chartColor
   const favorite = recap.favorite?.driver
   const best = recap.topRaces[0]
+  const sniper = recap.radar.find((axis) => axis.key === 'sniper')?.value ?? 0
+  const contrarian = recap.contrarian
+  const seal = stamp(recap)
 
   return (
     <div style={page}>
@@ -214,10 +309,10 @@ export function LicenceImage({ recap, texts }: { recap: SeasonRecap; texts: Reca
               <div
                 style={{
                   ...slant,
-                  fontSize: 104,
+                  fontSize: 92,
                   fontWeight: 900,
                   lineHeight: 0.9,
-                  color: recap.rank === 1 ? ACCENT : '#fff',
+                  color: recap.rank && recap.rank <= 3 ? PODIUM[recap.rank - 1] : '#fff',
                 }}
               >
                 {recap.rank ? `P${recap.rank}` : '—'}
@@ -229,7 +324,8 @@ export function LicenceImage({ recap, texts }: { recap: SeasonRecap; texts: Reca
             <div
               style={{
                 ...slant,
-                marginTop: 16,
+                marginTop: 10,
+                flexShrink: 0,
                 fontSize: 34,
                 fontWeight: 900,
                 textTransform: 'uppercase',
@@ -253,10 +349,19 @@ export function LicenceImage({ recap, texts }: { recap: SeasonRecap; texts: Reca
               ПОЗЫВНОЙ
             </div>
             <div
-              style={{ ...slant, fontSize: 24, fontWeight: 900, color: F1_RED, lineHeight: 1.15 }}
+              style={{
+                ...slant,
+                flexShrink: 0,
+                fontSize: 24,
+                fontWeight: 900,
+                color: F1_RED,
+                lineHeight: 1.15,
+              }}
             >
               {texts.title}
             </div>
+            <div style={{ display: 'flex', flex: 1 }} />
+            {recap.timeline.length > 1 && <Telemetry recap={recap} />}
             <div style={{ display: 'flex', flex: 1 }} />
             {best && (
               <div style={{ display: 'flex', flexDirection: 'column' }}>
@@ -291,9 +396,6 @@ export function LicenceImage({ recap, texts }: { recap: SeasonRecap; texts: Reca
                 </div>
               </div>
             )}
-            <div style={{ fontSize: 15, fontWeight: 700, color: GREY, marginTop: 10 }}>
-              {`ЛУЧШАЯ СЕРИЯ: ${recap.bestStreak} ${plural(recap.bestStreak, ['ГОНКА', 'ГОНКИ', 'ГОНОК'])} ПОДРЯД`}
-            </div>
           </div>
 
           {/* Таймингтауэр */}
@@ -301,25 +403,96 @@ export function LicenceImage({ recap, texts }: { recap: SeasonRecap; texts: Reca
             <TowerRow
               label="ОЧКИ"
               value={`${recap.points} ${plural(recap.points, ['очко', 'очка', 'очков'])}`}
+              extra={
+                recap.seasonPredictionPoints > 0
+                  ? `+${recap.seasonPredictionPoints} за события`
+                  : `идеальных: ${recap.perfect}`
+              }
             />
             <TowerRow
               label="СТАЖ"
               value={`${recap.predictions} из ${recap.racesCompleted} ${plural(recap.racesCompleted, ['гонки', 'гонок', 'гонок'])}`}
+              extra={`серия ${recap.bestStreak}${recap.peakRank ? ` · пик P${recap.peakRank}` : ''}`}
             />
-            <TowerRow label="ТОЧНОСТЬ" value={`${accuracy}% подиумов`} />
+            <TowerRow label="ТОЧНОСТЬ" value={`${accuracy}% подиумов`} extra={`${sniper}% точно`} />
             <TowerRow
               label="ЛЮБИМЫЙ ПИЛОТ"
               value={favorite ? favorite.name : 'не завёл'}
               color={favorite?.teamColor}
+              chip={favorite ? { text: favorite.shortName, color: favorite.teamColor } : undefined}
             />
-            <TowerRow label="ИДЕАЛЬНЫЕ" value={String(recap.perfect)} color={ACCENT} />
-            <div style={{ display: 'flex', flexDirection: 'column', marginTop: 6 }}>
-              <div style={{ fontSize: 13, fontWeight: 700, letterSpacing: 2, color: GREY }}>
-                ОСОБЫЕ ПРИМЕТЫ
+            {contrarian ? (
+              <TowerRow
+                label="ПРОТИВ ТОЛПЫ"
+                value={`${contrarian.driver.shortName} на P${contrarian.position}`}
+                extra={`${contrarian.race.name} · верили ${contrarian.sharePct}%`}
+                color={ACCENT}
+              />
+            ) : (
+              <TowerRow label="ИДЕАЛЬНЫЕ" value={String(recap.perfect)} color={ACCENT} />
+            )}
+
+            {/* Награды от нейросети */}
+            <div style={{ display: 'flex', gap: 8, marginTop: 4 }}>
+              {texts.badges.slice(0, 4).map((badge) => (
+                <div
+                  key={badge.name}
+                  style={{
+                    ...slant,
+                    display: 'flex',
+                    padding: '4px 10px',
+                    background: F1_RED,
+                    fontSize: 14,
+                    fontWeight: 900,
+                    letterSpacing: 1,
+                    whiteSpace: 'nowrap',
+                  }}
+                >
+                  {badge.name}
+                </div>
+              ))}
+            </div>
+
+            <div style={{ display: 'flex', alignItems: 'flex-start', marginTop: 12, gap: 20 }}>
+              <div style={{ display: 'flex', flexDirection: 'column', flex: 1 }}>
+                <div style={{ fontSize: 13, fontWeight: 700, letterSpacing: 2, color: GREY }}>
+                  ОСОБЫЕ ПРИМЕТЫ
+                </div>
+                <div style={{ fontSize: 18, fontWeight: 700, marginTop: 3, lineHeight: 1.25 }}>
+                  {texts.specialMarks}
+                </div>
               </div>
-              <div style={{ fontSize: 19, fontWeight: 700, marginTop: 3, lineHeight: 1.25 }}>
-                {texts.specialMarks}
-              </div>
+              {seal && (
+                <div
+                  style={{
+                    display: 'flex',
+                    flexDirection: 'column',
+                    alignItems: 'center',
+                    width: 230,
+                    marginTop: 4,
+                    padding: '6px 10px',
+                    border: `4px solid ${seal.color}`,
+                    color: seal.color,
+                    transform: 'rotate(-8deg)',
+                    opacity: 0.9,
+                  }}
+                >
+                  <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: 3 }}>
+                    {`L27 · ${recap.season}`}
+                  </div>
+                  <div
+                    style={{
+                      fontSize: 22,
+                      fontWeight: 900,
+                      letterSpacing: 1,
+                      textAlign: 'center',
+                      lineHeight: 1.05,
+                    }}
+                  >
+                    {seal.text}
+                  </div>
+                </div>
+              )}
             </div>
           </div>
         </div>

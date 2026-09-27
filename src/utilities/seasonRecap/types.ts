@@ -135,6 +135,8 @@ export type SeasonRecap = {
     /** Прогнозы, где тройка совпала с первыми тремя на старте */
     qualiCopies: number
   } | null
+  /** Гонки с первого прогноза: очки (null — пропуск), среднее по игрокам и место после гонки */
+  timeline: { race: RecapRace; points: number | null; avg: number; rank: number }[]
   /** Оценки завершённых гонок рядом с очками за них */
   ratings: { race: RecapRace; rating: RaceRatingValue; points: number | null }[]
   /** Меняется вместе со статистикой — по нему понимаем, что тексты устарели */

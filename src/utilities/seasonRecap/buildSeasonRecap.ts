@@ -416,6 +416,12 @@ export function buildSeasonRecap(input: RecapInput): SeasonRecap {
     weather,
     grid,
     ratings,
+    timeline: myRaces.map((entry, i) => ({
+      race: toRace(entry.race),
+      points: entry.points,
+      avg: round1(raceAverage.get(entry.race.id) ?? 0),
+      rank: rankHistory[i].rank,
+    })),
     fingerprint: [
       `v${RECAP_VERSION}`,
       completed.length,

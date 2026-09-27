@@ -20,7 +20,6 @@ import type { Metadata } from 'next'
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import type { ReactNode } from 'react'
-import { SectionTitle } from './_components/parts'
 import { RecapDashboard } from './_components/RecapDashboard'
 
 type Props = {
@@ -85,41 +84,38 @@ function Licence({ recap }: { recap: SeasonRecap }) {
   const shareUrl = `https://t.me/share/url?url=${encodeURIComponent(pageUrl)}&text=${encodeURIComponent(`Мои итоги сезона ${recap.season} в L27`)}`
 
   return (
-    <Card variant="default" corners="cut-corner">
-      <div className="grid items-center gap-6 px-5 lg:grid-cols-[minmax(0,1fr)_320px]">
-        {/* PNG уже собран сервером под нужный размер — next/image его только пережмёт */}
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img
-          src={imageUrl}
-          alt={`Суперлицензия прогнозиста ${recap.user.nickname}`}
-          width={1200}
-          height={630}
-          loading="lazy"
-          className="h-auto w-full"
-        />
-        <div className="space-y-4">
-          <SectionTitle>Суперлицензия</SectionTitle>
-          <p className="text-sm text-muted-foreground">
-            Карточка для чата. Она же появится в превью, если отправить ссылку на эту страницу в
-            Telegram.
-          </p>
-          <div className="flex flex-col gap-3 sm:flex-row lg:flex-col">
-            <Button asChild>
-              <a href={imageUrl} download={`l27-superlicense-${recap.season}.png`}>
-                <IconDownload />
-                Скачать PNG
-              </a>
-            </Button>
-            <Button asChild variant="outline">
-              <a href={shareUrl} target="_blank" rel="noopener noreferrer">
-                <IconBrandTelegram />
-                Поделиться
-              </a>
-            </Button>
-          </div>
+    <div className="grid items-center gap-6 border border-white/10 bg-[#15151E] p-4 sm:p-5 lg:grid-cols-[minmax(0,1fr)_320px]">
+      {/* PNG уже собран сервером под нужный размер — next/image его только пережмёт */}
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img
+        src={imageUrl}
+        alt={`Суперлицензия прогнозиста ${recap.user.nickname}`}
+        width={1200}
+        height={630}
+        loading="lazy"
+        className="h-auto w-full"
+      />
+      <div className="space-y-4">
+        <p className="text-sm text-muted-foreground">
+          Карточка для чата. Она же появится в превью, если отправить ссылку на эту страницу в
+          Telegram.
+        </p>
+        <div className="flex flex-col gap-3 sm:flex-row lg:flex-col">
+          <Button asChild>
+            <a href={imageUrl} download={`l27-superlicense-${recap.season}.png`}>
+              <IconDownload />
+              Скачать PNG
+            </a>
+          </Button>
+          <Button asChild variant="outline">
+            <a href={shareUrl} target="_blank" rel="noopener noreferrer">
+              <IconBrandTelegram />
+              Поделиться
+            </a>
+          </Button>
         </div>
       </div>
-    </Card>
+    </div>
   )
 }
 

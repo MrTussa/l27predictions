@@ -175,6 +175,15 @@ describe('buildSeasonRecap', () => {
     expect(recap.moments[1].points).toBeNull()
   })
 
+  it('телеметрия: очки, среднее и место после каждой гонки, пропуск — null', () => {
+    const recap = buildSeasonRecap(midSeason)
+
+    expect(recap.timeline.map((entry) => entry.race.id)).toEqual(['r1', 'r2', 'r3'])
+    expect(recap.timeline.map((entry) => entry.points)).toEqual([15, null, 0])
+    expect(recap.timeline[2].avg).toBe(3.3)
+    expect(recap.timeline.every((entry) => entry.rank >= 1)).toBe(true)
+  })
+
   it('выбирает любимчика, «предателя» и точное попадание против толпы', () => {
     const recap = buildSeasonRecap(fullSeason)
 
