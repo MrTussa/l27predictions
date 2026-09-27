@@ -34,15 +34,14 @@ export function renderLicenceImage(
 }
 
 const ACCENT = '#FFDF2C'
-const F1_RED = '#E10600'
+// Красный — только там, где он значит «плохо»: нули, штрафные баллы
+const NEGATIVE = '#ff4d4d'
 const DARK = '#15151E'
 const PANEL = '#1F1F2B'
 const GREY = '#9B9BAA'
 const PODIUM = [ACCENT, '#C2C9D2', '#CD6B2C']
 
-// Стиль ТВ-графики F1: тёмный фон, красные акценты, наклонный жирный текст.
-// Курсива у Geist нет, поэтому наклон — через skewX.
-const slant = { transform: 'skewX(-10deg)' } as const
+// Стиль ТВ-графики F1 в цветах сайта: тёмный фон, жёлтые акценты, без наклона.
 
 const page = {
   width: '100%',
@@ -97,7 +96,7 @@ function TowerRow({
         alignItems: 'center',
         height: 46,
         background: PANEL,
-        borderLeft: `6px solid ${color ?? F1_RED}`,
+        borderLeft: `6px solid ${color ?? ACCENT}`,
         marginBottom: 6,
       }}
     >
@@ -116,7 +115,6 @@ function TowerRow({
       {chip && (
         <div
           style={{
-            ...slant,
             display: 'flex',
             padding: '2px 8px',
             marginRight: 10,
@@ -179,7 +177,7 @@ function Telemetry({ recap }: { recap: SeasonRecap }) {
               : points === 15
                 ? ACCENT
                 : points === 0
-                  ? F1_RED
+                  ? NEGATIVE
                   : recap.user.chartColor
           return (
             <div
@@ -201,7 +199,7 @@ function Telemetry({ recap }: { recap: SeasonRecap }) {
 
 /** Печать поверх лицензии — итог сезона одной фразой */
 function stamp(recap: SeasonRecap): { text: string; color: string } | null {
-  if (recap.penaltyPoints >= 12) return { text: 'ЛИЦЕНЗИЯ ПРИОСТАНОВЛЕНА', color: F1_RED }
+  if (recap.penaltyPoints >= 12) return { text: 'ЛИЦЕНЗИЯ ПРИОСТАНОВЛЕНА', color: NEGATIVE }
   if (recap.rank === 1) return { text: 'ЧЕМПИОН СЕЗОНА', color: ACCENT }
   if (recap.rank && recap.rank <= 3) return { text: 'ПОДИУМ СЕЗОНА', color: '#C2C9D2' }
   if (!recap.isSeasonComplete) return null
@@ -235,7 +233,7 @@ export function LicenceImage({ recap, texts }: { recap: SeasonRecap; texts: Reca
             right: 120 + i * 70,
             width: 26 - i * 7,
             height: 900,
-            background: i === 0 ? F1_RED : 'rgba(255,255,255,0.06)',
+            background: i === 0 ? ACCENT : 'rgba(255,255,255,0.06)',
             opacity: i === 0 ? 0.9 : 1,
             transform: 'rotate(20deg)',
           }}
@@ -243,19 +241,19 @@ export function LicenceImage({ recap, texts }: { recap: SeasonRecap; texts: Reca
       ))}
 
       <div style={{ display: 'flex', flexDirection: 'column', flex: 1, position: 'relative' }}>
-        <div style={{ display: 'flex', height: 8, background: F1_RED }} />
+        <div style={{ display: 'flex', height: 8, background: ACCENT }} />
 
         {/* Шапка */}
         <div style={{ display: 'flex', alignItems: 'center', padding: '22px 40px 0', gap: 22 }}>
           <div
             style={{
-              ...slant,
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
               width: 96,
               height: 60,
-              background: F1_RED,
+              background: ACCENT,
+              color: DARK,
               fontSize: 32,
               fontWeight: 900,
             }}
@@ -263,18 +261,15 @@ export function LicenceImage({ recap, texts }: { recap: SeasonRecap; texts: Reca
             L27
           </div>
           <div style={{ display: 'flex', flexDirection: 'column', flex: 1 }}>
-            <div
-              style={{ ...slant, fontSize: 46, fontWeight: 900, letterSpacing: 1, lineHeight: 1 }}
-            >
+            <div style={{ fontSize: 46, fontWeight: 900, letterSpacing: 1, lineHeight: 1 }}>
               СУПЕРЛИЦЕНЗИЯ
             </div>
             <div
               style={{
-                ...slant,
                 fontSize: 17,
                 fontWeight: 700,
                 letterSpacing: 4,
-                color: F1_RED,
+                color: ACCENT,
                 marginTop: 6,
               }}
             >
@@ -308,7 +303,6 @@ export function LicenceImage({ recap, texts }: { recap: SeasonRecap; texts: Reca
             <div style={{ display: 'flex', alignItems: 'flex-end', gap: 12 }}>
               <div
                 style={{
-                  ...slant,
                   fontSize: 92,
                   fontWeight: 900,
                   lineHeight: 0.9,
@@ -323,7 +317,6 @@ export function LicenceImage({ recap, texts }: { recap: SeasonRecap; texts: Reca
             </div>
             <div
               style={{
-                ...slant,
                 marginTop: 10,
                 flexShrink: 0,
                 fontSize: 34,
@@ -350,11 +343,10 @@ export function LicenceImage({ recap, texts }: { recap: SeasonRecap; texts: Reca
             </div>
             <div
               style={{
-                ...slant,
                 flexShrink: 0,
                 fontSize: 24,
                 fontWeight: 900,
-                color: F1_RED,
+                color: ACCENT,
                 lineHeight: 1.15,
               }}
             >
@@ -383,7 +375,6 @@ export function LicenceImage({ recap, texts }: { recap: SeasonRecap; texts: Reca
                   </div>
                   <div
                     style={{
-                      ...slant,
                       padding: '2px 8px',
                       background: ACCENT,
                       color: DARK,
@@ -438,10 +429,10 @@ export function LicenceImage({ recap, texts }: { recap: SeasonRecap; texts: Reca
                 <div
                   key={badge.name}
                   style={{
-                    ...slant,
                     display: 'flex',
-                    padding: '4px 10px',
-                    background: F1_RED,
+                    padding: '2px 10px',
+                    border: `2px solid ${ACCENT}`,
+                    color: ACCENT,
                     fontSize: 14,
                     fontWeight: 900,
                     letterSpacing: 1,
@@ -472,6 +463,7 @@ export function LicenceImage({ recap, texts }: { recap: SeasonRecap; texts: Reca
                     marginTop: 4,
                     padding: '6px 10px',
                     border: `4px solid ${seal.color}`,
+                    background: DARK,
                     color: seal.color,
                     transform: 'rotate(-8deg)',
                     opacity: 0.9,
@@ -511,7 +503,6 @@ export function LicenceImage({ recap, texts }: { recap: SeasonRecap; texts: Reca
               <div
                 key={category.code}
                 style={{
-                  ...slant,
                   display: 'flex',
                   alignItems: 'center',
                   height: 28,
@@ -542,13 +533,11 @@ export function LicenceImage({ recap, texts }: { recap: SeasonRecap; texts: Reca
                   style={{
                     width: 14,
                     height: 26,
-                    background: i < penalty ? F1_RED : '#2c2c3a',
+                    background: i < penalty ? NEGATIVE : '#2c2c3a',
                   }}
                 />
               ))}
-              <div style={{ ...slant, fontSize: 30, fontWeight: 900, marginLeft: 10 }}>
-                {`${penalty}/12`}
-              </div>
+              <div style={{ fontSize: 30, fontWeight: 900, marginLeft: 10 }}>{`${penalty}/12`}</div>
             </div>
           </div>
         </div>
@@ -569,8 +558,8 @@ export function RecapTeaserImage({ season }: { season: number | null }) {
           color: '#fff',
         }}
       >
-        <div style={{ fontSize: 30, fontWeight: 900, color: F1_RED, letterSpacing: 4 }}>L27</div>
-        <div style={{ ...slant, fontSize: 64, fontWeight: 900 }}>
+        <div style={{ fontSize: 30, fontWeight: 900, color: ACCENT, letterSpacing: 4 }}>L27</div>
+        <div style={{ fontSize: 64, fontWeight: 900 }}>
           {season ? `ИТОГИ СЕЗОНА ${season}` : 'ИТОГИ СЕЗОНА'}
         </div>
         <Checkered columns={24} />

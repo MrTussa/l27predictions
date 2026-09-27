@@ -1,7 +1,6 @@
 'use client'
 
-import { ChartTooltip, ChartTooltipRow } from '@/components/Broadcast/ChartTooltip'
-import { Area, AreaChart, ResponsiveContainer, Tooltip } from 'recharts'
+import { Area, AreaChart, ResponsiveContainer } from 'recharts'
 
 interface SparklineData {
   round: number
@@ -26,19 +25,6 @@ export function UserPointsSparkline({ data, color }: UserPointsSparklineProps) {
               <stop offset="100%" stopColor={color} stopOpacity={0} />
             </linearGradient>
           </defs>
-          <Tooltip
-            cursor={{ stroke: 'rgba(255,255,255,0.25)', strokeDasharray: '3 3' }}
-            isAnimationActive={false}
-            content={({ active, payload }) => {
-              const point = payload?.[0]?.payload as SparklineData | undefined
-              if (!active || !point) return null
-              return (
-                <ChartTooltip title={`Этап ${point.round}`} color={color}>
-                  <ChartTooltipRow color={color} label="Очки за гонки" value={point.points} />
-                </ChartTooltip>
-              )
-            }}
-          />
           <Area
             type="monotone"
             dataKey="points"

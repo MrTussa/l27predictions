@@ -39,10 +39,10 @@ export function CommunityView({ recap, texts, viewerId }: Props) {
       <Panel variant="yellow-glow" bodyClassName="overflow-hidden px-0">
         <span
           aria-hidden="true"
-          className="pointer-events-none absolute -right-6 -top-10 select-none text-[220px] font-black leading-none text-transparent sm:text-[300px]"
+          className="pointer-events-none absolute -right-4 -top-6 select-none text-[150px] font-black leading-none text-transparent sm:text-[240px]"
           style={{ WebkitTextStroke: '2px rgba(255,255,255,0.07)' } as CSSProperties}
         >
-          {String(season).slice(2)}
+          L27
         </span>
         <div className="relative space-y-5 px-6 pb-8 pt-4 sm:px-10">
           <div className="flex flex-wrap items-center gap-3">

@@ -24,7 +24,7 @@
 }
 
 @theme {
-  --font-sans: var(--font-cyrillic), var(--font-geist-sans), sans-serif;
+  --font-sans: var(--font-geist-sans), sans-serif;
   --font-mono: var(--font-geist-mono), sans-serif;
 }
 

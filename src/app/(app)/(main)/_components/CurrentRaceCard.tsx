@@ -1,4 +1,3 @@
-import { Caption } from '@/components/Broadcast'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 import type { Race } from '@/payload-types'
@@ -22,17 +21,12 @@ export function CurrentRaceCard({ race, votedCount, timeZone }: CurrentRaceCardP
     <Card variant="yellow-glow" corners="cut-corner" className="h-full">
       <RaceTrackClient svgPath={race.trackSVGPath ?? undefined} />
       <div className="space-y-6 px-6 z-2 flex flex-col justify-between h-full mix-blend-lighten min-h-87.5">
-        <div className="flex justify-between gap-4 border-b border-accent/30 pb-4">
-          <div className="min-w-0 space-y-2">
-            <div className="flex items-center gap-3">
-              <span className="clip-path-cut-corner-xs bg-accent px-2 py-0.5 font-mono text-xs font-black text-black">
-                R{race.round}
-              </span>
-              <Caption>Следующая гонка</Caption>
-            </div>
-            <h2 className="text-2xl font-bold uppercase leading-snug tracking-wide text-accent md:text-3xl">
-              {race.name}
-            </h2>
+        <div className="border-b border-accent/30 pb-4 flex justify-between">
+          <div>
+            <h2 className="text-2xl font-bold uppercase tracking-wide text-accent">{race.name}</h2>
+            <p className="text-sm text-muted-foreground mt-1 uppercase tracking-wider">
+              {race.round} Раунд · Следующая гонка
+            </p>
           </div>
           {race.countryFlag && typeof race.countryFlag === 'object' && (
             <div>
@@ -49,23 +43,24 @@ export function CurrentRaceCard({ race, votedCount, timeZone }: CurrentRaceCardP
         <div>
           <div className="flex flex-row justify-between">
             <div>
-              <div className="mb-1 flex items-center gap-2 font-mono text-[10px] font-bold uppercase tracking-[0.2em] text-muted-foreground">
-                <IconClock className="size-3.5" />
+              <div className="text-base text-muted-foreground uppercase tracking-wider flex items-center gap-2">
+                <IconClock className="w-4 h-4" />
                 До закрытия прогнозов
               </div>
               <Countdown targetDate={race.predictionCloseDate} />
             </div>
 
-            <div className="space-y-2 text-right">
-              <div>
-                <Caption>Проголосовало</Caption>
-                <div className="text-2xl font-black tabular-nums text-accent md:text-3xl">
+            <div>
+              <div className="text-xs md:text-sm tracking-wider text-muted-foreground uppercase text-right">
+                <div>Проголосовало</div>
+                <div className="text-sm md:text-base font-bold font-mono text-accent">
                   {votedCount}
                 </div>
               </div>
-              <div>
-                <Caption>Старт гонки</Caption>
-                <div className="font-mono text-sm font-bold uppercase md:text-base">{raceDate}</div>
+
+              <div className="text-xs md:text-sm text-muted-foreground uppercase tracking-wider text-right">
+                <div>Старт гонки</div>
+                <div className="text-base md:text-lg font-bold font-mono">{raceDate}</div>
               </div>
             </div>
           </div>
