@@ -11,17 +11,21 @@
 const relay = {
   async fetch(request, env) {
     if (!env.RELAY_SECRET || request.headers.get('X-Relay-Secret') !== env.RELAY_SECRET) {
-      return new Response('Forbidden', { status: 403 })
+      return new Response('Relay: wrong X-Relay-Secret', { status: 403 })
     }
 
     const url = new URL(request.url)
     if (!url.pathname.startsWith('/api/v1/')) {
-      return new Response('Not found', { status: 404 })
+      return new Response('Relay: not found', { status: 404 })
     }
 
-    const headers = new Headers(request.headers)
-    headers.delete('X-Relay-Secret')
-    headers.delete('Host')
+    // Только нужные заголовки: X-Forwarded-For / CF-Connecting-IP выдали бы OpenRouter
+    // российский IP сервера, и он снова ответил бы 403
+    const headers = new Headers()
+    for (const name of ['Authorization', 'Content-Type', 'Accept', 'HTTP-Referer', 'X-Title']) {
+      const value = request.headers.get(name)
+      if (value) headers.set(name, value)
+    }
 
     return fetch(`https://openrouter.ai${url.pathname}${url.search}`, {
       method: request.method,
