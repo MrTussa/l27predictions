@@ -6,7 +6,7 @@ import { join } from 'node:path'
 
 // Разметка для next/og (Satori): только flex, инлайн-стили, у блока с несколькими детьми — display: flex
 
-// В шрифте сайта (Titillium) нет кириллицы, поэтому картинка рисуется шрифтом Geist
+// Картинка рисуется шрифтом Geist: next/og нужен статичный TTF с кириллицей
 const fontsDir = join(process.cwd(), 'src/fonts/geist')
 const [regular, bold, black, monoBold] = await Promise.all(
   ['Geist-Regular.ttf', 'Geist-Bold.ttf', 'Geist-Black.ttf', 'GeistMono-Bold.ttf'].map((file) =>

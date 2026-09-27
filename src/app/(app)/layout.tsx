@@ -13,17 +13,6 @@ import { getHeaderData } from '@/utilities/queries'
 import localFont from 'next/font/local'
 import './globals.css'
 
-const titillium = localFont({
-  src: [
-    { path: '../../fonts/titillium/TitilliumWeb-Regular.ttf', weight: '400', style: 'normal' },
-    { path: '../../fonts/titillium/TitilliumWeb-SemiBold.ttf', weight: '600', style: 'normal' },
-    { path: '../../fonts/titillium/TitilliumWeb-Bold.ttf', weight: '700', style: 'normal' },
-    { path: '../../fonts/titillium/TitilliumWeb-BoldItalic.ttf', weight: '700', style: 'italic' },
-    { path: '../../fonts/titillium/TitilliumWeb-Black.ttf', weight: '900', style: 'normal' },
-  ],
-  variable: '--font-geist-sans',
-})
-
 const jetbrains = localFont({
   src: '../../fonts/jetBrainsMono/JetBrainsMono-VariableFont_wght.ttf',
   variable: '--font-geist-mono',
@@ -60,7 +49,7 @@ async function UserShell({ children }: { children: ReactNode }) {
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (
     <html
-      className={[titillium.variable, jetbrains.variable, 'dark'].filter(Boolean).join(' ')}
+      className={[jetbrains.variable, 'dark'].join(' ')}
       data-theme="dark"
       lang="ru"
       suppressHydrationWarning
