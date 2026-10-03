@@ -39,6 +39,7 @@ export function PodiumDndSlot({ position, driver, onRemove, disabled }: PodiumDn
       <PodiumSlot
         position={position}
         driver={null}
+        disabled={disabled}
         isHighlighted={isOver}
         ref={(node) => {
           setDroppableRef(node)

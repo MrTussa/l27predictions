@@ -59,7 +59,12 @@ export function PodiumSlot({
   if (!driver) {
     return (
       <div {...rest}>
-        <EmptySlot position={position} height={height} isHighlighted={isHighlighted} />
+        <EmptySlot
+          position={position}
+          height={height}
+          isHighlighted={isHighlighted}
+          selectable={!disabled}
+        />
       </div>
     )
   }

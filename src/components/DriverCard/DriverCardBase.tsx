@@ -132,12 +132,14 @@ export interface EmptySlotProps {
   position: 1 | 2 | 3
   height?: string
   isHighlighted?: boolean
+  selectable?: boolean
 }
 
 export function EmptySlot({
   position,
   height = 'h-[280px]',
   isHighlighted = false,
+  selectable = false,
 }: EmptySlotProps) {
   const podiumColor = PODIUM_COLORS[position - 1]
 
@@ -154,9 +156,11 @@ export function EmptySlot({
         >
           P{position}
         </div>
-        <div className="font-mono text-[10px] uppercase tracking-[0.2em] text-muted-foreground">
-          Выбери пилота
-        </div>
+        {selectable && (
+          <div className="font-mono text-[10px] uppercase tracking-[0.2em] text-muted-foreground">
+            Выбери пилота
+          </div>
+        )}
       </div>
     </div>
   )
