@@ -59,23 +59,24 @@ export default async function PredictionPage({ params }: Props) {
   const raceStatus = getRaceStatus(race)
   const isPredictionOpen = canMakePrediction(race)
   const isPredictionClosed = raceStatus === 'closed' || raceStatus === 'completed'
+  const startingGrid = race.startingGrid?.length ? race.startingGrid : null
 
   return (
     <div className="px-4 md:px-16 py-6">
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
         <div className="lg:col-span-3">
+          {startingGrid && (
+            <div className="mb-3 lg:hidden">
+              <StartingGrid grid={startingGrid} />
+            </div>
+          )}
           {isMobile ? (
-            <>
-              {race.startingGrid && race.startingGrid.length > 0 && (
-                <StartingGrid grid={race.startingGrid} />
-              )}
-              <PredictionDrawer
-                race={race}
-                drivers={drivers}
-                existingPrediction={existingPrediction}
-                isPredictionOpen={isPredictionOpen}
-              />
-            </>
+            <PredictionDrawer
+              race={race}
+              drivers={drivers}
+              existingPrediction={existingPrediction}
+              isPredictionOpen={isPredictionOpen}
+            />
           ) : (
             <PredictionForm
               race={race}
@@ -87,8 +88,10 @@ export default async function PredictionPage({ params }: Props) {
         </div>
 
         <div className="lg:col-span-1 space-y-6">
-          {!isMobile && race.startingGrid && race.startingGrid.length > 0 && (
-            <StartingGrid grid={race.startingGrid} />
+          {startingGrid && (
+            <div className="hidden lg:block">
+              <StartingGrid grid={startingGrid} />
+            </div>
           )}
           <AboutRace
             race={race}
