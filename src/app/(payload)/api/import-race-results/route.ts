@@ -59,7 +59,9 @@ export async function POST(req: Request) {
       if (driver) results.push({ position: row.position as number, driver })
     }
 
-    const gridRows = qualifyingSessionKey ? await getStartingGrid(qualifyingSessionKey) : []
+    const gridRows = qualifyingSessionKey
+      ? await getStartingGrid(raceSessionKey, qualifyingSessionKey)
+      : []
     const startingGrid = gridRows
       .map((row) => {
         const driver = mapDriver(row.driver_number, `Решётка P${row.position}`)
