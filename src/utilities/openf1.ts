@@ -18,8 +18,10 @@ async function openf1<T>(path: string, retries = 3, revalidate = REVALIDATE): Pr
 
 type Meeting = { meeting_key: number; date_start: string }
 type SessionInfo = { session_key: number; session_name: string }
+type Position = number | string | null
+
 type ResultRow = {
-  position: number | null
+  position: Position
   driver_number: number
   dnf?: boolean
   dns?: boolean
@@ -27,7 +29,7 @@ type ResultRow = {
   duration?: number | (number | null)[] | null
 }
 type GridRow = {
-  position: number | null
+  position: Position
   driver_number: number
   lap_duration: number | null
   provisional?: boolean
@@ -39,10 +41,10 @@ type Weather = {
   rainfall: number | null
 }
 
-const byPosition = <R extends { position: number | null }>(rows: R[]) =>
-  rows
-    .filter((r) => r.position != null)
-    .sort((a, b) => (a.position as number) - (b.position as number))
+const hasPosition = (r: { position: Position }) => typeof r.position === 'number'
+
+const byPosition = <R extends { position: Position }>(rows: R[]) =>
+  rows.filter(hasPosition).sort((a, b) => (a.position as number) - (b.position as number))
 
 export async function resolveSessions(
   year: number,
@@ -101,9 +103,10 @@ export async function getStartingGrid(
   if (qualifyingSessionKey == null) return []
 
   // Фолбэк если стартовой решетки нет
-  const quali = await getRawSessionResult(qualifyingSessionKey)
-  return byPosition(quali.filter((r) => !r.dsq)).map((r) => ({
-    position: r.position,
+  const quali = (await getRawSessionResult(qualifyingSessionKey)).filter((r) => !r.dsq)
+  const ordered = [...byPosition(quali), ...quali.filter((r) => !hasPosition(r))]
+  return ordered.map((r, i) => ({
+    position: i + 1,
     driver_number: r.driver_number,
     lap_duration: qualifyingTime(r.duration),
     provisional: true,
