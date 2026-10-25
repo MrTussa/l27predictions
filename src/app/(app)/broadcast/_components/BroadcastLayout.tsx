@@ -21,7 +21,7 @@ import { OfflineState } from './OfflineState'
 import { PipOverlay } from './PipOverlay'
 
 function getVkEmbedUrl(url: string): string {
-  const match = url.match(/video(-?\d+)_(\d+)/)
+  const match = url.match(/(?:video|live)(-?\d+)_(\d+)/)
   if (!match) return url
   return `https://vk.com/video_ext.php?oid=${match[1]}&id=${match[2]}&autoplay=1`
 }
